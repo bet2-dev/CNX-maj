@@ -1,1 +1,1 @@
-{"web": 1900, "sha256": "77b5d36fa16d267b608db336bccf74cc781ea46abea8dda719f9a3f9fed46cbc", "minApk": 10, "apk": 10, "apkName": "v1.9", "apkUrl": "https://github.com/bet2-dev/CNX-maj/raw/main/apk/CONEXUN.apk", "notes": "Version 1.9"}
+{"web": 1901, "sha256": "4ed37007c4136f46090c544f2a2ffa59457a6f24e459ea5b716b356640d18b0d", "minApk": 10, "apk": 10, "apkName": "v1.9", "apkUrl": "https://github.com/bet2-dev/CNX-maj/raw/main/apk/CONEXUN.apk", "notes": "Écran 1901 : déconnexion dans Mon compte, Administrateur + Paramètres fusionnés"}
