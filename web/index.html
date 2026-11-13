@@ -1703,8 +1703,7 @@ const GROUPS=[
   ["logistique","Logistique",[["plan_l","Planning"],["tvx_l","Fiches travaux"],["stock","Stock"],["mouvements","Mouvements"],["arrivages","Arrivages"]]],
   ["commun","Base de données",[["cpv","CPV"],["materiel","Docs techniques"]]],
   ["compta","Gestion comptabilité",[["compta","Rentabilité chantiers"]]],
-  ["admin","Administrateur",[["activite","Activité"]]],
-  ["parametres","Paramètres",[["comptes","Comptes"],["reglages","Réglages"]]],
+  ["admin","Administrateur",[["activite","Activité"],["comptes","Comptes"],["reglages","Réglages"]]],
   ["compte","Mon compte",[["moncompte","Mon compte"]]]];
 const groupOf=t=>(GROUPS.find(g=>g[2].some(x=>x[0]===t))||GROUPS[0])[0];
 let tab="home"; if(tab==="gps"||tab==="clients") tab="cpv"; if(tab==="maintenance") tab="plan_m"; if(!GROUPS.some(g=>g[2].some(x=>x[0]===tab))) tab="home";
@@ -1754,7 +1753,7 @@ function renderLogin(g){
     <span class="err" id="lgErr" role="alert"></span>
     <button class="btn btn-or" id="lgGo" type="submit">Se connecter</button>
     ${hasToken()?"":`<button type="button" class="btn btn-ghost btn-sm" id="lgSet">Première installation : coller la clé Notion</button>`}
-    ${SESSION&&!START?`<button type="button" class="btn btn-ghost btn-sm" id="lgOut">Se déconnecter de ${esc(SESSION.nom||SESSION.login)}</button>`:""}
+    
   </form></div>`;
   const f=$("#lgF"), err=t=>{ $("#lgErr").textContent=t; };
   $("#lgEye").onclick=()=>{ const i=$("#lgPw"); const show=i.type==="password"; i.type=show?"text":"password"; $("#lgEye").textContent=show?"Masquer":"Voir"; };
@@ -1789,8 +1788,7 @@ const HOME_TILES=[
   ["logistique","Logistique","Planning · Fiches travaux · Stock · Arrivages"],
   ["commun","Base de données","CPV · Docs techniques"],
   ["compta","Gestion comptabilité","Rentabilité des chantiers · Devis · Main-d'œuvre"],
-  ["admin","Administrateur","Connexions · Rapports du jour"],
-  ["parametres","Paramètres","Comptes · Réglages"],
+  ["admin","Administrateur","Activité · Comptes · Réglages"],
   ["compte","Mon compte","Mes infos · Mot de passe · Mes fiches sauvegardées"]];
 function openGroup(k){ const g=GROUPS.find(x=>x[0]===k); if(!g) return; const ls=lastSub[k]; switchTab(ls&&g[2].some(x=>x[0]===ls)?ls:g[2][0][0]); }
 function renderHome(){
@@ -1805,7 +1803,7 @@ function renderHome(){
         <span class="tx"><b>${l}</b></span>
         ${soon?`<span class="tag">Bientôt</span>`:lk?`<span class="lkb" aria-label="Accès protégé">${ICO.lock}</span>`:`<span class="go">${ICO.chev}</span>`}
       </button>`; }).join("")}</div>
-    ${SESSION?`<div class="whoami"><span>Connecté : <b>${esc(who)}</b></span><button id="wOut">Se déconnecter</button></div>`:`<div class="whoami"><span>Sans compte</span><button id="wIn">Se connecter</button></div>`}
+    ${SESSION?`<div class="whoami"><span>Connecté : <b>${esc(who)}</b></span></div>`:`<div class="whoami"><span>Sans compte</span><button id="wIn">Se connecter</button></div>`}
   </div>`;
   $("#app").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openGroup(b.dataset.go));
   const o=$("#wOut"); if(o) o.onclick=logout;
@@ -2595,7 +2593,7 @@ function renderList(){
   const grp=GROUPS.find(g=>g[0]===groupOf(tab));
   const locked=!canEnter(grp[0]);
   if(!locked&&GROUP_LOCK[grp[0]]&&SESSION){ const w=$("#app .wrap"); if(w){ const who=document.createElement("div"); who.className="whoami";
-    who.innerHTML=`<span>Connecté : <b>${esc(SESSION.nom||SESSION.login)}</b></span><button id="wOut">Se déconnecter</button>`; w.insertBefore(who,w.firstChild); who.querySelector("#wOut").onclick=logout; } }
+    who.innerHTML=`<span>Connecté : <b>${esc(SESSION.nom||SESSION.login)}</b></span>`; w.insertBefore(who,w.firstChild); } }
   if(!locked&&grp[2].length>1){ const w=$("#app .wrap"); if(w){ const sn=document.createElement("nav"); sn.className="subnav"; sn.setAttribute("aria-label",grp[1]);
     sn.innerHTML=grp[2].map(([k,l])=>`<button data-sub="${k}" ${k===tab?'aria-current="page"':""}>${esc(l)}</button>`).join("");
     w.insertBefore(sn,w.firstChild); sn.querySelectorAll("[data-sub]").forEach(b=>b.onclick=()=>switchTab(b.dataset.sub)); } }
@@ -3368,7 +3366,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1900;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1901;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
