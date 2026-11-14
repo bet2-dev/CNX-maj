@@ -1026,7 +1026,8 @@ let unsubList=null, unsubPhotos=null;
 let MCP=null, planning=null, planErr="", planLoading=false, chantiers=null, chErr="";
 const PLAN_DB="fff18aaf469e48bda1e1c3c85f6f8c01";      // 📅 Planning
 const SUIVI_DB="2406c1f928ca8070955ff8b89490802c";     // 👷 Suivi de Chantier
-const RAPPORT_DB="3d06c1f928ca807aa455fca663777c81";   // 📄 Rapports d'intervention
+const RAPPORT_DB="3d06c1f928ca807aa455fca663777c81";   // 📄 Rapports d'intervention (maintenance)
+const AUTO_DB="4176c1f928ca8192a3abe6cc41281761";      // 📋 Fiches autocontrôle (APP CONEXUN)
 
 function blankFiche(){
   return {client:"",ref:"",adresse:"",date:today(),tech:"",habil:"",type:"",racc:"",equip:{},ans:{},so:{},cpl:{},dc:[{},{}],ac:{},ms:{},nc:{},concl:"",obs:"",
@@ -1219,7 +1220,7 @@ function cpvValues(){ const c=cur.cfg||{}; const v={}; const wc=modWc();
 function cpvKw(src){ return String(stripEmoji(src!=null?src:((typeof cur!=="undefined"&&cur&&cur.client)||""))).split(/\s+[-–—·]\s+|\s*[—–·]\s*/)[0].split(/[\s,]+/).map(w=>w.replace(/[^A-Za-zÀ-ÿ'-]/g,"")).find(w=>w.length>=3)||""; }
 async function cpvSearch(q){ const j=await notion("POST","databases/"+CENTRALES_DB+"/query",{page_size:12,filter:{property:"Nom de la Centrale",title:{contains:q}}}); return j.results||[]; }
 function cpvPick(kw0,ttl,msg){ return new Promise(res=>{ const m=document.createElement("div"); m.className="modal";
-  m.innerHTML=`<div class="box wide"><h3 style="margin:0 0 6px;font-family:var(--f-title)">${esc(ttl||"Mettre à jour la centrale ?")}</h3><p class="m" style="font-size:13px;color:var(--muted);margin:0 0 10px">${esc(msg||"Choisissez la centrale (CPV) de ce chantier : puissance, stockage, optimiseurs, SmartGuard, réseau et mise en service seront mis à jour. Le PDF reste dans la fiche autocontrôle.")}</p>
+  m.innerHTML=`<div class="box wide"><h3 style="margin:0 0 6px;font-family:var(--f-title)">${esc(ttl||"Mettre à jour la centrale ?")}</h3><p class="m" style="font-size:13px;color:var(--muted);margin:0 0 10px">${esc(msg||"Choisissez la centrale (CPV) de ce chantier : puissance, stockage, optimiseurs, SmartGuard, réseau, mise en service et dossier technique (code, N° de série, chaînes, communication, mesures, réserves) seront mis à jour. Le PDF reste dans la fiche autocontrôle.")}</p>
     <div class="toolbar"><input id="cpQ" type="search" value="${esc(kw0!=null?kw0:cpvKw())}" placeholder="Nom de la centrale ou du client" aria-label="Rechercher une centrale"></div><div id="cpR"><div class="card empty">Recherche…</div></div>
     <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn btn-ghost btn-sm" id="cpNo">${ttl?"Annuler":"Ne pas mettre à jour"}</button></div></div>`;
   document.body.appendChild(m); const done=v=>{ m.remove(); res(v); }; m.querySelector("#cpNo").onclick=()=>done(null);
@@ -1228,8 +1229,24 @@ function cpvPick(kw0,ttl,msg){ return new Promise(res=>{ const m=document.create
       return `<button data-cp="${i}"><b>${esc(ptxt(P["Nom de la Centrale"])||"Sans nom")}</b><small>${[ptxt(P["Commune"]),ptxt(P["Île"]),w?(w/1000).toLocaleString("fr-FR")+" kWc":"",ptxt(P["État"])].filter(Boolean).map(esc).join(" · ")}</small></button>`; }).join("")}</div>`:`<div class="card empty">Aucune centrale trouvée.</div>`;
       el.querySelectorAll("[data-cp]").forEach(b=>b.onclick=()=>done(r[+b.dataset.cp])); }catch(e){ el.innerHTML=`<div class="card empty">${esc((e&&e.message)||"Recherche impossible")}</div>`; } };
   let t=null; m.querySelector("#cpQ").oninput=()=>{ clearTimeout(t); t=setTimeout(run,350); }; run(); }); }
+/* dossier technique : tout ce qui sert à une future intervention (maintenance, dépannage) */
+const SN_RX=/sn\d*$|^batpm\d*$/;
+function cpvTech(){ const e=cur.equip||{}, c=cur.cfg||{}, T={}; const L=a=>a.filter(Boolean).join("\n");
+  T["Code paramétrage"]=String(e.code||"").trim();
+  T["Équipements installés"]=L(EQUIP.filter(([k])=>!SN_RX.test(k)&&k!=="code").map(([k,l])=>e[k]?`${l} : ${e[k]}`:""));
+  T["Numéros de série"]=L(EQUIP.filter(([k])=>SN_RX.test(k)).map(([k,l])=>e[k]?`${l} : ${e[k]}${cur.snChk&&cur.snChk[k]?" (vérifié sur site)":""}`:""));
+  T["Chaînes PV"]=L((cur.dc||[]).map((r,i)=>{ const n=dcN(r); if(!n&&!r.rep&&!r.desc&&!r.uocm) return "";
+    return `Chaîne ${i+1}`+[r.rep?"repère "+r.rep:"",r.desc||"",r.ent?"entrée "+r.ent:(r.mppt?"MPPT "+r.mppt:""),n?n+" modules":"",r.uocm?"Uoc mesurée "+r.uocm+" V":"",dcUocA(r)?"attendue "+dcUocA(r)+" V":""].filter(Boolean).map(x=>" · "+x).join(""); }));
+  const cs=(SECTIONS.find(x=>x.id==="com")||{}).items||[]; const st={C:"Oui",NC:"NON",SO:"Sans objet"};
+  T["Communication"]=L([c.com?"Mode : "+({dongle:"SmartDongle WLAN-FE",dongle4g:"SmartDongle 4G",logger:"SmartLogger3000",aucun:"Aucune (contrôle en local)",none:"Via le SmartGuard"}[c.com]||c.com):"",c.srv?"Serveur FusionSolar : "+c.srv:""]
+    .concat(cs.map(it=>{ const a=cur.ans[it.id]||{}; return a.s||a.o?`${st[a.s]||"—"} : ${it.q}${a.o?" ("+a.o+")":""}`:""; })));
+  T["Mesures mise en service"]=L([cur.date?"Relevées le "+frDate(cur.date):""].concat(AC.map(([k,l])=>{ const v=cur.ac[k]||{}; return v.v?`${l} : ${v.v}${v.ok==="NOK"?" (NON conforme)":""}`:""; }),
+    MS.map(([k,l])=>cur.ms[k]?`${l} : ${cur.ms[k]}`:"")));
+  T["Réserves / points à surveiller"]=L(ncList(cur).map(({s:ss,it})=>{ const a=cur.ans[it.id]||{}, v=cur.nc[it.id]||{}; return `⚠ ${it.q} (${ss.t})${a.o?" : "+a.o:""}${v.act?" → "+v.act:""}`; })
+    .concat([cur.obs?"Observations : "+cur.obs:""]));
+  return T; }
 async function cpvSync(){
-  if(!MCP||!hasToken()) return; const v=cpvValues(); if(!Object.keys(v).length) return;
+  if(!MCP||!hasToken()) return; const v=cpvValues(); const TK=cpvTech(); if(!Object.keys(v).length&&!Object.values(TK).some(Boolean)) return;
   let pg=null;
   if(cur.cpv&&cur.cpv.id){ try{ pg=await notion("GET","pages/"+cur.cpv.id); }catch(e){ pg=null; } }
   if(!pg){ pg=await cpvPick(); if(!pg) return; }
@@ -1241,12 +1258,22 @@ async function cpvSync(){
   if(v.sg&&!(ext&&v.sg==="Non")){ const old=ptxt(P["Smartguards/ BackupBox"]); if(v.sg!==old){ props["Smartguards/ BackupBox"]={select:{name:v.sg}}; lines.push(["SmartGuard / Backup",old||"—",v.sg]); } }
   if(v.res){ const old=ptxt(P["Réseau"]); if(v.res!==old&&!(old==="Triphasé 220V"&&v.res.startsWith("Triphasé"))){ props["Réseau"]={select:{name:v.res}}; lines.push(["Réseau",old||"—",v.res]); } }
   if(v.mes&&!ext){ const old=pdate(P["Date de mise en service"]); if(!old){ props["Date de mise en service"]={date:{start:v.mes}}; lines.push(["Mise en service","—",frDate(v.mes)]); } }
+  // dossier technique
+  const tdate=frDate(cur.date||new Date().toISOString().slice(0,10)); let nt=0;
+  for(const [k,val] of Object.entries(TK)){ if(!val||!(k in P)) continue; const old=ptxt(P[k]);
+    let nw=val; if(ext&&old&&old!==val&&!old.includes(val)) nw=`— Extension du ${tdate} —\n${val}\n\n— Existant —\n${old}`;
+    if(nw!==old){ props[k]={rich_text:rtChunks(nw)}; nt++; } }
+  if("Dernier autocontrôle" in P&&cur.date&&pdate(P["Dernier autocontrôle"])!==cur.date){ props["Dernier autocontrôle"]={date:{start:cur.date}}; nt++; }
+  const fid=notionPageId(); if("Fiche autocontrôle" in P&&fid){ const u="https://www.notion.so/"+String(fid).replace(/-/g,""); if((P["Fiche autocontrôle"]||{}).url!==u){ props["Fiche autocontrôle"]={url:u}; nt++; } }
+  if(nt){ const parts=["Code paramétrage","Numéros de série","Chaînes PV","Communication","Mesures mise en service","Réserves / points à surveiller"].filter(k=>props[k]).map(k=>k.toLowerCase());
+    lines.push(["Dossier technique","—",(parts.length?parts.join(", "):"équipements")+" + lien vers la fiche"]); }
   const et=ptxt(P["État"]); if(et!=="En service"){ props["État"]={status:{name:"En service"}}; lines.push(["État",et||"—","En service"]); }
   const name=ptxt(P["Nom de la Centrale"])||"centrale";
   cur.cpv={id:pg.id,name}; markDirty();
   if(!lines.length){ toast(`Centrale « ${name} » déjà à jour.`); return; }
   const ok=await confirmBox(`Mettre à jour « ${name} » ?\n`+lines.map(([k,a,b])=>`• ${k} : ${a} → ${b}`).join("\n"),"Mettre à jour"); if(!ok) return;
-  try{ await notion("PATCH","pages/"+pg.id,{properties:props}); cur.cpv.at=Date.now(); markDirty(); toast(`Centrale « ${name} » mise à jour.`); }
+  try{ await notion("PATCH","pages/"+pg.id,{properties:props}); cur.cpv.at=Date.now(); markDirty(); toast(`Centrale « ${name} » mise à jour.`);
+    if(fid) notion("PATCH","pages/"+fid,{properties:{"🌞 Centrale solaire":{relation:[{id:pg.id}]}}}).catch(()=>{}); }
   catch(e){ toast("Centrale non mise à jour : "+((e&&e.message)||"erreur")); }
 }
 async function sendNotion(auto,forceMode){
@@ -1268,7 +1295,7 @@ async function sendNotion(auto,forceMode){
     const props=buildProps(fileId);
     const page = mode==="replace"
       ? await notion("PATCH","pages/"+pid,{properties:props})
-      : await notion("POST","pages",{parent:{database_id:RAPPORT_DB},icon:{type:"emoji",emoji:"✅"},properties:props});
+      : await notion("POST","pages",{parent:{database_id:AUTO_DB},icon:{type:"emoji",emoji:"✅"},properties:props}).catch(e=>{ if(/not.?found|404|shared|accès|access/i.test(String((e&&e.message)||""))) return notion("POST","pages",{parent:{database_id:RAPPORT_DB},icon:{type:"emoji",emoji:"✅"},properties:props}); throw e; });
     cur.notion=Object.assign({},cur.notion,{pageId:page.id,pageUrl:page.url||nurl(page.id),sentAt:Date.now(),pdfDone:!!fileId,pdfErr});
     markDirty(); render();
     if(fileId) toast(mode==="replace"?"Rapport et PDF remplacés dans Notion.":"Rapport et PDF envoyés dans Notion.");
@@ -1285,7 +1312,7 @@ async function retryPdf(){
   }catch(e){ cur.notion=Object.assign({},cur.notion,{pdfErr:(e&&e.message)||"erreur"}); markDirty(); const y=scrollY; render(); scrollTo(0,y); toast("Échec : "+((e&&e.message)||"erreur")); }
 }
 function choiceBox(msg,opts){return new Promise(res=>{const m=document.createElement("div");m.className="modal";m.innerHTML=`<div class="box"><p>${esc(msg)}</p><div style="display:grid;gap:8px">${opts.map((o,i)=>`<button class="btn ${i===0?"btn-or":"btn-ghost"}" data-c="${o[0]}">${esc(o[1])}</button>`).join("")}<button class="btn btn-ghost btn-sm" data-c="">Annuler</button></div></div>`;document.body.appendChild(m);m.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{m.remove();res(b.dataset.c||null)})})}
-function notionPageId(){ const n=cur.notion||{}; if(n.pageId) return n.pageId; const id=pageIdOf(n.pageUrl); return id && id.toLowerCase()!==RAPPORT_DB ? id : ""; }
+function notionPageId(){ const n=cur.notion||{}; if(n.pageId) return n.pageId; const id=pageIdOf(n.pageUrl); return id && id.toLowerCase()!==RAPPORT_DB && id.toLowerCase()!==AUTO_DB ? id : ""; }
 function notionBoxHTML(){
   const n=cur.notion||{};
   let h=`<div class="nbox"><b style="font-size:14px">Notion : Rapports d'intervention</b>`;
@@ -1325,7 +1352,7 @@ function openSettings(){
   m.querySelector("#tokSave").onclick=()=>{ const v=m.querySelector("#tokIn").value.trim(); if(!v){ msg("Collez la clé dans le champ."); return; } if(!NATIVE){ msg("Disponible uniquement dans l'appli Android."); return; } NATIVE.setToken(v); m.querySelector("#tokIn").value=""; m.querySelector("#tokTest").disabled=false; msg("Clé enregistrée. Testez la connexion."); };
   m.querySelector("#tokTest").onclick=async()=>{ msg("Test en cours…"); const box=m.querySelector("#tokMsg");
     let me; try{ me=await notion("GET","users/me"); }catch(e){ msg("Échec : "+((e&&e.message)||"erreur")); return; }
-    const bases=[["Rapports d'intervention",RAPPORT_DB],["Planning",PLAN_DB],["Suivi de Chantier",SUIVI_DB],["Matériel Photovoltaïques",MATERIEL_DB],["Clients",CLIENTS_DB],["Centrales Solaires",CENTRALES_DB],["Matériels Installés",MI_DB],["Pannes Installations",PANNES_DB],["Schémas électriques",SCHEMAS_DB],["Accès appli",ACCES_DB],["Fiches travaux",TVX_DB]];
+    const bases=[["Fiches autocontrôle",AUTO_DB],["Rapports d'intervention",RAPPORT_DB],["Planning",PLAN_DB],["Suivi de Chantier",SUIVI_DB],["Matériel Photovoltaïques",MATERIEL_DB],["Clients",CLIENTS_DB],["Centrales Solaires",CENTRALES_DB],["Matériels Installés",MI_DB],["Pannes Installations",PANNES_DB],["Schémas électriques",SCHEMAS_DB],["Accès appli",ACCES_DB],["Fiches travaux",TVX_DB]];
     const res=[]; for(const [n,id] of bases){ try{ await notion("POST","databases/"+id+"/query",{page_size:1}); res.push([n,true]); }catch(e){ res.push([n,false]); } }
     const ko=res.filter(r=>!r[1]).length;
     box.innerHTML=`<b>Clé valide (${esc((me&&me.name)||"intégration")}).</b><br>`+res.map(([n,ok])=>`<span style="color:var(--${ok?"ok":"ko"})">${ok?"✓":"✗"}</span> ${esc(n)}`).join("<br>")+(ko?`<br><span style="color:var(--muted)">✗ = base non connectée : dans Notion, ••• › Connexions › CONEXUN Autocontrôle.</span>`:""); };
@@ -2534,7 +2561,7 @@ async function loadActivite(show){
   await beat(true);
   const [a,r]=await Promise.allSettled([
     (async()=>{ let all=[],cursor=null; do{ const j=await notion("POST","databases/"+ACCES_DB+"/query",Object.assign({page_size:100},cursor?{start_cursor:cursor}:{})); all=all.concat(j.results||[]); cursor=j.has_more?j.next_cursor:null; }while(cursor); return all; })(),
-    notion("POST","databases/"+RAPPORT_DB+"/query",{page_size:100,filter:{timestamp:"created_time",created_time:{on_or_after:t0.toISOString()}},sorts:[{timestamp:"created_time",direction:"descending"}]})]);
+    notion("POST","databases/"+AUTO_DB+"/query",{page_size:100,filter:{timestamp:"created_time",created_time:{on_or_after:t0.toISOString()}},sorts:[{timestamp:"created_time",direction:"descending"}]})]);
   if(a.status==="fulfilled"){ AD.err=""; AD.acc=a.value.map(pg=>{ const P=pg.properties||{}; const d=P["Dernière activité"]; return {id:pg.id,login:ptxt(P["Identifiant"]),nom:ptxt(P["Nom"])||ptxt(P["Identifiant"]),groupes:pmulti(P["Groupes"]),actif:!!(P["Actif"]&&P["Actif"].checkbox),last:d&&d.date?d.date.start:"",dev:ptxt(P["Appareil"]),tel:pphone(P["Téléphone service"])}; }); }
   else AD.err=a.reason&&a.reason.code==="http_404"?"Base « Accès appli » non connectée à l'intégration CONEXUN dans Notion.":((a.reason&&a.reason.message)||"Erreur Notion");
   if(r.status==="fulfilled"){ AD.rerr=""; AD.rap=(r.value.results||[]).map(pg=>Object.assign(rapportRow(pg),{created:pg.created_time||""})); }
@@ -2783,7 +2810,7 @@ async function loadRapports(reset){
   const body={sorts:[{property:"Date",direction:"descending"},{timestamp:"created_time",direction:"descending"}],page_size:30};
   if(f.length) body.filter=f.length>1?{and:f}:f[0];
   if(!reset&&R.cursor) body.start_cursor=R.cursor;
-  try{ const j=await notion("POST","databases/"+RAPPORT_DB+"/query",body); if(seq!==R.seq) return;
+  try{ const j=await notion("POST","databases/"+AUTO_DB+"/query",body); if(seq!==R.seq) return;
     const rows=(j.results||[]).map(rapportRow); R.items=(reset||!R.items?[]:R.items).concat(rows); R.cursor=j.next_cursor||null; R.more=!!j.has_more; R.at=Date.now();
   }catch(e){ if(seq!==R.seq) return; R.err=(e&&e.message)||"Erreur Notion"; if(reset) R.items=null; }
   R.loading=false; drawRapports();
@@ -3058,7 +3085,7 @@ function openCpv(x){
   const evs=[]; if(x.mes) evs.push({date:x.mes,k:"Mise en service",t:"Mise en service de l'installation",x:[fmtKwc(x.kwc),x.stock&&x.stock!=="0"?"batterie "+x.stock+" kWh":""].filter(Boolean).join(" · ")});
   const errs=[];
   Promise.all([
-    queryAll(RAPPORT_DB,{property:"🌞 Centrale solaire",relation:{contains:x.id}}).then(rows=>rows.map(rapportRow).forEach(r=>evs.push({date:r.date,k:r.type||"Rapport",t:r.title,x:[r.statut,r.tech,r.concl&&r.concl.length>140?r.concl.slice(0,140)+"…":r.concl].filter(Boolean).join(" · "),rap:r}))).catch(e=>errs.push(secErr(e,"Rapports d'intervention"))),
+    Promise.all([queryAll(RAPPORT_DB,{property:"🌞 Centrale solaire",relation:{contains:x.id}}),queryAll(AUTO_DB,{property:"🌞 Centrale solaire",relation:{contains:x.id}}).catch(()=>[])]).then(([a,b])=>a.concat(b)).then(rows=>rows.map(rapportRow).forEach(r=>evs.push({date:r.date,k:r.type||"Rapport",t:r.title,x:[r.statut,r.tech,r.concl&&r.concl.length>140?r.concl.slice(0,140)+"…":r.concl].filter(Boolean).join(" · "),rap:r}))).catch(e=>errs.push(secErr(e,"Rapports d'intervention"))),
     queryAll(PANNES_DB,{property:"Installation concernée",relation:{contains:x.id}}).then(rows=>rows.forEach(pg=>{ const P=pg.properties||{};
       evs.push({date:pdate(P["Date de détection"]),k:"Panne",t:ptxt(P["Titre de la panne"])||"Panne",x:[pmulti(P["Type de panne"]).join(", "),ptxt(P["Gravité"]),ptxt(P["Statut"]),ptxt(P["Solution appliquée"])?"Solution : "+ptxt(P["Solution appliquée"]):""].filter(Boolean).join(" · ")}); })).catch(e=>errs.push(secErr(e,"Pannes Installations")))
   ]).then(()=>{ if(!alive()) return;
@@ -3251,7 +3278,7 @@ function renderReglages(){
   $("#rSave").onclick=()=>{ const v=$("#rTok").value.trim(); if(!v){ msg.textContent="Collez la clé dans le champ."; return; } if(!NATIVE){ msg.textContent="Disponible uniquement dans l'appli Android."; return; } NATIVE.setToken(v); $("#rTok").value=""; $("#rTest").disabled=false; msg.textContent="Clé enregistrée. Testez la connexion."; };
   $("#rTest").onclick=async()=>{ msg.textContent="Test en cours…";
     let me; try{ me=await notion("GET","users/me"); }catch(e){ msg.textContent="Échec : "+((e&&e.message)||"erreur"); return; }
-    const bases=[["Rapports d'intervention",RAPPORT_DB],["Planning",PLAN_DB],["Suivi de Chantier",SUIVI_DB],["Matériel Photovoltaïques",MATERIEL_DB],["Clients",CLIENTS_DB],["Centrales Solaires",CENTRALES_DB],["Matériels Installés",MI_DB],["Pannes Installations",PANNES_DB],["Schémas électriques",SCHEMAS_DB],["Accès appli",ACCES_DB],["Fiches travaux",TVX_DB]];
+    const bases=[["Fiches autocontrôle",AUTO_DB],["Rapports d'intervention",RAPPORT_DB],["Planning",PLAN_DB],["Suivi de Chantier",SUIVI_DB],["Matériel Photovoltaïques",MATERIEL_DB],["Clients",CLIENTS_DB],["Centrales Solaires",CENTRALES_DB],["Matériels Installés",MI_DB],["Pannes Installations",PANNES_DB],["Schémas électriques",SCHEMAS_DB],["Accès appli",ACCES_DB],["Fiches travaux",TVX_DB]];
     const res=[]; for(const [n,id] of bases){ try{ await notion("POST","databases/"+id+"/query",{page_size:1}); res.push([n,true]); }catch(e){ res.push([n,false]); } }
     msg.innerHTML=`<b>Clé valide (${esc((me&&me.name)||"intégration")}).</b><br>`+res.map(([n,ok])=>`<span style="color:var(--${ok?"ok":"ko"})">${ok?"✓":"✗"}</span> ${esc(n)}`).join("<br>")+(res.some(r=>!r[1])?`<br><span style="color:var(--muted)">✗ = base non connectée : dans Notion, ••• › Connexions › CONEXUN Autocontrôle.</span>`:""); };
 }
@@ -3366,7 +3393,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1901;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1902;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
