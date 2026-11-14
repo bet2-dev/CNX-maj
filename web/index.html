@@ -1740,7 +1740,7 @@ const GROUPS=[
   ["maintenance","Maintenance",[["plan_m","Planning"],["supervision","Supervision"]]],
   ["logistique","Logistique",[["plan_l","Planning"],["tvx_l","Fiches travaux"],["stock","Stock"],["mouvements","Mouvements"],["arrivages","Arrivages"]]],
   ["commun","Base de données",[["cpv","CPV"],["materiel","Docs techniques"]]],
-  ["bet","BET",[["recep","Réception de chantier"],["pvrec","PV de réception"]]],
+  ["bet","BET",[["pvrec","PV de réception"]]],
   ["compta","Gestion comptabilité",[["compta","Rentabilité chantiers"]]],
   ["admin","Administrateur",[["activite","Activité"],["valider","À valider"],["comptes","Comptes"],["reglages","Réglages"]]],
   ["compte","Mon compte",[["moncompte","Mon compte"]]]];
@@ -1826,7 +1826,7 @@ const HOME_TILES=[
   ["maintenance","Maintenance","Planning · Supervision des centrales"],
   ["logistique","Logistique","Planning · Fiches travaux · Stock · Arrivages"],
   ["commun","Base de données","CPV · Docs techniques"],
-  ["bet","BET","Réception de chantier · PV de réception"],
+  ["bet","BET","PV de réception des chantiers terminés"],
   ["compta","Gestion comptabilité","Rentabilité des chantiers · Devis · Main-d'œuvre"],
   ["admin","Administrateur","Activité · Fiches à valider · Comptes · Réglages"],
   ["compte","Mon compte","Mes infos · Mot de passe · Mes fiches sauvegardées"]];
@@ -3782,7 +3782,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1906;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1907;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
