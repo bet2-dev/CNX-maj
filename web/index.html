@@ -224,6 +224,11 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:
 h3.sub2{font-size:14px;color:var(--or-ink);margin:16px 0 4px}
 .note{font-size:12.5px;color:var(--muted);font-style:italic;margin:6px 0}
 .modal .box p{white-space:pre-line}
+.frc .frph{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}.frc .frim{position:relative;width:96px;height:72px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}.frc .frim.sm{width:72px;height:54px}
+.frc .frim img{width:100%;height:100%;object-fit:cover}.frc .frim button{position:absolute;top:2px;right:2px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:12px}
+.frc .frad{min-width:96px;height:72px;border:1.5px dashed var(--line);border-radius:8px;background:transparent;color:var(--muted);font-size:13px}.frc .frrev{border:1px solid var(--line);border-radius:10px;padding:8px;margin-bottom:8px}
+.frc .frrev select{min-height:36px;border:1.5px solid var(--line);border-radius:8px;background:var(--card)}.frc .frnc{margin:0 0 10px 18px;padding:0;font-size:13.5px}.frc .frcc{font-weight:700;padding:10px 12px;border-radius:10px;margin-bottom:8px}
+.frc .frcc.ok{background:#e3f6e8;color:#1e7a3c}.frc .frcc.co{background:#fdecd8;color:#b54708}
 .pved .pvdec{display:flex;gap:8px;align-items:center;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;margin:6px 0;font-size:14px}.pved .pvdec.on{border-color:#ef7b1a;background:rgba(239,123,26,.08)}
 .pved .pvck{display:flex;gap:8px;align-items:center;padding:6px 2px;font-size:14px}.pved .pvtr{padding-left:6px}
 .va .va-h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.va .va-m{font-size:12.5px;color:var(--muted);margin-top:4px}
@@ -2701,7 +2706,7 @@ async function pvPdf(pv){ if(!window.jspdf) throw {message:"générateur PDF non
 /* ---- BET : réception de chantier ---- */
 const RC_ETATS=["Faire les RC","Rectification sur chantier à faire","Terminé"];
 const RCS={items:null,pv:{},f:"todo"};
-function renderRecep(){
+function renderRecep(){ if(FRC.cur) return renderFrc();
   $("#app").innerHTML=`<div class="wrap">${headerHTML("Réception de chantier","Chantiers à réceptionner : état de la réception, rectifications à faire et PV signé. Base Notion « Réception de chantier ».")}
     <div class="toolbar"><select id="rcF" aria-label="Réceptions affichées"><option value="todo" ${RCS.f==="todo"?"selected":""}>À traiter</option><option value="done" ${RCS.f==="done"?"selected":""}>Terminées</option><option value="all" ${RCS.f==="all"?"selected":""}>Toutes</option></select>
       <button class="btn btn-or btn-sm" id="rcNew">+ Nouvelle réception</button><button class="btn btn-ghost btn-sm" id="rcRf">${ICO.refresh}<span>Actualiser</span></button></div>
@@ -2724,12 +2729,13 @@ function drawRecep(){ const el=$("#rcRes"); if(!el||!RCS.items) return;
       <div class="va-m">${[d0||d1?(d0&&d1&&d0!==d1?`du ${frDate(d0)} au ${frDate(d1)}`:frDate(d1||d0)):"",ncpv?"centrale liée":"",nf?nf+" fichier(s)":""].filter(Boolean).map(esc).join(" · ")||"—"}</div>
       ${pvs.length?`<div class="va-m">📝 PV : ${pvs.map(x=>esc(ptxt((x.properties||{})["Décision"])||"enregistré")).join(", ")}</div>`:`<div class="va-w">Pas encore de PV de réception</div>`}
       <div class="va-b"><select data-rcet="${pg.id}" aria-label="État de la réception" style="min-height:36px;border:1.5px solid var(--line);border-radius:8px;background:var(--card)">${RC_ETATS.map(x=>`<option ${x===e?"selected":""}>${x}</option>`).join("")}</select>
-        <button class="btn btn-or btn-sm" data-rcpv="${pg.id}">${pvs.length?"Nouveau PV":"Faire le PV"}</button>${pvs.length&&pfiles((pvs[0].properties||{})["PDF du PV"])[0]?`<button class="btn btn-ghost btn-sm" data-rcpdf="${pg.id}">Voir le PV</button>`:""}<button class="btn btn-ghost btn-sm" data-rcpg="${pg.id}">Ouvrir dans Notion</button></div></div>`; }).join("");
+        <button class="btn btn-or btn-sm" data-rcfi="${pg.id}">${frcGet(pg.id)?"Reprendre la fiche":"Fiche de réception"}</button><button class="btn btn-ghost btn-sm" data-rcpv="${pg.id}">${pvs.length?"Nouveau PV":"Faire le PV"}</button>${pvs.length&&pfiles((pvs[0].properties||{})["PDF du PV"])[0]?`<button class="btn btn-ghost btn-sm" data-rcpdf="${pg.id}">Voir le PV</button>`:""}<button class="btn btn-ghost btn-sm" data-rcpg="${pg.id}">Ouvrir dans Notion</button></div></div>`; }).join("");
   const byId=id=>RCS.items.find(x=>x.id===id);
   el.querySelectorAll("[data-rcet]").forEach(sl=>sl.onchange=async()=>{ const pg=byId(sl.dataset.rcet); try{ await notion("PATCH","pages/"+pg.id,{properties:{"État":{status:{name:sl.value}}}}); pg.properties["État"]={type:"status",status:{name:sl.value}}; toast("État mis à jour : "+sl.value); drawRecep(); }catch(e){ toast("Échec : "+((e&&e.message)||"erreur")); } });
   el.querySelectorAll("[data-rcpg]").forEach(b=>b.onclick=()=>{ const pg=byId(b.dataset.rcpg); openUrl(pg.url||nurl(pg.id)); });
   el.querySelectorAll("[data-rcpdf]").forEach(b=>b.onclick=()=>{ const f=pfiles(((RCS.pv[b.dataset.rcpdf]||[])[0].properties||{})["PDF du PV"])[0]; if(f) openUrl(f.url); });
-  el.querySelectorAll("[data-rcpv]").forEach(b=>b.onclick=()=>pvFromRecep(byId(b.dataset.rcpv))); }
+  el.querySelectorAll("[data-rcpv]").forEach(b=>b.onclick=()=>pvFromRecep(byId(b.dataset.rcpv)));
+  el.querySelectorAll("[data-rcfi]").forEach(b=>b.onclick=()=>frcOpen(byId(b.dataset.rcfi))); }
 async function pvFromRecep(pg){ const P=pg.properties||{}; const pv=pvNew(); const name=ptxt(P["Nom du projet"]);
   pv.client=rcClient(name); pv.affaire=name; pv.finTx=pdate(P["Date de fin"])||""; pv.rc=pg.id; pv.cands.rc=[{id:pg.id,t:name||"Réception"}];
   const cid=prel(P["Centrales Solaires"])[0];
@@ -2749,7 +2755,101 @@ function rcNewModal(){ const m=document.createElement("div"); m.className="modal
   m.querySelector("#rnOk").onclick=async()=>{ const n=m.querySelector("#rnN").value.trim(); if(rcClient(n).length<2){ toast("Indiquez le nom du client."); return; }
     const d0=m.querySelector("#rnD0").value, d1=m.querySelector("#rnD1").value;
     const props={"Nom du projet":{title:[{text:{content:n.slice(0,200)}}]},"État":{status:{name:"Faire les RC"}}}; if(d0) props["Date de début"]={date:{start:d0}}; if(d1) props["Date de fin"]={date:{start:d1}}; if(cen) props["Centrales Solaires"]={relation:[{id:cen.id}]};
-    try{ await notion("POST","pages",{parent:{database_id:RC_DB},properties:props}); m.remove(); toast("Réception créée."); RCS.f="todo"; loadRecep(); }catch(e){ toast("Échec : "+((e&&e.message)||"erreur")); } }; }
+    try{ const pg=await notion("POST","pages",{parent:{database_id:RC_DB},properties:props}); m.remove(); toast("Réception créée."); RCS.f="todo"; RCS.items=null; if(pg&&pg.id){ pg.properties=pg.properties||{}; if(!ptxt(pg.properties["Nom du projet"])) pg.properties["Nom du projet"]={type:"title",title:[{plain_text:n}]}; frcOpen(pg); } else loadRecep(); }catch(e){ toast("Échec : "+((e&&e.message)||"erreur")); } }; }
+/* ---- BET : fiche de réception de chantier ---- */
+const FRC_SECS=[
+ ["pv","PV + Cheminement",[["mod","Modules bien fixés, alignés, sans casse ni salissure"],["fix","Rails, crochets et étanchéité de la toiture OK"],["dc","Câbles DC attachés, sans contact avec la toiture"],["chem","Cheminement des câbles propre (gaines, colliers, passages)"],["rep","Repères des chaînes posés et lisibles"]]],
+ ["elec","Partie élec",[["ond","Onduleur bien fixé, dégagé, ventilé"],["cof","Coffrets AC / DC fermés, propres, étiquetés"],["cab","Câblage et serrages propres, presse-étoupes en place"],["pe","Terre et liaison équipotentielle raccordées"],["sig","Signalétique / étiquettes réglementaires posées"],["mes","Installation en service, production visible"]]]];
+const FRC={cur:null};
+function frcGet(id){ try{ return JSON.parse(localStorage.getItem("cx_frc_"+id)||"null"); }catch(e){ return null; } }
+function frcSave(){ const f=FRC.cur; if(!f) return; try{ localStorage.setItem("cx_frc_"+f.rc,JSON.stringify(f)); }catch(e){ toast("Mémoire pleine : retirez une photo ou envoyez la fiche."); } }
+function frcDrop(id){ try{ localStorage.removeItem("cx_frc_"+id); }catch(e){} }
+function frcOpen(pg){ const P=pg.properties||{}; const me=SESSION?(SESSION.nom||SESSION.login):"";
+  FRC.cur=frcGet(pg.id)||{rc:pg.id,name:ptxt(P["Nom du projet"])||"Réception",date:ymd(new Date()),by:me,ans:{},com:{},ph:{pv:[],elec:[]},rev:[],note:""};
+  frcSave(); if(tab!=="recep") switchTab("recep"); else renderFrc(); scrollTo(0,0); }
+function frcNc(f){ const out=[]; FRC_SECS.forEach(([sk,st,items])=>items.forEach(([k,l])=>{ if((f.ans[sk+"_"+k]||"")==="NC") out.push({sec:st,t:l}); })); return out; }
+function frcEtat(f){ return frcNc(f).length||f.rev.some(r=>r.t||r.img)?"Rectification sur chantier à faire":"Terminé"; }
+function frcPickImg(cb){ const fi=document.createElement("input"); fi.type="file"; fi.accept="image/*"; fi.style.display="none"; document.body.appendChild(fi);
+  fi.onchange=async()=>{ const file=fi.files[0]; fi.remove(); if(!file) return; try{ const p=await compress(file); cb(p.data); }catch(e){ toast("Photo illisible, réessayez."); } }; fi.click(); }
+function renderFrc(){ const f=FRC.cur; const seg=(key,val)=>`<div class="seg" role="group">${[["C","OK"],["NC","À reprendre"],["SO","Sans objet"]].map(([v,l])=>`<button type="button" data-fseg="${key}" data-v="${v}" class="${val===v?"on":""}" aria-pressed="${val===v}">${l}</button>`).join("")}</div>`;
+  const phs=(arr,sk)=>`<div class="frph">${arr.map((im,i)=>`<div class="frim"><img src="${im}" alt="Photo ${i+1}"><button type="button" data-fdel="${sk}:${i}" aria-label="Supprimer la photo">✕</button></div>`).join("")}<button type="button" class="frad" data-fadd="${sk}">＋ Photo</button></div>`;
+  const nc=frcNc(f), et=frcEtat(f);
+  $("#app").innerHTML=`<div class="wrap frc"><div class="crumb"><button id="frBack">${ICO.chev}<span>Réceptions</span></button><span class="sec">Fiche de réception</span></div>
+    <h1>${esc(f.name)}</h1>
+    <div class="card"><div class="grid"><label class="f">Date de la visite<input type="date" data-ff="date" value="${esc(f.date)}"></label><label class="f">Réceptionné par<input data-ff="by" value="${esc(f.by)}"></label></div></div>
+    ${FRC_SECS.map(([sk,st,items])=>`<div class="card"><h3 class="sub2" style="margin-top:0">${esc(st)}</h3>
+      ${items.map(([k,l])=>`<div class="chk"><span>${esc(l)}</span>${seg(sk+"_"+k,f.ans[sk+"_"+k])}</div>`).join("")}
+      <div class="hint" style="margin:10px 0 6px">Photos ${esc(st)}</div>${phs(f.ph[sk]||[],sk)}
+      <label class="f">Commentaire<textarea rows="2" data-fcom="${sk}" placeholder="Facultatif">${esc(f.com[sk]||"")}</textarea></label></div>`).join("")}
+    <div class="card"><h3 class="sub2" style="margin-top:0">À revoir</h3>
+      ${nc.length?`<div class="hint" style="margin:0 0 6px">Points cochés « À reprendre » :</div><ul class="frnc">${nc.map(x=>`<li>${esc(x.t)} <small>(${esc(x.sec)})</small></li>`).join("")}</ul>`:""}
+      ${f.rev.map((r,i)=>`<div class="frrev"><div style="display:flex;gap:8px;align-items:flex-start"><textarea rows="2" data-frev="${i}" placeholder="Ce qu'il faut reprendre" style="flex:1">${esc(r.t||"")}</textarea><button type="button" class="btn btn-ghost btn-sm" data-frdel="${i}" aria-label="Supprimer ce point">✕</button></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:6px"><select data-frwho="${i}" aria-label="Qui doit reprendre">${["","Poseur","Électricien","BET"].map(w=>`<option value="${w}" ${r.who===w?"selected":""}>${w||"Qui ?"}</option>`).join("")}</select>
+        ${r.img?`<div class="frim sm"><img src="${r.img}" alt="Photo du point ${i+1}"><button type="button" data-frimdel="${i}" aria-label="Supprimer la photo">✕</button></div>`:`<button type="button" class="frad" data-frimg="${i}">＋ Photo</button>`}</div></div>`).join("")}
+      <button type="button" class="btn btn-ghost btn-sm" id="frAddRev">＋ Ajouter un point à revoir</button></div>
+    <div class="card"><h3 class="sub2" style="margin-top:0">Conclusion</h3><div class="frcc ${et==="Terminé"?"ok":"co"}">${et==="Terminé"?"✔ Réception OK : rien à reprendre":"⚠ Rectification sur chantier à faire ("+(nc.length+f.rev.filter(r=>r.t||r.img).length)+" point(s))"}</div>
+      <label class="f">Remarque générale<textarea rows="2" data-ff="note" placeholder="Facultatif">${esc(f.note||"")}</textarea></label></div>
+    <div class="toolbar" style="justify-content:flex-end"><button class="btn btn-ghost btn-sm" id="frDel">Effacer la fiche</button><button class="btn btn-or" id="frSend">Enregistrer dans Notion</button></div></div>`;
+  const re=()=>{ const y=scrollY; frcSave(); renderFrc(); scrollTo(0,y); };
+  $("#frBack").onclick=()=>{ frcSave(); FRC.cur=null; renderRecep(); scrollTo(0,0); };
+  $("#frDel").onclick=async()=>{ if(await confirmBox("Effacer cette fiche de réception (photos comprises) ?","Effacer")){ frcDrop(f.rc); FRC.cur=null; renderRecep(); } };
+  document.querySelectorAll("[data-ff]").forEach(i=>i.oninput=()=>{ f[i.dataset.ff]=i.value; frcSave(); });
+  document.querySelectorAll("[data-fcom]").forEach(i=>i.oninput=()=>{ f.com[i.dataset.fcom]=i.value; frcSave(); });
+  document.querySelectorAll("[data-fseg]").forEach(b=>b.onclick=()=>{ const k=b.dataset.fseg; f.ans[k]=f.ans[k]===b.dataset.v?"":b.dataset.v; re(); });
+  document.querySelectorAll("[data-fadd]").forEach(b=>b.onclick=()=>frcPickImg(d=>{ const k=b.dataset.fadd; (f.ph[k]=f.ph[k]||[]).push(d); re(); }));
+  document.querySelectorAll("[data-fdel]").forEach(b=>b.onclick=()=>{ const [k,i]=b.dataset.fdel.split(":"); f.ph[k].splice(+i,1); re(); });
+  $("#frAddRev").onclick=()=>{ f.rev.push({t:"",who:"",img:""}); re(); };
+  document.querySelectorAll("[data-frev]").forEach(i=>i.oninput=()=>{ f.rev[+i.dataset.frev].t=i.value; frcSave(); });
+  document.querySelectorAll("[data-frev]").forEach(i=>i.onchange=re);
+  document.querySelectorAll("[data-frwho]").forEach(s2=>s2.onchange=()=>{ f.rev[+s2.dataset.frwho].who=s2.value; frcSave(); });
+  document.querySelectorAll("[data-frdel]").forEach(b=>b.onclick=()=>{ f.rev.splice(+b.dataset.frdel,1); re(); });
+  document.querySelectorAll("[data-frimg]").forEach(b=>b.onclick=()=>frcPickImg(d=>{ f.rev[+b.dataset.frimg].img=d; re(); }));
+  document.querySelectorAll("[data-frimdel]").forEach(b=>b.onclick=()=>{ f.rev[+b.dataset.frimdel].img=""; re(); });
+  $("#frSend").onclick=frcSend; }
+async function frcUploadImg(data,name){ const r=await nativeCall("notionUpload",String(data).split(",")[1],name,"image/jpeg"); let j=null; try{ j=JSON.parse(r.text); }catch(e){} return r.status===200&&j&&j.id?j.id:null; }
+async function frcSend(){ const f=FRC.cur; const answered=FRC_SECS.some(([sk,,items])=>items.some(([k])=>f.ans[sk+"_"+k]));
+  if(!answered&&!f.rev.length){ toast("Cochez au moins quelques points avant d'enregistrer."); return; }
+  if(!MCP||!hasToken()){ toast("Clé Notion non enregistrée sur cet appareil : la fiche reste sur le téléphone."); return; }
+  const b=$("#frSend"); b.disabled=true; b.textContent="Envoi…"; const et=frcEtat(f); const lab={C:"OK",NC:"À reprendre",SO:"Sans objet"};
+  try{ const T=(t)=>[{type:"text",text:{content:String(t).slice(0,1900)}}];
+    const blk=[{type:"divider",divider:{}},{type:"heading_2",heading_2:{rich_text:T(`Fiche de réception du ${frDate(f.date)}${f.by?" — "+f.by:""}`)}},
+      {type:"callout",callout:{icon:{type:"emoji",emoji:et==="Terminé"?"✅":"⚠️"},rich_text:T(et==="Terminé"?"Réception OK : rien à reprendre.":"Rectification sur chantier à faire.")}}];
+    let up=0;
+    for(const [sk,st,items] of FRC_SECS){ blk.push({type:"heading_3",heading_3:{rich_text:T(st)}});
+      items.forEach(([k,l])=>{ const v=f.ans[sk+"_"+k]; if(v) blk.push({type:"to_do",to_do:{rich_text:T(`${l} : ${lab[v]}`),checked:v==="C"}}); });
+      if(f.com[sk]) blk.push({type:"paragraph",paragraph:{rich_text:T(f.com[sk])}});
+      for(const [i,im] of (f.ph[sk]||[]).entries()){ const id=await frcUploadImg(im,`${sk}_${i+1}.jpg`).catch(()=>null); if(id){ up++; blk.push({type:"image",image:{type:"file_upload",file_upload:{id}}}); } } }
+    blk.push({type:"heading_3",heading_3:{rich_text:T("À revoir")}});
+    const nc=frcNc(f); if(!nc.length&&!f.rev.length) blk.push({type:"paragraph",paragraph:{rich_text:T("Rien à reprendre.")}});
+    nc.forEach(x=>blk.push({type:"bulleted_list_item",bulleted_list_item:{rich_text:T(`${x.t} (${x.sec})`)}}));
+    for(const [i,r] of f.rev.entries()){ if(!r.t&&!r.img) continue; blk.push({type:"bulleted_list_item",bulleted_list_item:{rich_text:T((r.t||"Voir photo")+(r.who?` — ${r.who}`:""))}});
+      if(r.img){ const id=await frcUploadImg(r.img,`revoir_${i+1}.jpg`).catch(()=>null); if(id){ up++; blk.push({type:"image",image:{type:"file_upload",file_upload:{id}}}); } } }
+    if(f.note) blk.push({type:"paragraph",paragraph:{rich_text:T("Remarque : "+f.note)}});
+    try{ const b64=await frcPdf(f); const r=await nativeCall("notionUpload",b64,"Fiche_reception_"+String(f.name).replace(/[^A-Za-z0-9]+/g,"_").slice(0,40)+".pdf","application/pdf"); let j=null; try{ j=JSON.parse(r.text); }catch(e){}
+      if(r.status===200&&j&&j.id) blk.splice(3,0,{type:"pdf",pdf:{type:"file_upload",file_upload:{id:j.id}}}); }catch(e){ console.warn("frc pdf",e); }
+    for(let i=0;i<blk.length;i+=90) await notion("PATCH","blocks/"+f.rc+"/children",{children:blk.slice(i,i+90)});
+    await notion("PATCH","pages/"+f.rc,{properties:{"État":{status:{name:et}}}});
+    frcDrop(f.rc); FRC.cur=null; RCS.items=null; renderRecep(); scrollTo(0,0); toast(`Fiche enregistrée dans Notion (${up} photo(s)). État : ${et}.`); }
+  catch(e){ b.disabled=false; b.textContent="Enregistrer dans Notion"; toast("Échec : "+((e&&e.message)||"erreur")+" — la fiche reste sur le téléphone."); } }
+async function frcPdf(f){ if(!window.jspdf) throw {message:"générateur PDF non chargé"}; await ensurePdfFonts();
+  const {jsPDF}=window.jspdf; const d=new jsPDF({unit:"mm",format:"a4"});
+  const HASF=PDF_FONTS&&PDF_FONTS.length===4; if(HASF) PDF_FONTS.forEach(([fn,fam,st,b])=>{ d.addFileToVFS(fn,b); d.addFont(fn,fam,st); });
+  const PF=HASF?"Lato":"helvetica", TF=HASF?"LeagueSpartan":"helvetica"; const OR=[239,123,26], GR=[70,71,72], W=210, M=14, CW=W-2*M;
+  const clean=v=>String(v??"").replace(/[^\x00-\xFF€œŒ’‘“”…–—·]/g,""); let y=0;
+  const head=()=>{ d.addImage(LOGO,"PNG",M,6,46,46*294/900); d.setTextColor(...GR); d.setFont(TF,"bold"); d.setFontSize(14); d.text("FICHE DE RÉCEPTION DE CHANTIER",W-M,13,{align:"right"});
+    d.setFont(PF,"normal"); d.setFontSize(8.5); d.setTextColor(...OR); d.text(clean(`${f.name} · visite du ${frDate(f.date)}${f.by?" · "+f.by:""}`),W-M,18.5,{align:"right"}); d.setFillColor(...OR); d.rect(0,25,W,1.2,"F"); y=33; };
+  const need=h=>{ if(y+h>284){ d.addPage(); head(); } };
+  const h2=t=>{ need(12); d.setFont(TF,"bold"); d.setFontSize(11.5); d.setTextColor(...OR); d.text(clean(t),M,y); y+=6.5; d.setTextColor(...GR); };
+  const line=(t,col)=>{ d.setFont(PF,"normal"); d.setFontSize(9.5); const L=d.splitTextToSize(clean(t),CW-34); need(L.length*4.6+2); d.setTextColor(...GR); d.text(L,M,y); if(col){ d.setFont(PF,"bold"); d.setTextColor(...col[1]); d.text(col[0],W-M,y,{align:"right"}); } y+=L.length*4.6+1.8; };
+  const pics=arr=>{ const w=(CW-8)/3; let x=M; arr.forEach((im,i)=>{ const h=w*0.75; if(i%3===0){ need(h+3); x=M; } try{ d.addImage(im,"JPEG",x,y,w,h); }catch(e){} x+=w+4; if(i%3===2||i===arr.length-1) y+=h+3; }); };
+  head(); const et=frcEtat(f); d.setFont(TF,"bold"); d.setFontSize(11); d.setTextColor(...(et==="Terminé"?[30,122,60]:[181,71,8])); d.text(clean(et==="Terminé"?"Réception OK : rien à reprendre":"Rectification sur chantier à faire"),M,y); y+=8;
+  const ST={C:["OK",[30,122,60]],NC:["À reprendre",[181,71,8]],SO:["Sans objet",[120,120,120]]};
+  FRC_SECS.forEach(([sk,st,items])=>{ h2(st); items.forEach(([k,l])=>{ const v=f.ans[sk+"_"+k]; line(l,v?ST[v]:["—",[150,150,150]]); }); if(f.com[sk]) line("Commentaire : "+f.com[sk]); if((f.ph[sk]||[]).length){ y+=1; pics(f.ph[sk]); } y+=3; });
+  h2("À revoir"); const nc=frcNc(f); if(!nc.length&&!f.rev.length) line("Rien à reprendre.");
+  nc.forEach(x=>line("- "+x.t+" ("+x.sec+")")); f.rev.forEach(r=>{ if(r.t||r.img){ line("- "+(r.t||"Voir photo")+(r.who?" — "+r.who:"")); if(r.img) pics([r.img]); } });
+  if(f.note){ y+=2; h2("Remarque"); line(f.note); }
+  const n=d.getNumberOfPages(); for(let i=1;i<=n;i++){ d.setPage(i); d.setFontSize(7); d.setTextColor(140,140,140); d.setFont(PF,"normal"); d.text(clean(`CONEXUN — Fiche de réception · ${f.name} · page ${i}/${n}`),W/2,291,{align:"center"}); }
+  return ab2b64(d.output("arraybuffer")); }
 /* ---- validation des fiches autocontrôle par le responsable technique ---- */
 const VAL={items:null};
 const pchkb=p=>!!(p&&p.type==="checkbox"&&p.checkbox);
@@ -3682,7 +3782,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1905;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1906;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
