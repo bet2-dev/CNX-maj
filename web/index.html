@@ -224,6 +224,9 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:
 h3.sub2{font-size:14px;color:var(--or-ink);margin:16px 0 4px}
 .note{font-size:12.5px;color:var(--muted);font-style:italic;margin:6px 0}
 .modal .box p{white-space:pre-line}
+.va .va-h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.va .va-m{font-size:12.5px;color:var(--muted);margin-top:4px}
+.va .va-w{font-size:12.5px;color:#b45309;margin-top:6px}.va .va-b{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.va-st{font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap}.va-st.todo{background:#fde8e8;color:#b42318}.va-st.co{background:#fdecd8;color:#b54708}.va-st.ok{background:#e3f6e8;color:#1e7a3c}
 .otabar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:9000;background:var(--card);border:1.5px solid var(--or);border-radius:14px;padding:10px 12px;display:flex;gap:8px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.18);font-size:14px}.otabar span{flex:1}
 .mc .f2{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:var(--muted);margin-top:10px}.mc .f2 input{min-height:46px;border:1.5px solid var(--line);border-radius:10px;padding:0 12px;font-size:16px;background:var(--card);color:var(--fg);width:100%;font-family:inherit}.mc .hint{font-size:13px;color:var(--muted);line-height:1.45}.mc .err{color:var(--ko);font-size:13px;display:block;margin-top:6px}
 .tvsn{padding:14px;margin-top:14px}.snr{padding:8px 0;border-bottom:1px solid var(--line)}.snr:last-child{border-bottom:0}.snl{font-size:13.5px;font-weight:600}.snl small{color:var(--muted);font-weight:500}
@@ -1730,7 +1733,7 @@ const GROUPS=[
   ["logistique","Logistique",[["plan_l","Planning"],["tvx_l","Fiches travaux"],["stock","Stock"],["mouvements","Mouvements"],["arrivages","Arrivages"]]],
   ["commun","Base de données",[["cpv","CPV"],["materiel","Docs techniques"]]],
   ["compta","Gestion comptabilité",[["compta","Rentabilité chantiers"]]],
-  ["admin","Administrateur",[["activite","Activité"],["comptes","Comptes"],["reglages","Réglages"]]],
+  ["admin","Administrateur",[["activite","Activité"],["valider","À valider"],["comptes","Comptes"],["reglages","Réglages"]]],
   ["compte","Mon compte",[["moncompte","Mon compte"]]]];
 const groupOf=t=>(GROUPS.find(g=>g[2].some(x=>x[0]===t))||GROUPS[0])[0];
 let tab="home"; if(tab==="gps"||tab==="clients") tab="cpv"; if(tab==="maintenance") tab="plan_m"; if(!GROUPS.some(g=>g[2].some(x=>x[0]===tab))) tab="home";
@@ -1815,7 +1818,7 @@ const HOME_TILES=[
   ["logistique","Logistique","Planning · Fiches travaux · Stock · Arrivages"],
   ["commun","Base de données","CPV · Docs techniques"],
   ["compta","Gestion comptabilité","Rentabilité des chantiers · Devis · Main-d'œuvre"],
-  ["admin","Administrateur","Activité · Comptes · Réglages"],
+  ["admin","Administrateur","Activité · Fiches à valider · Comptes · Réglages"],
   ["compte","Mon compte","Mes infos · Mot de passe · Mes fiches sauvegardées"]];
 function openGroup(k){ const g=GROUPS.find(x=>x[0]===k); if(!g) return; const ls=lastSub[k]; switchTab(ls&&g[2].some(x=>x[0]===ls)?ls:g[2][0][0]); }
 function renderHome(){
@@ -2546,6 +2549,88 @@ function agoTxt(iso){ if(!iso) return ""; const m=Math.round((Date.now()-new Dat
   const d=new Date(iso); const td=new Date(); td.setHours(0,0,0,0); const days=Math.round((td-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/864e5);
   return days===1?"hier à "+d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}):"le "+d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"}); }
 function presence(iso){ if(!iso) return "never"; const m=(Date.now()-new Date(iso).getTime())/60e3; return m<10?"on":m<60?"recent":"off"; }
+/* ---- validation des fiches autocontrôle par le responsable technique ---- */
+const VAL={items:null};
+const pchkb=p=>!!(p&&p.type==="checkbox"&&p.checkbox);
+function renderValider(){
+  $("#app").innerHTML=`<div class="wrap">${headerHTML("Administrateur","Fiches autocontrôle terminées par les techniciens : à contrôler puis valider avec la signature du responsable technique.")}
+    <div class="toolbar"><select id="vaF" aria-label="Fiches affichées"><option value="todo">À valider / en correction</option><option value="ok">Validées</option></select><button class="btn btn-ghost btn-sm" id="vaRf">${ICO.refresh}<span>Actualiser</span></button></div>
+    <div id="vaRes"><div class="card empty">Chargement…</div></div></div>`;
+  $("#vaRf").onclick=loadValider; $("#vaF").onchange=loadValider; loadValider(); }
+async function loadValider(){ const el=$("#vaRes"); if(!el) return;
+  if(!MCP||!hasToken()){ el.innerHTML=`<div class="card empty">Clé Notion non enregistrée sur cet appareil (Réglages).</div>`; return; }
+  const ok=($("#vaF")||{}).value==="ok"; el.innerHTML=`<div class="card empty">Chargement…</div>`;
+  const filter=ok?{property:"Statut",select:{equals:"Validé"}}:{or:[{property:"Statut",select:{equals:"À valider"}},{property:"Statut",select:{equals:"En correction"}}]};
+  try{ const j=await notion("POST","databases/"+AUTO_DB+"/query",{page_size:50,filter,sorts:[{property:"Date",direction:"descending"}]}); VAL.items=j.results||[]; drawValider(); }
+  catch(e){ el.innerHTML=`<div class="card empty">${esc((e&&e.message)||"Chargement impossible")}</div>`; } }
+function drawValider(){ const el=$("#vaRes"); if(!el) return; const L=VAL.items||[];
+  if(!L.length){ el.innerHTML=`<div class="card empty">Aucune fiche ici pour le moment.</div>`; return; }
+  el.innerHTML=L.map((pg,i)=>{ const P=pg.properties||{}; const st=ptxt(P["Statut"])||"À valider"; const pdf=pfiles(P["PDF du rapport"])[0], visa=pfiles(P["Visa responsable technique"])[0]; const com=ptxt(P["Commentaire validation"]);
+    return `<div class="card va"><div class="va-h"><b>${esc(ptxt(P["Rapport"])||"Fiche autocontrôle")}</b><span class="va-st ${st==="Validé"?"ok":st==="En correction"?"co":"todo"}">${esc(st)}</span></div>
+      <div class="va-m">${[pdate(P["Date"])?frDate(pdate(P["Date"])):"",ptxt(P["Technicien"])].filter(Boolean).map(esc).join(" · ")||"—"}</div>
+      ${pchkb(P["Curative à prévoir"])?`<div class="va-w">⚠ ${esc(ptxt(P["Nature à prévoir"])||"Points non conformes signalés")}</div>`:""}
+      ${com?`<div class="va-m">Commentaire : ${esc(com)}</div>`:""}
+      ${st==="Validé"?`<div class="va-m">Validée par <b>${esc(ptxt(P["Validé par"])||"—")}</b>${pdate(P["Validé le"])?" le "+esc(frDate(pdate(P["Validé le"]))):""}</div>`:""}
+      <div class="va-b">${pdf&&pdf.url?`<button class="btn btn-ghost btn-sm" data-vpdf="${i}">Voir la fiche (PDF)</button>`:""}${visa&&visa.url?`<button class="btn btn-ghost btn-sm" data-vvisa="${i}">Voir le visa</button>`:""}<button class="btn btn-ghost btn-sm" data-vpg="${i}">Ouvrir dans Notion</button>${st!=="Validé"?`<button class="btn btn-or btn-sm" data-vok="${i}">Valider et signer</button>`:""}</div></div>`; }).join("");
+  const get=b=>L[+b.dataset.vpdf||+b.dataset.vvisa||+b.dataset.vpg||+b.dataset.vok||0];
+  el.querySelectorAll("[data-vpdf]").forEach(b=>b.onclick=()=>{ const f=pfiles((L[+b.dataset.vpdf].properties||{})["PDF du rapport"])[0]; if(f) openUrl(f.url); });
+  el.querySelectorAll("[data-vvisa]").forEach(b=>b.onclick=()=>{ const f=pfiles((L[+b.dataset.vvisa].properties||{})["Visa responsable technique"])[0]; if(f) openUrl(f.url); });
+  el.querySelectorAll("[data-vpg]").forEach(b=>b.onclick=()=>{ const pg=L[+b.dataset.vpg]; openUrl(pg.url||nurl(pg.id)); });
+  el.querySelectorAll("[data-vok]").forEach(b=>b.onclick=()=>valModal(L[+b.dataset.vok])); }
+function valPad(cv){ const r=cv.getBoundingClientRect(); const dpr=window.devicePixelRatio||1; cv.width=r.width*dpr; cv.height=r.height*dpr;
+  const x=cv.getContext("2d"); x.scale(dpr,dpr); x.lineWidth=2.2; x.lineCap="round"; x.lineJoin="round"; x.strokeStyle="#1d1d1f"; x.fillStyle="#fff"; x.fillRect(0,0,r.width,r.height);
+  const st={drawn:false}; let dr=false,last=null; const pos=e=>{ const b=cv.getBoundingClientRect(); return [e.clientX-b.left,e.clientY-b.top]; };
+  cv.onpointerdown=e=>{ dr=true; last=pos(e); cv.setPointerCapture(e.pointerId); };
+  cv.onpointermove=e=>{ if(!dr) return; const p=pos(e); x.beginPath(); x.moveTo(...last); x.lineTo(...p); x.stroke(); last=p; st.drawn=true; };
+  cv.onpointerup=cv.onpointercancel=()=>{ dr=false; };
+  st.clear=()=>{ x.save(); x.setTransform(1,0,0,1,0,0); x.fillStyle="#fff"; x.fillRect(0,0,cv.width,cv.height); x.restore(); st.drawn=false; };
+  st.img=()=>{ const o=document.createElement("canvas"); o.width=480; o.height=Math.round(480*r.height/r.width); const ox=o.getContext("2d"); ox.fillStyle="#fff"; ox.fillRect(0,0,o.width,o.height); ox.drawImage(cv,0,0,o.width,o.height); return o.toDataURL("image/jpeg",0.75); };
+  return st; }
+function valModal(pg){ const P=pg.properties||{}; const me=SESSION?(SESSION.nom||SESSION.login):"";
+  const m=document.createElement("div"); m.className="modal";
+  m.innerHTML=`<div class="box wide"><h3 style="margin:0 0 4px;font-family:var(--f-title)">Validation de la fiche</h3><p class="m" style="font-size:13px;color:var(--muted);margin:0 0 10px">${esc(ptxt(P["Rapport"])||"")}</p>
+    <label class="f">Responsable technique<input id="vaN" value="${esc(me)}" autocomplete="name"></label>
+    <label class="f">Commentaire (facultatif, obligatoire pour une correction)<textarea id="vaC" rows="3">${esc(ptxt(P["Commentaire validation"]))}</textarea></label>
+    <div style="font-size:13px;font-weight:600;margin:6px 0 4px">Signature du responsable technique</div>
+    <canvas class="sig" id="vaS" style="height:140px;width:100%"></canvas>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><span class="hint" style="margin:0">Signer avec le doigt.</span><button class="btn btn-ghost btn-sm" id="vaClr" type="button">Effacer</button></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px"><button class="btn btn-ghost btn-sm" id="vaX" type="button">Annuler</button><button class="btn btn-ghost btn-sm" id="vaKo" type="button">Renvoyer en correction</button><button class="btn btn-or btn-sm" id="vaOk" type="button">Valider et signer</button></div></div>`;
+  document.body.appendChild(m); let pad=null; setTimeout(()=>{ pad=valPad(m.querySelector("#vaS")); },60);
+  m.querySelector("#vaClr").onclick=()=>pad&&pad.clear(); m.querySelector("#vaX").onclick=()=>m.remove();
+  m.querySelector("#vaKo").onclick=async()=>{ const c=m.querySelector("#vaC").value.trim(); if(!c){ toast("Indiquez ce qu'il faut corriger dans le commentaire."); return; }
+    try{ await notion("PATCH","pages/"+pg.id,{properties:{"Statut":{select:{name:"En correction"}},"Commentaire validation":rt(c)}}); m.remove(); toast("Fiche renvoyée en correction."); loadValider(); }
+    catch(e){ toast("Échec : "+((e&&e.message)||"erreur")); } };
+  m.querySelector("#vaOk").onclick=async()=>{ const nom=m.querySelector("#vaN").value.trim(), c=m.querySelector("#vaC").value.trim();
+    if(!nom){ toast("Indiquez le nom du responsable technique."); return; } if(!pad||!pad.drawn){ toast("La signature du responsable technique est obligatoire."); return; }
+    const b=m.querySelector("#vaOk"); b.disabled=true; b.textContent="Envoi…";
+    try{ const now=new Date(), day=ymd(now); const sig=pad.img();
+      const props={"Statut":{select:{name:"Validé"}},"Validé le":{date:{start:day}},"Validé par":rt(nom+" — Responsable technique"),"Commentaire validation":rt(c)};
+      try{ const b64=await valVisaPdf(pg,nom,c,sig,now); const fname="Visa_"+String(ptxt(P["Rapport"])||"fiche").replace(/[^A-Za-z0-9]+/g,"_").slice(0,40)+".pdf";
+        const r=await nativeCall("notionUpload",b64,fname,"application/pdf"); let j=null; try{ j=JSON.parse(r.text); }catch(e){}
+        if(r.status===200&&j&&j.id) props["Visa responsable technique"]={files:[{type:"file_upload",file_upload:{id:j.id},name:fname}]}; }
+      catch(e){ console.warn("visa pdf",e); }
+      await notion("PATCH","pages/"+pg.id,{properties:props}); m.remove();
+      toast(props["Visa responsable technique"]?"Fiche validée et signée.":"Fiche validée (visa PDF non joint)."); loadValider(); }
+    catch(e){ b.disabled=false; b.textContent="Valider et signer"; toast("Échec : "+((e&&e.message)||"erreur")); } }; }
+async function valVisaPdf(pg,nom,com,sig,now){ if(!window.jspdf) throw {message:"générateur PDF non chargé"}; await ensurePdfFonts();
+  const P=pg.properties||{}; const {jsPDF}=window.jspdf; const d=new jsPDF({unit:"mm",format:"a4"});
+  const HASF=PDF_FONTS&&PDF_FONTS.length===4; if(HASF) PDF_FONTS.forEach(([f,fam,st,b])=>{ d.addFileToVFS(f,b); d.addFont(f,fam,st); });
+  const PF=HASF?"Lato":"helvetica", TF=HASF?"LeagueSpartan":"helvetica"; const OR=[239,123,26], GR=[70,71,72]; const W=210,M=14,CW=W-2*M;
+  const clean=v=>String(v??"").replace(/[^\x00-\xFF€œŒ’‘“”…–—·]/g,"");
+  d.addImage(LOGO,"PNG",M,6,48,48*294/900); d.setTextColor(...GR); d.setFont(TF,"bold"); d.setFontSize(14); d.text("VISA DE VALIDATION",W-M,13,{align:"right"});
+  d.setTextColor(...OR); d.setFont(PF,"normal"); d.setFontSize(9); d.text("Fiche d'autocontrôle — Responsable technique",W-M,18,{align:"right"}); d.setFillColor(...OR); d.rect(0,26,W,1.2,"F");
+  let y=38; const row=(k,v)=>{ if(!v) return; d.setFont(PF,"bold"); d.setFontSize(9.5); d.setTextColor(...GR); d.text(clean(k),M,y);
+    d.setFont(PF,"normal"); const L=d.splitTextToSize(clean(v),CW-48); d.text(L,M+48,y); y+=Math.max(6,L.length*4.6+1.5); };
+  row("Fiche",ptxt(P["Rapport"])); row("Date du contrôle",pdate(P["Date"])?frDate(pdate(P["Date"])):""); row("Technicien(s)",ptxt(P["Technicien"])); row("N° intervention",ptxt(P["N° intervention"]));
+  row("Conclusion",ptxt(P["Conclusion"])); row("Points à reprendre",pchkb(P["Curative à prévoir"])?(ptxt(P["Nature à prévoir"])||"Oui"):"Aucun");
+  if(com) row("Commentaire",com);
+  y+=4; d.setDrawColor(...OR); d.setLineWidth(0.4); d.line(M,y,W-M,y); y+=9;
+  d.setFont(TF,"bold"); d.setFontSize(11); d.setTextColor(...GR); d.text("Fiche contrôlée et validée",M,y); y+=7;
+  d.setFont(PF,"normal"); d.setFontSize(9.5); d.text(clean(`${nom} — Responsable technique, CONEXUN`),M,y); y+=5;
+  d.text(clean("Le "+now.toLocaleDateString("fr-FR")+" à "+now.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})),M,y); y+=5;
+  d.setDrawColor(200,200,200); d.rect(M,y,90,38); d.addImage(sig,"JPEG",M+1,y+1,88,36); y+=44;
+  d.setFontSize(7); d.setTextColor(120,120,120); d.text(clean("Visa joint à la fiche d'autocontrôle dans Notion (📋 Fiches autocontrôle). Le PDF de la fiche reste celui envoyé par le technicien."),M,y);
+  return ab2b64(d.output("arraybuffer")); }
 function renderActivite(){
   $("#app").innerHTML=`<div class="wrap">${headerHTML("Administrateur","Qui utilise l'appli en ce moment et les rapports envoyés aujourd'hui. Mise à jour automatique chaque minute.")}
     <div class="toolbar"><span id="adAt" class="muted" style="flex:1;font-size:12.5px;color:var(--muted)"></span><button class="btn btn-ghost btn-sm" id="adRf">${ICO.refresh}<span>Actualiser</span></button></div>
@@ -2611,6 +2696,7 @@ function renderList(){
   else if(tab==="arrivages") renderArrivages();
   else if(tab==="mouvements") renderMvts();
   else if(tab==="activite") renderActivite();
+  else if(tab==="valider") renderValider();
   else if(tab==="moncompte") renderMonCompte();
   else if(tab==="compta") renderCompta();
   else if(tab==="supervision") renderSupervision();
@@ -3393,7 +3479,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1902;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1903;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
