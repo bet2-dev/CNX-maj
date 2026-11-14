@@ -224,6 +224,8 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:
 h3.sub2{font-size:14px;color:var(--or-ink);margin:16px 0 4px}
 .note{font-size:12.5px;color:var(--muted);font-style:italic;margin:6px 0}
 .modal .box p{white-space:pre-line}
+.pved .pvdec{display:flex;gap:8px;align-items:center;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;margin:6px 0;font-size:14px}.pved .pvdec.on{border-color:#ef7b1a;background:rgba(239,123,26,.08)}
+.pved .pvck{display:flex;gap:8px;align-items:center;padding:6px 2px;font-size:14px}.pved .pvtr{padding-left:6px}
 .va .va-h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.va .va-m{font-size:12.5px;color:var(--muted);margin-top:4px}
 .va .va-w{font-size:12.5px;color:#b45309;margin-top:6px}.va .va-b{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 .va-st{font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap}.va-st.todo{background:#fde8e8;color:#b42318}.va-st.co{background:#fdecd8;color:#b54708}.va-st.ok{background:#e3f6e8;color:#1e7a3c}
@@ -1714,6 +1716,7 @@ const CENTRALES_DB="2406c1f928ca8074bbeafbdbfbec3ad0"; // 🌞 Centrales Solaire
 const MATERIEL_DB="29b6c1f928ca80628aafe5746c52554a";  // Matériel Photovoltaïques
 const ICO={
   phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',
+  bet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1z"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="m9 14 2 2 4-4"/></svg>',
   compta:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="10.01"/><line x1="12" y1="10" x2="12" y2="10.01"/><line x1="16" y1="10" x2="16" y2="10.01"/><line x1="8" y1="14" x2="8" y2="14.01"/><line x1="12" y1="14" x2="12" y2="14.01"/><line x1="16" y1="14" x2="16" y2="18"/><line x1="8" y1="18" x2="12" y2="18"/></svg>',
   compte:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 7-7h2a7 7 0 0 1 7 7v1"/></svg>',
   admin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><circle cx="12" cy="10" r="2.6"/><path d="M7.8 17.2a5 5 0 0 1 8.4 0"/></svg>',
@@ -1732,6 +1735,7 @@ const GROUPS=[
   ["maintenance","Maintenance",[["plan_m","Planning"],["supervision","Supervision"]]],
   ["logistique","Logistique",[["plan_l","Planning"],["tvx_l","Fiches travaux"],["stock","Stock"],["mouvements","Mouvements"],["arrivages","Arrivages"]]],
   ["commun","Base de données",[["cpv","CPV"],["materiel","Docs techniques"]]],
+  ["bet","BET",[["pvrec","PV de réception"]]],
   ["compta","Gestion comptabilité",[["compta","Rentabilité chantiers"]]],
   ["admin","Administrateur",[["activite","Activité"],["valider","À valider"],["comptes","Comptes"],["reglages","Réglages"]]],
   ["compte","Mon compte",[["moncompte","Mon compte"]]]];
@@ -1740,7 +1744,7 @@ let tab="home"; if(tab==="gps"||tab==="clients") tab="cpv"; if(tab==="maintenanc
 const lastSub=lsGet("cx_sub")||{};
 
 const ACCES_DB="7e7958a7baaf4c03b6d27ea22a981be5";      // 🔐 Accès appli CONEXUN
-const GROUP_LOCK={construction:"Construction",maintenance:"Maintenance",logistique:"Logistique",admin:"Admin",compta:"Admin",parametres:"Admin"};
+const GROUP_LOCK={construction:"Construction",maintenance:"Maintenance",logistique:"Logistique",bet:"BET",admin:"Admin",compta:"Admin",parametres:"Admin"};
 
 /* ---- sécurité : hachage des mots de passe (SHA-256 salé, 2000 tours) ---- */
 function sha256hex(str){ const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
@@ -1817,6 +1821,7 @@ const HOME_TILES=[
   ["maintenance","Maintenance","Planning · Supervision des centrales"],
   ["logistique","Logistique","Planning · Fiches travaux · Stock · Arrivages"],
   ["commun","Base de données","CPV · Docs techniques"],
+  ["bet","BET","PV de réception des chantiers terminés"],
   ["compta","Gestion comptabilité","Rentabilité des chantiers · Devis · Main-d'œuvre"],
   ["admin","Administrateur","Activité · Fiches à valider · Comptes · Réglages"],
   ["compte","Mon compte","Mes infos · Mot de passe · Mes fiches sauvegardées"]];
@@ -2549,6 +2554,149 @@ function agoTxt(iso){ if(!iso) return ""; const m=Math.round((Date.now()-new Dat
   const d=new Date(iso); const td=new Date(); td.setHours(0,0,0,0); const days=Math.round((td-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/864e5);
   return days===1?"hier à "+d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}):"le "+d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"}); }
 function presence(iso){ if(!iso) return "never"; const m=(Date.now()-new Date(iso).getTime())/60e3; return m<10?"on":m<60?"recent":"off"; }
+/* ---- BET : PV de réception des travaux ---- */
+const PV_DB="4186c1f928ca8139ad51f69973f6188d";   // 📝 PV de réception (APP CONEXUN)
+const RC_DB="3426c1f928ca80128f97e067c9ffe11b";   // Réception de chantier
+const PV_TRAVAUX=["Panneaux photovoltaïques","Onduleur(s)","Coffret(s) électrique(s) et câblage","Signalétique"];
+const PV_QUAL=["Responsable technique","Chargé d'affaires","Chef de chantier","Technicien"];
+const PVS={items:null,cur:null};
+const pvNorm=v=>String(v||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+function pvDraftGet(){ try{ return JSON.parse(localStorage.getItem("cx_pvdraft")||"null"); }catch(e){ return null; } }
+function pvDraftSet(v){ try{ if(v) localStorage.setItem("cx_pvdraft",JSON.stringify(v)); else localStorage.removeItem("cx_pvdraft"); }catch(e){} }
+function pvNew(){ const me=SESSION?(SESSION.nom||SESSION.login):""; const t=ymd(new Date());
+  return {id:"pv"+Date.now(),client:"",adresse:"",finTx:"",lieu:"",faitLe:t,effet:t,rep:me,qual:"Responsable technique",dec:"",trav:PV_TRAVAUX.slice(),res:"",motif:"",
+    affaire:"",tvx:[],cpv:null,auto:null,rc:null,cands:{cpv:[],auto:[],rc:[]},sig:{}}; }
+function renderPv(){ if(PVS.cur) return renderPvEdit();
+  const dr=pvDraftGet();
+  $("#app").innerHTML=`<div class="wrap">${headerHTML("PV de réception","Procès-verbal de réception des travaux, à remplir avec le client à la fin du chantier. Il est relié au chantier terminé (fiches travaux, autocontrôle, centrale).")}
+    <div class="toolbar"><button class="btn btn-or btn-sm" id="pvNew">+ Nouveau PV de réception</button><button class="btn btn-ghost btn-sm" id="pvRf">${ICO.refresh}<span>Actualiser</span></button></div>
+    ${dr?`<div class="card va"><div class="va-h"><b>Brouillon en cours : ${esc(dr.client||dr.affaire||"sans client")}</b><span class="va-st co">Brouillon</span></div><div class="va-b"><button class="btn btn-or btn-sm" id="pvRes">Reprendre</button><button class="btn btn-ghost btn-sm" id="pvDel">Supprimer le brouillon</button></div></div>`:""}
+    <div id="pvRes0"><div class="card empty">Chargement…</div></div></div>`;
+  $("#pvNew").onclick=pvPickChantier; $("#pvRf").onclick=loadPvList;
+  if(dr){ $("#pvRes").onclick=()=>{ PVS.cur=dr; renderPvEdit(); scrollTo(0,0); }; $("#pvDel").onclick=async()=>{ if(await confirmBox("Supprimer ce brouillon de PV ?","Supprimer")){ pvDraftSet(null); renderPv(); } }; }
+  loadPvList(); }
+async function loadPvList(){ const el=$("#pvRes0"); if(!el) return;
+  if(!MCP||!hasToken()){ el.innerHTML=`<div class="card empty">Clé Notion non enregistrée sur cet appareil (Réglages).</div>`; return; }
+  try{ const j=await notion("POST","databases/"+PV_DB+"/query",{page_size:50,sorts:[{property:"Fait le",direction:"descending"}]}); PVS.items=j.results||[]; }
+  catch(e){ el.innerHTML=`<div class="card empty">${esc((e&&e.message)||"Chargement impossible")}</div>`; return; }
+  const L=PVS.items; if(!L.length){ el.innerHTML=`<div class="card empty">Aucun PV de réception pour le moment.</div>`; return; }
+  el.innerHTML=L.map((pg,i)=>{ const P=pg.properties||{}; const d=ptxt(P["Décision"]); const f=pfiles(P["PDF du PV"])[0];
+    return `<div class="card va"><div class="va-h"><b>${esc(ptxt(P["PV"])||"PV de réception")}</b><span class="va-st ${d==="Sans réserve"?"ok":d==="Avec réserves"?"co":"todo"}">${esc(d||"—")}</span></div>
+      <div class="va-m">${[ptxt(P["Client"]),pdate(P["Fait le"])?"le "+frDate(pdate(P["Fait le"])):"",ptxt(P["Représentant CONEXUN"])].filter(Boolean).map(esc).join(" · ")}</div>
+      ${ptxt(P["Réserves"])?`<div class="va-w">Réserves : ${esc(ptxt(P["Réserves"]))}</div>`:""}
+      <div class="va-b">${f&&f.url?`<button class="btn btn-ghost btn-sm" data-pvpdf="${i}">Voir le PDF</button>`:""}<button class="btn btn-ghost btn-sm" data-pvpg="${i}">Ouvrir dans Notion</button></div></div>`; }).join("");
+  el.querySelectorAll("[data-pvpdf]").forEach(b=>b.onclick=()=>{ const f=pfiles((L[+b.dataset.pvpdf].properties||{})["PDF du PV"])[0]; if(f) openUrl(f.url); });
+  el.querySelectorAll("[data-pvpg]").forEach(b=>b.onclick=()=>{ const pg=L[+b.dataset.pvpg]; openUrl(pg.url||nurl(pg.id)); }); }
+/* choix du chantier terminé : fiches travaux finalisées, regroupées par affaire */
+function pvPickChantier(){ const m=document.createElement("div"); m.className="modal";
+  m.innerHTML=`<div class="box wide"><h3 style="margin:0 0 6px;font-family:var(--f-title)">Quel chantier terminé ?</h3><p class="m" style="font-size:13px;color:var(--muted);margin:0 0 10px">Fiches travaux finalisées. Le PV sera relié au chantier, à sa fiche autocontrôle et à la centrale.</p>
+    <div class="toolbar"><input id="pcQ" type="search" placeholder="Rechercher un client / une affaire" aria-label="Rechercher"></div><div id="pcR"><div class="card empty">Chargement…</div></div>
+    <div style="display:flex;justify-content:space-between;gap:8px;margin-top:12px"><button class="btn btn-ghost btn-sm" id="pcNone">PV sans fiche travaux</button><button class="btn btn-ghost btn-sm" id="pcX">Annuler</button></div></div>`;
+  document.body.appendChild(m); m.querySelector("#pcX").onclick=()=>m.remove();
+  m.querySelector("#pcNone").onclick=()=>{ m.remove(); PVS.cur=pvNew(); pvDraftSet(PVS.cur); renderPvEdit(); scrollTo(0,0); };
+  let groups=[]; const draw=()=>{ const q=pvNorm(m.querySelector("#pcQ").value); const el=m.querySelector("#pcR"); const G=groups.filter(g=>!q||pvNorm(g.affaire).includes(q));
+    el.innerHTML=G.length?`<div class="evpick">${G.slice(0,40).map((g,i)=>`<button data-pc="${groups.indexOf(g)}"><b>${esc(g.affaire)}</b><small>${esc([g.fin?"fin "+frDate(g.fin):"",g.mets.join(" + "),g.techs].filter(Boolean).join(" · "))}</small></button>`).join("")}</div>`:`<div class="card empty">Aucun chantier terminé trouvé.</div>`;
+    el.querySelectorAll("[data-pc]").forEach(b=>b.onclick=()=>{ m.remove(); pvFromGroup(groups[+b.dataset.pc]); }); };
+  m.querySelector("#pcQ").oninput=draw;
+  (async()=>{ try{ let all=[],cursor=null; do{ const j=await notion("POST","databases/"+TVX_DB+"/query",Object.assign({page_size:100,filter:{property:"Statut",select:{equals:"Finalisée"}},sorts:[{property:"Date chantier",direction:"descending"}]},cursor?{start_cursor:cursor}:{})); all=all.concat(j.results||[]); cursor=j.has_more&&all.length<300?j.next_cursor:null; }while(cursor);
+      const map=new Map(); all.map(tvxRow).forEach(r=>{ const k=pvNorm(r.affaire)||r.id; const g=map.get(k)||{affaire:r.affaire||"Affaire sans nom",ids:[],fin:"",mets:[],techs:"",chantier:r.chantier};
+        g.ids.push(r.id); const fe=r.dateEnd||r.date; if(fe&&fe>g.fin) g.fin=fe; const mt=r.met==="pose"?"Poseur":"Électricité"; if(!g.mets.includes(mt)) g.mets.push(mt); if(r.techs&&!g.techs) g.techs=r.techs; map.set(k,g); });
+      groups=[...map.values()]; draw(); }
+    catch(e){ m.querySelector("#pcR").innerHTML=`<div class="card empty">${esc((e&&e.message)||"Chargement impossible")}</div>`; } })(); }
+async function pvFromGroup(g){ const pv=pvNew(); pv.affaire=g.affaire; pv.tvx=g.ids.slice(); pv.finTx=g.fin||""; pv.client=stripEmoji(String(g.affaire).split(/\s+[—–-]\s+/)[0]).trim();
+  PVS.cur=pv; pvDraftSet(pv); renderPvEdit(); scrollTo(0,0); toast("Recherche de la centrale et de la fiche autocontrôle…"); await pvFindLinks(pv); if(PVS.cur===pv){ pvDraftSet(pv); renderPvEdit(); } }
+async function pvFindLinks(pv){ const kw=cpvKw(pv.client||pv.affaire); if(!kw||!MCP||!hasToken()) return;
+  const tsk=[];
+  tsk.push(cpvSearch(kw).then(r=>{ pv.cands.cpv=r.map(pg=>{ const P=pg.properties||{}; return {id:pg.id,t:ptxt(P["Nom de la Centrale"])||"Centrale",adr:[ptxt(P["Adresse géographique"]),ptxt(P["Commune"])].filter(Boolean).join(", "),com:ptxt(P["Commune"])}; }); }).catch(()=>{}));
+  tsk.push(notion("POST","databases/"+AUTO_DB+"/query",{page_size:10,filter:{property:"Rapport",title:{contains:kw}},sorts:[{property:"Date",direction:"descending"}]}).then(j=>{ pv.cands.auto=(j.results||[]).map(pg=>({id:pg.id,t:ptxt((pg.properties||{})["Rapport"])||"Fiche autocontrôle"})); }).catch(()=>{}));
+  tsk.push(notion("POST","databases/"+RC_DB+"/query",{page_size:10,filter:{property:"Nom du projet",title:{contains:kw}}}).then(j=>{ pv.cands.rc=(j.results||[]).map(pg=>({id:pg.id,t:ptxt((pg.properties||{})["Nom du projet"])||"Réception"})); }).catch(()=>{}));
+  await Promise.all(tsk);
+  if(!pv.cpv&&pv.cands.cpv.length===1) pv.cpv=pv.cands.cpv[0].id; if(!pv.auto&&pv.cands.auto.length) pv.auto=pv.cands.auto[0].id; if(!pv.rc&&pv.cands.rc.length===1) pv.rc=pv.cands.rc[0].id;
+  const c=pv.cands.cpv.find(x=>x.id===pv.cpv); if(c){ if(!pv.adresse) pv.adresse=c.adr; if(!pv.lieu) pv.lieu=c.com?c.com.charAt(0)+c.com.slice(1).toLowerCase():""; } }
+function pvSave(){ if(PVS.cur) pvDraftSet(PVS.cur); }
+function renderPvEdit(){ const pv=PVS.cur; const sel=(k,arr,none)=>`<select data-pvl="${k}"><option value="">${none}</option>${arr.map(x=>`<option value="${x.id}" ${pv[k]===x.id?"selected":""}>${esc(x.t)}</option>`).join("")}</select>`;
+  const inp=(k,l,type,ph)=>`<label class="f">${esc(l)}<input data-pv="${k}" type="${type||"text"}" value="${esc(pv[k]||"")}" ${ph?`placeholder="${esc(ph)}"`:""}></label>`;
+  const dec=(v,l)=>`<label class="pvdec ${pv.dec===v?"on":""}"><input type="radio" name="pvdec" value="${v}" ${pv.dec===v?"checked":""}> ${esc(l)}</label>`;
+  $("#app").innerHTML=`<div class="wrap pved"><div class="crumb"><button id="pvBack">${ICO.chev}<span>PV de réception</span></button><span class="sec">Brouillon</span></div>
+    <h1>Procès-verbal de réception des travaux</h1>${pv.affaire?`<p class="sub">Chantier : <b>${esc(pv.affaire)}</b>${pv.tvx.length?` · ${pv.tvx.length} fiche(s) travaux reliée(s)`:""}</p>`:""}
+    <div class="card"><h3 class="sub2" style="margin-top:0">Liaisons Notion</h3><div class="grid">
+      <label class="f">Centrale (CPV)${sel("cpv",pv.cands.cpv,"— aucune —")}</label>
+      <label class="f">Fiche autocontrôle${sel("auto",pv.cands.auto,"— aucune —")}</label>
+      <label class="f">Réception de chantier${sel("rc",pv.cands.rc,"— aucune —")}</label></div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><input id="pvKw" type="search" placeholder="Autre nom de recherche (client, centrale)" style="flex:1"><button class="btn btn-ghost btn-sm" id="pvFind">Rechercher</button></div></div>
+    <div class="card"><h3 class="sub2" style="margin-top:0">En-tête</h3><div class="grid">${inp("lieu","Fait à (commune)","text","ex. Punaauia")}${inp("faitLe","Le","date")}</div></div>
+    <div class="card"><h3 class="sub2" style="margin-top:0">Le client</h3><div class="grid">
+      ${inp("client","Je soussigné(e), M./Mme","text","Nom et prénom du client")}${inp("finTx","Visite de fin des travaux effectués le","date")}</div>
+      ${inp("adresse","Centrale photovoltaïque sise à","text","Adresse de l'installation")}</div>
+    <div class="card"><h3 class="sub2" style="margin-top:0">Représentant CONEXUN</h3><div class="grid">${inp("rep","En présence de","text")}
+      <label class="f">Agissant en tant que<input data-pv="qual" list="pvQualL" value="${esc(pv.qual||"")}"><datalist id="pvQualL">${PV_QUAL.map(q=>`<option value="${esc(q)}">`).join("")}</datalist></label></div></div>
+    <div class="card"><h3 class="sub2" style="margin-top:0">Décision</h3>
+      ${dec("sans","La réception est prononcée sans réserve")}${dec("avec","La réception est prononcée avec réserves")}${dec("refus","La réception est refusée / différée")}
+      ${pv.dec==="sans"||pv.dec==="avec"?`<div class="grid" style="margin-top:8px">${inp("effet","Avec effet à la date du","date")}</div>
+        <div class="pvtr"><div class="hint" style="margin:6px 0">Le client certifie que les travaux suivants sont corrects :</div>${PV_TRAVAUX.map((t,i)=>`<label class="pvck"><input type="checkbox" data-pvtr="${i}" ${pv.trav.includes(t)?"checked":""}> ${esc(t)}</label>`).join("")}</div>`:""}
+      ${pv.dec==="avec"?`<label class="f">Réserves mentionnées<textarea data-pv="res" rows="3">${esc(pv.res||"")}</textarea></label>`:""}
+      ${pv.dec==="refus"?`<label class="f">Motifs du refus / report<textarea data-pv="motif" rows="3">${esc(pv.motif||"")}</textarea></label>`:""}</div>
+    <div class="card"><h3 class="sub2" style="margin-top:0">Signatures</h3><div class="tvsg">
+      <div class="tvsb"><div class="tvst">Signature de l'entreprise</div><div class="tvsn">${esc(pv.rep||"—")}${pv.qual?" · "+esc(pv.qual):""}</div><canvas class="sig" data-pvsig="E" style="height:130px;width:100%"></canvas><div style="text-align:right;margin-top:6px"><button class="btn btn-ghost btn-sm" data-pvclr="E">Effacer</button></div></div>
+      <div class="tvsb"><div class="tvst">Signature du client</div><div class="tvsn">${esc(pv.client||"—")}</div><canvas class="sig" data-pvsig="C" style="height:130px;width:100%"></canvas><div style="text-align:right;margin-top:6px"><button class="btn btn-ghost btn-sm" data-pvclr="C">Effacer</button></div></div></div>
+      <p class="hint">La signature du procès-verbal de réception et le règlement des travaux autorisent le client soussigné à prendre possession de l'ouvrage. Fait en 2 exemplaires.</p></div>
+    <div class="toolbar" style="justify-content:flex-end"><button class="btn btn-ghost btn-sm" id="pvCancel">Supprimer le brouillon</button><button class="btn btn-or" id="pvSend">Enregistrer le PV signé</button></div></div>`;
+  $("#pvBack").onclick=()=>{ pvSave(); PVS.cur=null; renderPv(); scrollTo(0,0); };
+  $("#pvCancel").onclick=async()=>{ if(await confirmBox("Supprimer ce brouillon de PV ?","Supprimer")){ pvDraftSet(null); PVS.cur=null; renderPv(); } };
+  document.querySelectorAll("[data-pv]").forEach(i=>{ i.oninput=()=>{ pv[i.dataset.pv]=i.value; pvSave(); }; i.onchange=()=>{ if(["client","rep","qual"].includes(i.dataset.pv)){ const y=scrollY; renderPvEdit(); scrollTo(0,y); } }; });
+  document.querySelectorAll("[data-pvl]").forEach(s2=>s2.onchange=()=>{ pv[s2.dataset.pvl]=s2.value||null; if(s2.dataset.pvl==="cpv"){ const c=pv.cands.cpv.find(x=>x.id===pv.cpv); if(c){ if(!pv.adresse) pv.adresse=c.adr; if(!pv.lieu&&c.com) pv.lieu=c.com.charAt(0)+c.com.slice(1).toLowerCase(); const y=scrollY; renderPvEdit(); scrollTo(0,y); } } pvSave(); });
+  document.querySelectorAll('input[name="pvdec"]').forEach(r=>r.onchange=()=>{ pv.dec=r.value; pvSave(); const y=scrollY; renderPvEdit(); scrollTo(0,y); });
+  document.querySelectorAll("[data-pvtr]").forEach(c=>c.onchange=()=>{ const t=PV_TRAVAUX[+c.dataset.pvtr]; pv.trav=pv.trav.filter(x=>x!==t); if(c.checked) pv.trav.push(t); pv.trav.sort((a,b)=>PV_TRAVAUX.indexOf(a)-PV_TRAVAUX.indexOf(b)); pvSave(); });
+  $("#pvFind").onclick=async()=>{ const q=$("#pvKw").value.trim(); if(q.length<2){ toast("Tapez au moins 2 lettres."); return; } const c0=pv.client; pv.client=q; await pvFindLinks(pv); pv.client=c0; pvSave(); const y=scrollY; renderPvEdit(); scrollTo(0,y); toast("Liaisons mises à jour."); };
+  setTimeout(()=>{ document.querySelectorAll("canvas[data-pvsig]").forEach(cv=>{ const k=cv.dataset.pvsig; const pad=valPad(cv); const img=(pv.sig||{})[k];
+      if(img){ const im=new Image(); im.onload=()=>{ const r=cv.getBoundingClientRect(); cv.getContext("2d").drawImage(im,0,0,r.width,r.height); pad.drawn=true; }; im.src=img; }
+      const up=cv.onpointerup; cv.onpointerup=cv.onpointercancel=e=>{ up&&up(e); if(pad.drawn){ pv.sig=pv.sig||{}; pv.sig[k]=pad.img(); pvSave(); } };
+      const b=document.querySelector(`[data-pvclr="${k}"]`); if(b) b.onclick=()=>{ pad.clear(); if(pv.sig) delete pv.sig[k]; pvSave(); }; }); },60);
+  $("#pvSend").onclick=()=>pvSend(); }
+async function pvSend(){ const pv=PVS.cur; const miss=[];
+  if(!pv.client.trim()) miss.push("le nom du client"); if(!pv.dec) miss.push("la décision (sans réserve / avec réserves / refusée)"); if(pv.dec==="avec"&&!pv.res.trim()) miss.push("les réserves");
+  if(pv.dec==="refus"&&!pv.motif.trim()) miss.push("le motif du refus"); if(!pv.sig||!pv.sig.E) miss.push("la signature de l'entreprise"); if(!pv.sig||!pv.sig.C) miss.push("la signature du client");
+  if(miss.length){ toast("Il manque : "+miss.join(", ")+"."); return; }
+  if(!MCP||!hasToken()){ toast("Clé Notion non enregistrée sur cet appareil : le brouillon est gardé."); return; }
+  const b=$("#pvSend"); b.disabled=true; b.textContent="Envoi…";
+  try{ const title=`PV de réception — ${pv.client}${pv.faitLe?" ("+frDate(pv.faitLe)+")":""}`; const fname="PV_reception_"+String(pv.client).replace(/[^A-Za-z0-9]+/g,"_").slice(0,40)+".pdf";
+    const props={"PV":{title:[{text:{content:title.slice(0,200)}}]},"Statut":{select:{name:"Signé"}},"Décision":{select:{name:pv.dec==="sans"?"Sans réserve":pv.dec==="avec"?"Avec réserves":"Refusée / différée"}},
+      "Client":rt(pv.client),"Adresse de la centrale":rt(pv.adresse),"Représentant CONEXUN":rt(pv.rep),"Qualité":rt(pv.qual),"Fait à":rt(pv.lieu),"Réserves":rt(pv.dec==="avec"?pv.res:""),"Motif refus / report":rt(pv.dec==="refus"?pv.motif:""),
+      "Travaux validés":{multi_select:pv.dec==="refus"?[]:pv.trav.map(n=>({name:n}))},"Signé par le client":{checkbox:true},"Rédigé par":rt(SESSION?(SESSION.nom||SESSION.login):""),
+      "🧰 Fiches travaux":{relation:pv.tvx.map(id=>({id}))},"🌞 Centrale solaire":{relation:pv.cpv?[{id:pv.cpv}]:[]},"📋 Fiche autocontrôle":{relation:pv.auto?[{id:pv.auto}]:[]},"Réception de chantier":{relation:pv.rc?[{id:pv.rc}]:[]}};
+    if(pv.faitLe) props["Fait le"]={date:{start:pv.faitLe}}; if(pv.finTx) props["Fin des travaux"]={date:{start:pv.finTx}}; if(pv.dec!=="refus"&&pv.effet) props["Date d'effet"]={date:{start:pv.effet}};
+    let pdfOk=false; try{ const b64=await pvPdf(pv); const r=await nativeCall("notionUpload",b64,fname,"application/pdf"); let j=null; try{ j=JSON.parse(r.text); }catch(e){}
+      if(r.status===200&&j&&j.id){ props["PDF du PV"]={files:[{type:"file_upload",file_upload:{id:j.id},name:fname}]}; pdfOk=true; } }catch(e){ console.warn("pv pdf",e); }
+    await notion("POST","pages",{parent:{database_id:PV_DB},icon:{type:"emoji",emoji:"📝"},properties:props});
+    pvDraftSet(null); PVS.cur=null; renderPv(); scrollTo(0,0); toast(pdfOk?"PV de réception enregistré dans Notion.":"PV enregistré (PDF non joint, à refaire)."); }
+  catch(e){ b.disabled=false; b.textContent="Enregistrer le PV signé"; toast("Échec : "+((e&&e.message)||"erreur")+" — le brouillon est gardé."); } }
+async function pvPdf(pv){ if(!window.jspdf) throw {message:"générateur PDF non chargé"}; await ensurePdfFonts();
+  const {jsPDF}=window.jspdf; const d=new jsPDF({unit:"mm",format:"a4"});
+  const HASF=PDF_FONTS&&PDF_FONTS.length===4; if(HASF) PDF_FONTS.forEach(([f,fam,st,b])=>{ d.addFileToVFS(f,b); d.addFont(f,fam,st); });
+  const PF=HASF?"Lato":"helvetica", TF=HASF?"LeagueSpartan":"helvetica"; const OR=[239,123,26], GR=[40,40,40], W=210, M=20, CW=W-2*M;
+  const clean=v=>String(v??"").replace(/[^\x00-\xFF€œŒ’‘“”…–—·]/g,""); const dt=v=>v?frDate(v):"……/……/……";
+  const lw=60; d.addImage(LOGO,"PNG",(W-lw)/2,10,lw,lw*294/900); let y=42;
+  d.setFont(PF,"normal"); d.setFontSize(10); d.setTextColor(...GR); d.text(clean(`A ${pv.lieu||"…………………"}, le ${dt(pv.faitLe)}`),M,y); y+=14;
+  d.setFont(TF,"bold"); d.setFontSize(17); d.text("Procès-verbal de réception des travaux",M,y); y+=11;
+  d.setFont(PF,"normal"); d.setFontSize(10);
+  const para=t=>{ const L=d.splitTextToSize(clean(t),CW); d.text(L,M,y,{lineHeightFactor:1.45}); y+=L.length*5.2+3; };
+  const box=(on,t,x0)=>{ const x=x0||M; d.setDrawColor(...GR); d.setLineWidth(0.3); d.rect(x,y-3.4,3.8,3.8); if(on){ d.setLineWidth(0.6); d.line(x+0.7,y-1.5,x+1.7,y-0.2); d.line(x+1.7,y-0.2,x+3.3,y-2.9); }
+    const L=d.splitTextToSize(clean(t),CW-(x-M)-7); d.text(L,x+6,y,{lineHeightFactor:1.45}); y+=L.length*5.2+2.5; };
+  para(`Je soussigné(e), M./Mme ${pv.client}, après avoir procédé à la visite de fin des travaux effectués le ${dt(pv.finTx)} par la SARL CONEXUN relatifs à l'installation de la centrale photovoltaïque sise à ${pv.adresse||"……………………………"}.`);
+  para(`En présence de ${pv.rep||"……………………"}, agissant en tant que ${pv.qual||"……………"} pour l'entreprise, représentant de la SARL CONEXUN, déclare que :`); y+=1;
+  const ok=pv.dec==="sans"||pv.dec==="avec";
+  box(pv.dec==="sans",`La réception est prononcée sans réserve, avec effet à la date du ${pv.dec==="sans"?dt(pv.effet):"……/……/……"}.`);
+  if(ok){ y+=1; d.text(clean("Je certifie que les travaux suivants sont corrects et je suis satisfait de ce qui a été fait :"),M,y); y+=6.5; PV_TRAVAUX.forEach(t=>box(pv.trav.includes(t),t,M+12)); }
+  y+=1; box(pv.dec==="avec",`La réception est prononcée avec réserves, avec effet à la date du ${pv.dec==="avec"?dt(pv.effet):"……/……/……"}, assortie des réserves mentionnées : ${pv.dec==="avec"?pv.res:"……………………………"}`);
+  box(pv.dec==="refus",`La réception est refusée – différée pour les motifs suivants : ${pv.dec==="refus"?pv.motif:"……………………………"}`); y+=2;
+  para("La signature du procès-verbal de réception et le règlement des travaux autorisent le client soussigné à prendre possession de l'ouvrage.");
+  para(`Fait à ${pv.lieu||"…………………"}, le ${dt(pv.faitLe)}, en 2 exemplaires.`); y+=4;
+  if(y>230){ d.addPage(); y=25; }
+  const sw=78; [["Signature de l'entreprise",pv.sig.E,`${pv.rep}${pv.qual?" — "+pv.qual:""}`,M],["Signature du client",pv.sig.C,pv.client,W-M-sw]].forEach(([t,img,nm,x])=>{
+    d.setFont(PF,"bold"); d.setFontSize(10); d.text(clean(t),x,y); d.setLineWidth(0.3); d.line(x,y+1,x+d.getTextWidth(clean(t)),y+1);
+    d.setFont(PF,"normal"); d.setFontSize(8.5); d.text(clean(nm||""),x,y+6); if(img) d.addImage(img,"JPEG",x,y+8,sw,sw*130/480*0.95); });
+  d.setFontSize(7); d.setTextColor(130,130,130); d.text(clean("CONEXUN — installation et maintenance photovoltaïque · direction@conexun.tech"+(pv.affaire?" · Chantier : "+pv.affaire:"")),W/2,290,{align:"center"});
+  return ab2b64(d.output("arraybuffer")); }
 /* ---- validation des fiches autocontrôle par le responsable technique ---- */
 const VAL={items:null};
 const pchkb=p=>!!(p&&p.type==="checkbox"&&p.checkbox);
@@ -2696,6 +2844,7 @@ function renderList(){
   else if(tab==="arrivages") renderArrivages();
   else if(tab==="mouvements") renderMvts();
   else if(tab==="activite") renderActivite();
+  else if(tab==="pvrec") renderPv();
   else if(tab==="valider") renderValider();
   else if(tab==="moncompte") renderMonCompte();
   else if(tab==="compta") renderCompta();
@@ -3306,7 +3455,7 @@ function genPassword(){ const cs="abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXY
 function openCompte(c){
   const isNew=!c, self=!!(c&&SESSION&&SESSION.id===c.id);
   const m=document.createElement("div"); m.className="modal";
-  const G3=["Construction","Maintenance","Logistique","Admin"];
+  const G3=["Construction","Maintenance","Logistique","BET","Admin"];
   m.innerHTML=`<div class="box wide"><form class="form" id="cF" novalidate>
     <p style="margin:0"><b>${isNew?"Nouveau compte":"Modifier le compte"}</b></p>
     <label class="f2" for="cLogin">Identifiant<input id="cLogin" autocapitalize="none" spellcheck="false" autocomplete="off" value="${esc(c?c.login:"")}" placeholder="ex. keanu"></label>
@@ -3479,7 +3628,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1903;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1904;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
