@@ -1735,7 +1735,7 @@ const GROUPS=[
   ["maintenance","Maintenance",[["plan_m","Planning"],["supervision","Supervision"]]],
   ["logistique","Logistique",[["plan_l","Planning"],["tvx_l","Fiches travaux"],["stock","Stock"],["mouvements","Mouvements"],["arrivages","Arrivages"]]],
   ["commun","Base de données",[["cpv","CPV"],["materiel","Docs techniques"]]],
-  ["bet","BET",[["pvrec","PV de réception"]]],
+  ["bet","BET",[["recep","Réception de chantier"],["pvrec","PV de réception"]]],
   ["compta","Gestion comptabilité",[["compta","Rentabilité chantiers"]]],
   ["admin","Administrateur",[["activite","Activité"],["valider","À valider"],["comptes","Comptes"],["reglages","Réglages"]]],
   ["compte","Mon compte",[["moncompte","Mon compte"]]]];
@@ -1821,7 +1821,7 @@ const HOME_TILES=[
   ["maintenance","Maintenance","Planning · Supervision des centrales"],
   ["logistique","Logistique","Planning · Fiches travaux · Stock · Arrivages"],
   ["commun","Base de données","CPV · Docs techniques"],
-  ["bet","BET","PV de réception des chantiers terminés"],
+  ["bet","BET","Réception de chantier · PV de réception"],
   ["compta","Gestion comptabilité","Rentabilité des chantiers · Devis · Main-d'œuvre"],
   ["admin","Administrateur","Activité · Fiches à valider · Comptes · Réglages"],
   ["compte","Mon compte","Mes infos · Mot de passe · Mes fiches sauvegardées"]];
@@ -2668,6 +2668,7 @@ async function pvSend(){ const pv=PVS.cur; const miss=[];
     let pdfOk=false; try{ const b64=await pvPdf(pv); const r=await nativeCall("notionUpload",b64,fname,"application/pdf"); let j=null; try{ j=JSON.parse(r.text); }catch(e){}
       if(r.status===200&&j&&j.id){ props["PDF du PV"]={files:[{type:"file_upload",file_upload:{id:j.id},name:fname}]}; pdfOk=true; } }catch(e){ console.warn("pv pdf",e); }
     await notion("POST","pages",{parent:{database_id:PV_DB},icon:{type:"emoji",emoji:"📝"},properties:props});
+    if(pv.rc){ const et=pv.dec==="sans"?"Terminé":"Rectification sur chantier à faire"; notion("PATCH","pages/"+pv.rc,{properties:{"État":{status:{name:et}}}}).catch(()=>{}); RCS.items=null; }
     pvDraftSet(null); PVS.cur=null; renderPv(); scrollTo(0,0); toast(pdfOk?"PV de réception enregistré dans Notion.":"PV enregistré (PDF non joint, à refaire)."); }
   catch(e){ b.disabled=false; b.textContent="Enregistrer le PV signé"; toast("Échec : "+((e&&e.message)||"erreur")+" — le brouillon est gardé."); } }
 async function pvPdf(pv){ if(!window.jspdf) throw {message:"générateur PDF non chargé"}; await ensurePdfFonts();
@@ -2697,6 +2698,58 @@ async function pvPdf(pv){ if(!window.jspdf) throw {message:"générateur PDF non
     d.setFont(PF,"normal"); d.setFontSize(8.5); d.text(clean(nm||""),x,y+6); if(img) d.addImage(img,"JPEG",x,y+8,sw,sw*130/480*0.95); });
   d.setFontSize(7); d.setTextColor(130,130,130); d.text(clean("CONEXUN — installation et maintenance photovoltaïque · direction@conexun.tech"+(pv.affaire?" · Chantier : "+pv.affaire:"")),W/2,290,{align:"center"});
   return ab2b64(d.output("arraybuffer")); }
+/* ---- BET : réception de chantier ---- */
+const RC_ETATS=["Faire les RC","Rectification sur chantier à faire","Terminé"];
+const RCS={items:null,pv:{},f:"todo"};
+function renderRecep(){
+  $("#app").innerHTML=`<div class="wrap">${headerHTML("Réception de chantier","Chantiers à réceptionner : état de la réception, rectifications à faire et PV signé. Base Notion « Réception de chantier ».")}
+    <div class="toolbar"><select id="rcF" aria-label="Réceptions affichées"><option value="todo" ${RCS.f==="todo"?"selected":""}>À traiter</option><option value="done" ${RCS.f==="done"?"selected":""}>Terminées</option><option value="all" ${RCS.f==="all"?"selected":""}>Toutes</option></select>
+      <button class="btn btn-or btn-sm" id="rcNew">+ Nouvelle réception</button><button class="btn btn-ghost btn-sm" id="rcRf">${ICO.refresh}<span>Actualiser</span></button></div>
+    <div id="rcRes"><div class="card empty">Chargement…</div></div></div>`;
+  $("#rcF").onchange=()=>{ RCS.f=$("#rcF").value; drawRecep(); }; $("#rcRf").onclick=()=>loadRecep(); $("#rcNew").onclick=rcNewModal;
+  if(RCS.items) drawRecep(); loadRecep(); }
+async function loadRecep(){ const el=$("#rcRes"); if(!el) return;
+  if(!MCP||!hasToken()){ el.innerHTML=`<div class="card empty">Clé Notion non enregistrée sur cet appareil (Réglages).</div>`; return; }
+  try{ const [a,b]=await Promise.all([notion("POST","databases/"+RC_DB+"/query",{page_size:100,sorts:[{property:"Date de fin",direction:"descending"}]}),
+      notion("POST","databases/"+PV_DB+"/query",{page_size:100}).catch(()=>({results:[]}))]);
+    RCS.items=a.results||[]; RCS.pv={}; (b.results||[]).forEach(pg=>{ const P=pg.properties||{}; prel(P["Réception de chantier"]).forEach(id=>{ (RCS.pv[id]=RCS.pv[id]||[]).push(pg); }); }); drawRecep(); }
+  catch(e){ el.innerHTML=`<div class="card empty">${esc((e&&e.message)||"Chargement impossible")}</div>`; } }
+function rcClient(n){ return String(n||"").replace(/^\s*RC[\s_\-–—:]*/i,"").trim(); }
+function drawRecep(){ const el=$("#rcRes"); if(!el||!RCS.items) return;
+  const L=RCS.items.filter(pg=>{ const e=ptxt((pg.properties||{})["État"]); return RCS.f==="all"||(RCS.f==="done"?e==="Terminé":e!=="Terminé"); });
+  if(!L.length){ el.innerHTML=`<div class="card empty">Aucune réception ici.</div>`; return; }
+  el.innerHTML=L.map(pg=>{ const P=pg.properties||{}; const e=ptxt(P["État"])||"Faire les RC"; const d0=pdate(P["Date de début"]), d1=pdate(P["Date de fin"]); const pvs=RCS.pv[pg.id]||[];
+    const nf=pfiles(P["Joindre un fichier"]).length, ncpv=prel(P["Centrales Solaires"]).length;
+    return `<div class="card va"><div class="va-h"><b>${esc(ptxt(P["Nom du projet"])||"Réception")}</b><span class="va-st ${e==="Terminé"?"ok":e==="Faire les RC"?"todo":"co"}">${esc(e)}</span></div>
+      <div class="va-m">${[d0||d1?(d0&&d1&&d0!==d1?`du ${frDate(d0)} au ${frDate(d1)}`:frDate(d1||d0)):"",ncpv?"centrale liée":"",nf?nf+" fichier(s)":""].filter(Boolean).map(esc).join(" · ")||"—"}</div>
+      ${pvs.length?`<div class="va-m">📝 PV : ${pvs.map(x=>esc(ptxt((x.properties||{})["Décision"])||"enregistré")).join(", ")}</div>`:`<div class="va-w">Pas encore de PV de réception</div>`}
+      <div class="va-b"><select data-rcet="${pg.id}" aria-label="État de la réception" style="min-height:36px;border:1.5px solid var(--line);border-radius:8px;background:var(--card)">${RC_ETATS.map(x=>`<option ${x===e?"selected":""}>${x}</option>`).join("")}</select>
+        <button class="btn btn-or btn-sm" data-rcpv="${pg.id}">${pvs.length?"Nouveau PV":"Faire le PV"}</button>${pvs.length&&pfiles((pvs[0].properties||{})["PDF du PV"])[0]?`<button class="btn btn-ghost btn-sm" data-rcpdf="${pg.id}">Voir le PV</button>`:""}<button class="btn btn-ghost btn-sm" data-rcpg="${pg.id}">Ouvrir dans Notion</button></div></div>`; }).join("");
+  const byId=id=>RCS.items.find(x=>x.id===id);
+  el.querySelectorAll("[data-rcet]").forEach(sl=>sl.onchange=async()=>{ const pg=byId(sl.dataset.rcet); try{ await notion("PATCH","pages/"+pg.id,{properties:{"État":{status:{name:sl.value}}}}); pg.properties["État"]={type:"status",status:{name:sl.value}}; toast("État mis à jour : "+sl.value); drawRecep(); }catch(e){ toast("Échec : "+((e&&e.message)||"erreur")); } });
+  el.querySelectorAll("[data-rcpg]").forEach(b=>b.onclick=()=>{ const pg=byId(b.dataset.rcpg); openUrl(pg.url||nurl(pg.id)); });
+  el.querySelectorAll("[data-rcpdf]").forEach(b=>b.onclick=()=>{ const f=pfiles(((RCS.pv[b.dataset.rcpdf]||[])[0].properties||{})["PDF du PV"])[0]; if(f) openUrl(f.url); });
+  el.querySelectorAll("[data-rcpv]").forEach(b=>b.onclick=()=>pvFromRecep(byId(b.dataset.rcpv))); }
+async function pvFromRecep(pg){ const P=pg.properties||{}; const pv=pvNew(); const name=ptxt(P["Nom du projet"]);
+  pv.client=rcClient(name); pv.affaire=name; pv.finTx=pdate(P["Date de fin"])||""; pv.rc=pg.id; pv.cands.rc=[{id:pg.id,t:name||"Réception"}];
+  const cid=prel(P["Centrales Solaires"])[0];
+  PVS.cur=pv; pvDraftSet(pv); switchTab("pvrec"); toast("Recherche de la centrale, des fiches travaux et de l'autocontrôle…");
+  if(cid){ try{ const c=await notion("GET","pages/"+cid); const CP=c.properties||{}; const com=ptxt(CP["Commune"]); pv.cands.cpv=[{id:c.id,t:ptxt(CP["Nom de la Centrale"])||"Centrale",adr:[ptxt(CP["Adresse géographique"]),com].filter(Boolean).join(", "),com}]; pv.cpv=c.id; pv.adresse=pv.cands.cpv[0].adr; if(com) pv.lieu=com.charAt(0)+com.slice(1).toLowerCase(); }catch(e){} }
+  await pvFindLinks(pv); if(!pv.cands.rc.some(x=>x.id===pg.id)) pv.cands.rc.unshift({id:pg.id,t:name||"Réception"}); pv.rc=pg.id;
+  const kw=cpvKw(pv.client); if(kw){ try{ const j=await notion("POST","databases/"+TVX_DB+"/query",{page_size:20,filter:{and:[{property:"Affaire",title:{contains:kw}},{property:"Statut",select:{equals:"Finalisée"}}]}}); pv.tvx=(j.results||[]).map(x=>x.id); }catch(e){} }
+  if(PVS.cur===pv){ pvDraftSet(pv); if(tab==="pvrec") renderPvEdit(); } }
+function rcNewModal(){ const m=document.createElement("div"); m.className="modal"; const t=ymd(new Date()); let cen=null;
+  m.innerHTML=`<div class="box wide"><h3 style="margin:0 0 8px;font-family:var(--f-title)">Nouvelle réception de chantier</h3>
+    <label class="f">Nom<input id="rnN" value="RC_" placeholder="RC_NOM Prénom"></label>
+    <div class="grid"><label class="f">Date de début<input id="rnD0" type="date"></label><label class="f">Date de fin<input id="rnD1" type="date" value="${t}"></label></div>
+    <div style="display:flex;gap:8px;align-items:center;margin:6px 0"><button class="btn btn-ghost btn-sm" id="rnCpv" type="button">Relier une centrale…</button><span id="rnCpvT" class="hint" style="margin:0"></span></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px"><button class="btn btn-ghost btn-sm" id="rnX">Annuler</button><button class="btn btn-or btn-sm" id="rnOk">Créer</button></div></div>`;
+  document.body.appendChild(m); m.querySelector("#rnX").onclick=()=>m.remove();
+  m.querySelector("#rnCpv").onclick=async()=>{ const pg=await cpvPick(cpvKw(rcClient(m.querySelector("#rnN").value)),"Relier une centrale","Choisissez la centrale (CPV) concernée par cette réception."); if(pg){ cen=pg; m.querySelector("#rnCpvT").textContent=ptxt((pg.properties||{})["Nom de la Centrale"])||"Centrale reliée"; } };
+  m.querySelector("#rnOk").onclick=async()=>{ const n=m.querySelector("#rnN").value.trim(); if(rcClient(n).length<2){ toast("Indiquez le nom du client."); return; }
+    const d0=m.querySelector("#rnD0").value, d1=m.querySelector("#rnD1").value;
+    const props={"Nom du projet":{title:[{text:{content:n.slice(0,200)}}]},"État":{status:{name:"Faire les RC"}}}; if(d0) props["Date de début"]={date:{start:d0}}; if(d1) props["Date de fin"]={date:{start:d1}}; if(cen) props["Centrales Solaires"]={relation:[{id:cen.id}]};
+    try{ await notion("POST","pages",{parent:{database_id:RC_DB},properties:props}); m.remove(); toast("Réception créée."); RCS.f="todo"; loadRecep(); }catch(e){ toast("Échec : "+((e&&e.message)||"erreur")); } }; }
 /* ---- validation des fiches autocontrôle par le responsable technique ---- */
 const VAL={items:null};
 const pchkb=p=>!!(p&&p.type==="checkbox"&&p.checkbox);
@@ -2845,6 +2898,7 @@ function renderList(){
   else if(tab==="mouvements") renderMvts();
   else if(tab==="activite") renderActivite();
   else if(tab==="pvrec") renderPv();
+  else if(tab==="recep") renderRecep();
   else if(tab==="valider") renderValider();
   else if(tab==="moncompte") renderMonCompte();
   else if(tab==="compta") renderCompta();
@@ -3628,7 +3682,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1904;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1905;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
