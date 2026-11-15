@@ -1129,7 +1129,28 @@ const CHEV='<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="n
 /* ---------- Notion (API directe via l'appli Android) ---------- */
 const stripEmoji=s=>String(s||"").replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu,"").replace(/\s+/g," ").trim();
 const pageIdOf=u=>{ const m=String(u||"").replace(/-/g,"").match(/[0-9a-f]{32}/i); return m?m[0]:""; };
-const NATIVE=window.AndroidBridge||null;
+/* site web : pas de pont Android, on passe par le relais (clé Notion gardée côté serveur) */
+const WEB=!window.AndroidBridge&&/^https?:$/.test(location.protocol);
+const wls={ get:k=>{ try{ return localStorage.getItem(k)||""; }catch(e){ return ""; } }, set:(k,v)=>{ try{ if(v) localStorage.setItem(k,v); else localStorage.removeItem(k); }catch(e){} } };
+let WEB_API=wls.get("cx_wapi");
+async function webApi(){ if(!WEB_API){ try{ const c=await (await fetch("config.json?"+Date.now(),{cache:"no-store"})).json(); WEB_API=String(c.api||"").replace(/\/+$/,""); wls.set("cx_wapi",WEB_API); }catch(e){} } return WEB_API; }
+async function webCall(ep,body){ const api=await webApi(); if(!api) return {status:-1,text:JSON.stringify({message:"Adresse du serveur relais non configurée."})};
+  try{ const r=await fetch(api+ep,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+wls.get("cx_wtok")},body:JSON.stringify(body)});
+    const t=await r.text(); if(r.status===401&&ep!=="/login") setTimeout(()=>{ try{ webExpired(); }catch(e){} },0); return {status:r.status,text:t}; }
+  catch(e){ return {status:-1,text:JSON.stringify({message:"Pas de connexion au serveur relais."})}; } }
+function webBridge(){ if(!WEB) return null; const blobs={}; const cb=(id,p)=>p.then(r=>window.__nativeCb(id,r.status,r.text));
+  if(!wls.get("cx_wapi")) webApi(); else fetch("config.json?"+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(c=>{ if(c&&c.api){ WEB_API=String(c.api).replace(/\/+$/,""); wls.set("cx_wapi",WEB_API); } }).catch(()=>{});
+  return { web:true, hasToken:()=>true, setToken:()=>{}, deviceName:()=>"Navigateur web",
+    http:(id,method,url,body)=>cb(id,webCall("/notion",{method,path:String(url).replace("https://api.notion.com/v1/",""),body:body||null})),
+    notionUpload:(id,b64,name,mime)=>cb(id,webCall("/upload",{b64,name,mime})),
+    savePdf:(id,b64,name)=>{ try{ const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0)); const u=URL.createObjectURL(new Blob([bin],{type:"application/pdf"})); blobs[u]=name;
+      const a=document.createElement("a"); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>window.__nativeCb(id,200,u),0); }catch(e){ setTimeout(()=>window.__nativeCb(id,-1,String(e&&e.message||e)),0); } },
+    openPdf:u=>window.open(u,"_blank"),
+    sharePdf:async u=>{ try{ const b=await (await fetch(u)).blob(); const f=new File([b],blobs[u]||"document.pdf",{type:"application/pdf"}); if(navigator.canShare&&navigator.canShare({files:[f]})) await navigator.share({files:[f]}); else window.open(u,"_blank"); }catch(e){} },
+    openUrl:u=>window.open(u,"_blank","noopener"), cached:()=>"",
+    download:(id,url)=>setTimeout(()=>window.__nativeCb(id,200,url),0), saveCached:(id)=>setTimeout(()=>window.__nativeCb(id,-1,"Indisponible sur le site web"),0), openFile:u=>{ if(u) window.open(u,"_blank","noopener"); } }; }
+function webExpired(){ if(!WEB) return; wls.set("cx_wtok",""); if(typeof SESSION!=="undefined"&&SESSION){ SESSION=null; lsSet("cx_session",null); toast("Session expirée : reconnectez-vous."); renderList(); } }
+const NATIVE=window.AndroidBridge||webBridge();
 const _cbs={};
 window.__nativeCb=(id,status,text)=>{ const f=_cbs[id]; delete _cbs[id]; if(f) f(status,text); };
 function nativeCall(fn,...args){ return new Promise(res=>{ const id="cb"+uid(); _cbs[id]=(st,t)=>res({status:st,text:t}); try{ NATIVE[fn](id,...args); }catch(e){ delete _cbs[id]; res({status:-1,text:String(e&&e.message||e)}); } }); }
@@ -1768,10 +1789,11 @@ function pwCheck(stored,pw){ stored=String(stored||""); if(stored.startsWith("h1
 const SESSION_DAYS=30;
 let SESSION=lsGet("cx_session");
 if(SESSION){ if(!SESSION.at){ SESSION.at=Date.now(); lsSet("cx_session",SESSION); } else if(Date.now()-SESSION.at>SESSION_DAYS*864e5){ SESSION=null; lsSet("cx_session",null); setTimeout(()=>{ try{ toast("Session expirée (30 jours) : reconnectez-vous."); }catch(e){} },800); } }
+if(WEB&&SESSION&&!wls.get("cx_wtok")){ SESSION=null; lsSet("cx_session",null); }
 let loginFails=0, loginWait=0;
 const isAdmin=()=>!!(SESSION&&(SESSION.groupes||[]).includes("Admin"));
 function canEnter(g){ const need=GROUP_LOCK[g]; return !need || isAdmin() || !!(SESSION && (SESSION.groupes||[]).includes(need)); }
-function logout(){ SESSION=null; GUEST=false; lsSet("cx_session",null); if(cur) closeFiche(); toast("Déconnecté."); tab="home"; window.scrollTo(0,0); renderList(); }
+function logout(){ if(WEB) wls.set("cx_wtok",""); SESSION=null; GUEST=false; lsSet("cx_session",null); if(cur) closeFiche(); toast("Déconnecté."); tab="home"; window.scrollTo(0,0); renderList(); }
 async function checkSession(){
   if(!SESSION||notionReady()) return;
   try{ const pg=await notion("GET","pages/"+SESSION.id); const P=pg.properties||{};
@@ -1805,14 +1827,18 @@ function renderLogin(g){
     const nr=notionReady(); if(nr){ err(nr==="no_token"?"Clé Notion non configurée sur cet appareil : ouvrez « Réglages » ci-dessous.":nr); return; }
     const b=$("#lgGo"); b.disabled=true; b.textContent="Vérification…"; err("");
     try{
-      let all=[], cursor=null;
+      let pg=null, stPw="";
+      if(WEB){ const r=await webCall("/login",{login:id,password:pw}); let j=null; try{ j=JSON.parse(r.text); }catch(e){}
+        if(r.status===200&&j&&j.token&&j.page){ wls.set("cx_wtok",j.token); pg=j.page; stPw="h1$web"; } else if(r.status!==401) throw {message:(j&&j.message)||"Serveur relais injoignable."}; }
+      else{ let all=[], cursor=null;
       do{ const j=await notion("POST","databases/"+ACCES_DB+"/query",Object.assign({page_size:100,filter:{property:"Actif",checkbox:{equals:true}}},cursor?{start_cursor:cursor}:{}));
         all=all.concat(j.results||[]); cursor=j.has_more?j.next_cursor:null; }while(cursor);
-      const pg=all.find(x=>ptxt((x.properties||{})["Identifiant"]).trim().toLowerCase()===id.toLowerCase());
-      const stPw=pg?ptxt(pg.properties["Mot de passe"]):""; if(!pg||!pwCheck(stPw,pw)){ loginFails++; if(loginFails>=5){ loginWait=Date.now()+30000; loginFails=0; } err("Identifiant ou mot de passe incorrect."); b.disabled=false; b.textContent="Se connecter"; return; }
+      pg=all.find(x=>ptxt((x.properties||{})["Identifiant"]).trim().toLowerCase()===id.toLowerCase());
+      stPw=pg?ptxt(pg.properties["Mot de passe"]):""; }
+      if(!pg||(!WEB&&!pwCheck(stPw,pw))){ loginFails++; if(loginFails>=5){ loginWait=Date.now()+30000; loginFails=0; } err("Identifiant ou mot de passe incorrect."); b.disabled=false; b.textContent="Se connecter"; return; }
       const groupes=pmulti(pg.properties["Groupes"]);
       if(need&&!groupes.includes(need)&&!groupes.includes("Admin")){ err(need==="Admin"?"Ce compte n'est pas administrateur.":"Ce compte n'a pas accès à "+need+"."); b.disabled=false; b.textContent="Se connecter"; return; }
-      if(!stPw.startsWith("h1$")) notion("PATCH","pages/"+pg.id,{properties:{"Mot de passe":rt(pwHash(pw))}}).catch(()=>{});
+      if(!WEB&&!stPw.startsWith("h1$")) notion("PATCH","pages/"+pg.id,{properties:{"Mot de passe":rt(pwHash(pw))}}).catch(()=>{});
       loginFails=0; SESSION={id:pg.id,login:ptxt(pg.properties["Identifiant"]).trim(),nom:ptxt(pg.properties["Nom"]).trim()||id,groupes,at:Date.now()};
       lsSet("cx_session",SESSION); lsSet("cx_last_login",SESSION.login); toast("Bonjour "+SESSION.nom+" !"); renderList(); beat(true); setTimeout(()=>bkRestore().catch(()=>{}),1500);
     }catch(e2){ err(e2&&e2.code==="http_404"?"Base « Accès appli » non connectée à l'intégration CONEXUN dans Notion.":((e2&&e2.message)||"Erreur Notion")); b.disabled=false; b.textContent="Se connecter"; }
@@ -3653,7 +3679,7 @@ function openCompte(c){
 function renderReglages(){
   const has=hasToken();
   $("#app").innerHTML=`<div class="wrap">${headerHTML("Réglages","Réglages de cet appareil.")}
-    <div class="card" style="padding:16px;display:flex;flex-direction:column;gap:10px">
+    <div class="card" style="padding:16px;display:${WEB?"none":"flex"};flex-direction:column;gap:10px">
       <b>Clé d'intégration Notion</b>
       <span style="font-size:13px;color:var(--muted)">Clé de l'intégration « CONEXUN Autocontrôle » (commence par « ntn_ »). Elle reste enregistrée sur cet appareil.</span>
       <span style="font-size:13px">État : ${has?'<b style="color:var(--ok)">clé enregistrée</b>':'<b style="color:var(--ko)">aucune clé</b>'}</span>
@@ -3782,7 +3808,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1907;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1908;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
