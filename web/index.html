@@ -3798,6 +3798,8 @@ async function renderMonCompte(){
   $("#mcPw").onclick=async()=>{ const er=t=>{ $("#mcErr").textContent=t; }; const o=$("#mcOld").value, n1=$("#mcNew").value, n2=$("#mcNew2").value;
     if(n1.length<4) return er("Nouveau mot de passe : 4 caractères minimum."); if(n1!==n2) return er("Les deux nouveaux mots de passe ne sont pas identiques.");
     const b=$("#mcPw"); b.disabled=true; er("");
+    if(WEB){ const r=await webCall("/password",{old:o,new:n1}); let j=null; try{ j=JSON.parse(r.text); }catch(e){}
+      if(r.status===200){ ["#mcOld","#mcNew","#mcNew2"].forEach(x=>$(x).value=""); toast("Mot de passe changé."); } else er((j&&j.message)||"Erreur"); b.disabled=false; return; }
     try{ const p2=await notion("GET","pages/"+SESSION.id); if(!pwCheck(ptxt((p2.properties||{})["Mot de passe"]),o)){ er("Mot de passe actuel incorrect."); b.disabled=false; return; }
       await notion("PATCH","pages/"+SESSION.id,{properties:{"Mot de passe":rt(pwHash(n1))}}); ["#mcOld","#mcNew","#mcNew2"].forEach(x=>$(x).value=""); toast("Mot de passe changé."); }
     catch(e){ er((e&&e.message)||"Erreur Notion"); } b.disabled=false; };
@@ -3808,7 +3810,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1908;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1909;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
