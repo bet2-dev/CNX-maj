@@ -3159,6 +3159,18 @@ async function openDoc(d){
   m.querySelector('[data-v="save"]').onclick=()=>saveIt(false);
   m.querySelector('[data-v="ext"]').onclick=()=>saveIt(true);
   if(!NATIVE){ fail("Disponible uniquement dans l'appli Android."); return; }
+  if(WEB){ let url=""; try{ url=await freshFileUrl(d); if(!url) throw new Error("Document introuvable dans Notion."); }catch(e){ fail((e&&e.message)||"Document indisponible."); return; }
+    if(!alive()) return;
+    const foot=m.querySelector(".vfoot"); foot.innerHTML=`<a class="btn btn-ghost btn-sm" href="${esc(url)}" target="_blank" rel="noopener">Ouvrir dans un nouvel onglet</a><a class="btn btn-ghost btn-sm" href="${esc(url)}" download="${esc(d.saveName||d.name||"document")}" target="_blank" rel="noopener">Télécharger</a>`;
+    m.querySelector('[data-v="in"]').style.display=isImg?"":"none"; m.querySelector('[data-v="out"]').style.display=isImg?"":"none";
+    let blobUrl=""; try{ const api=await webApi(); const r=await fetch(api+"/file",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+wls.get("cx_wtok")},body:JSON.stringify({url})});
+      if(r.ok) blobUrl=URL.createObjectURL(await r.blob()); }catch(e){}
+    if(!alive()) return;
+    const src=blobUrl||url;
+    if(blobUrl) foot.querySelector("a[download]").href=blobUrl;
+    if(isImg){ body.innerHTML=`<img alt="${esc(d.name)}" src="${esc(src)}">`; const img=body.querySelector("img"); redraw=()=>{ img.style.width=(100*zoom)+"%"; }; redraw(); return; }
+    if(isPdf){ body.innerHTML=`<iframe title="${esc(d.title||d.name)}" src="${esc(src)}" style="width:100%;height:100%;min-height:70vh;border:0;background:#fff"></iframe>`; return; }
+    body.innerHTML=`<div class="vmsg">Ce type de fichier (.${esc(ext)}) ne s'affiche pas ici.<br><br><a class="btn btn-or" href="${esc(src)}" target="_blank" rel="noopener" download="${esc(d.saveName||d.name||"document")}">Ouvrir / télécharger</a></div>`; return; }
   let local="";
   try{
     local=NATIVE.cached(d.key)||"";
@@ -3812,7 +3824,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1910;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1911;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
