@@ -311,6 +311,14 @@ h3.sub2{font-size:14px;color:var(--or-ink);margin:16px 0 4px}
 .pvx-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px;color:#b9b9bb;font-size:14px;pointer-events:none}.pvx-ph svg{width:18px;height:18px}.pvx-ph[hidden]{display:none}
 .pvx-line{position:absolute;left:16px;right:16px;bottom:28px;border-bottom:1px solid #e6e6e6;pointer-events:none}
 .pvx-legal{margin:12px 0 0;font-size:12px;line-height:1.45;color:var(--muted)}
+.fr-cfg{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.fr-cfg-r{display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:center}.fr-cfg-r>span{font-size:12.5px;font-weight:700;color:var(--muted)}.fr-cfg-r.miss>span{color:var(--or-ink)}
+.fr-cfg-b{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.fr-cfg-b button{min-height:40px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);font:inherit;font-size:13px;font-weight:700;cursor:pointer;padding:0 6px}
+.fr-cfg-r.miss .fr-cfg-b button{border-style:dashed;border-color:var(--or)}.fr-cfg-b button.on{background:var(--or);border-color:var(--or);border-style:solid;color:#fff}.fr-cfg-b button:focus-visible{outline:3px solid var(--or);outline-offset:2px}
+.fr-from,.fr-hint{display:flex;gap:8px;align-items:flex-start;margin:12px 0 0;padding:8px 10px;border-radius:10px;font-size:12.5px;line-height:1.4}.fr-from{background:var(--ok-soft)}.fr-hint{background:var(--or-soft)}
+.fr-from svg,.fr-hint svg{width:16px;height:16px;flex:none;margin-top:1px}.fr-from svg{color:var(--ok)}.fr-hint svg{color:var(--or)}
+@media (max-width:420px){.fr-cfg-r{grid-template-columns:1fr}}
 .rn-cpv .bet-ch{border-style:dashed}.rn-cpv.on .bet-ch{border-style:solid;border-color:var(--ok);background:var(--ok-soft)}.rn-cpv.on .bet-ch-ic{background:var(--ok);color:#fff}
 .rn-act{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.rn-act .btn{gap:6px}.rn-act .btn svg{width:16px;height:16px}
 #rnN.rn-flash{border-color:var(--ok)!important;background:var(--ok-soft)!important;transition:background .3s}
@@ -3015,7 +3023,7 @@ function rcNewModal(){ const m=document.createElement("div"); m.className="modal
     try{ const pg=await notion("POST","pages",{parent:{database_id:RC_DB},properties:props}); close(); toast("Réception créée."); RCS.f="todo"; RCS.items=null; if(pg&&pg.id){ pg.properties=pg.properties||{}; if(!ptxt(pg.properties["Nom du projet"])) pg.properties["Nom du projet"]={type:"title",title:[{plain_text:n}]}; frcOpen(pg); } else loadRecep(); }
     catch(e){ ok.disabled=false; toast("Échec : "+((e&&e.message)||"erreur")); } }; }
 /* ---- BET : fiche de réception de chantier ---- */
-const FRC_SECS=[
+const FRC_MASTER=[
  ["toit","Toiture et pose des modules","Poseur",[
   ["str","Structure et rails fixés, serrage des brides vérifié"],
   ["etan","Étanchéité de la toiture OK (crochets, traversées, tôles)"],
@@ -3035,7 +3043,8 @@ const FRC_SECS=[
   ["pol","Polarité vérifiée avant raccordement à l'onduleur"]]],
  ["ac","Onduleur, batterie et partie AC","Électricien",[
   ["ond","Onduleur Huawei fixé, dégagements et ventilation respectés"],
-  ["bat","Batterie LUNA2000 / Backup fixés et raccordés"],
+  ["bat","Batterie LUNA2000 fixée et raccordée"],
+  ["sg","SmartGuard / Backup Box fixé, départ BACKUP LOAD raccordé"],
   ["tgpv","Coffret TGPV AC : disjoncteur, différentiel, parafoudre conformes"],
   ["liai","Liaison TGBT client → TGPV AC → onduleur conforme"],
   ["serr","Serrages contrôlés, presse-étoupes en place, coffrets fermés"],
@@ -3051,16 +3060,45 @@ const FRC_SECS=[
   ["cli","Fonctionnement expliqué au client (appli, coupure d'urgence)"],
   ["docs","Documents remis au client (schémas, notices, garanties)"]]]];
 const FRC={cur:null};
+const FRC_CFG=[["kind","Intervention",[["neuf","Nouvelle installation"],["ext","Extension"]]],["racc","Réseau",[["mono","Monophasé"],["tri","Triphasé"]]],
+  ["pose","Pose des modules",[["toit","En toiture"],["sol","Au sol / ombrière"]]],["opt","Optimiseurs",[["oui","Oui"],["non","Non"]]],
+  ["bat","Batterie",[["oui","Oui"],["non","Non"]]],["sg","SmartGuard / Backup",[["oui","Oui"],["non","Non"]]]];
+const FRC_EXT=["ex","Extension","BET",[["old","Installation existante contrôlée avant travaux et remise en service"],["lien","Raccordement de l'extension sur l'existant conforme"],
+  ["prot","Protections adaptées à la nouvelle puissance"],["fus","Extension visible dans la même centrale FusionSolar"]]];
+const FRC_NEED={toit_etan:c=>c.pose!=="sol",toit_opt:c=>c.opt!=="non",ac_bat:c=>c.bat!=="non",ac_sg:c=>c.sg!=="non",mes_batm:c=>c.bat!=="non"||c.sg!=="non"};
+const FRC_VAR={
+  toit_str:c=>c.pose==="sol"?"Structure au sol ancrée, rails fixés, serrage des brides vérifié":"",
+  toit_prop:c=>c.pose==="sol"?"Zone de pose propre (chutes, vis, emballages retirés)":"",
+  toit_pe:c=>c.pose==="sol"?"Terre de la structure au sol et des cadres modules raccordée":"",
+  dc_trav:c=>c.pose==="sol"?"Câbles enterrés sous fourreau protégé, passages de murs étanches":"",
+  ac_ond:c=>c.racc==="tri"?"Onduleur Huawei triphasé fixé, dégagements et ventilation respectés":c.racc==="mono"?"Onduleur Huawei monophasé fixé, dégagements et ventilation respectés":"",
+  ac_tgpv:c=>c.racc==="tri"?"Coffret TGPV AC triphasé : disjoncteur, différentiel, parafoudre conformes":c.racc==="mono"?"Coffret TGPV AC monophasé : disjoncteur, différentiel, parafoudre conformes":"",
+  ac_meter:c=>c.sg==="oui"?"Comptage vérifié (SmartGuard / Smart Meter), sens du courant OK":c.racc==="tri"?"Smart Meter triphasé raccordé, ordre des phases et sens du courant vérifiés":"",
+  mes_fus:c=>c.sg==="oui"?"Centrale connectée dans FusionSolar (via le SmartGuard)":"",
+  mes_batm:c=>c.bat==="oui"&&c.sg==="oui"?"Batterie en mode décharge, bascule backup testée":c.bat==="oui"?"Batterie réglée en mode décharge":c.sg==="oui"?"Bascule backup SmartGuard testée":""};
+function frcSecs(f){ const c=(f&&f.cfg)||{}; const out=[]; if(c.kind==="ext") out.push(FRC_EXT);
+  FRC_MASTER.forEach(([sk,st,who,items])=>{ const it=items.filter(([k])=>{ const n=FRC_NEED[sk+"_"+k]; return !n||n(c); }).map(([k,l])=>{ const v=FRC_VAR[sk+"_"+k]; return [k,(v&&v(c))||l]; });
+    out.push([sk,sk==="toit"&&c.pose==="sol"?"Structure et pose des modules":st,who,it]); }); return out; }
+function frcCfgTxt(c){ c=c||{}; return FRC_CFG.map(([k,l,o])=>{ const x=o.find(y=>y[0]===c[k]); if(!x) return ""; const Y={opt:["Optimiseurs","sans optimiseurs"],bat:["Batterie","sans batterie"],sg:["SmartGuard","sans SmartGuard"]}[k]; return Y?(x[0]==="oui"?Y[0]:Y[1]):x[1]; }).filter(Boolean).join(" · "); }
+async function frcPrefill(f,pg){ const P=(pg&&pg.properties)||{}; const cid=prel(P["Centrales Solaires"])[0]; if(!cid||!MCP||!hasToken()) return false;
+  try{ const c=await notion("GET","pages/"+cid); const C=c.properties||{}; const g=f.cfg; let n=0; const set=(k,v)=>{ if(v&&!g[k]){ g[k]=v; n++; } };
+    const res=ptxt(C["Réseau"]); set("racc",/tri/i.test(res)?"tri":/mono/i.test(res)?"mono":"");
+    const sto=ptxt(C["Stockage (kWh)"]); if(sto!=="") set("bat",Number(sto)>0?"oui":"non");
+    const sg=ptxt(C["Smartguards/ BackupBox"]); if(sg) set("sg",/^non$/i.test(sg)?"non":"oui");
+    const on=pnum(C["Nombre d'optimiseurs"]); if(on!=null&&on!=="") set("opt",Number(on)>0?"oui":"non");
+    const et=ptxt(C["État"]); set("kind",/extension/i.test(et)?"ext":/installation/i.test(et)?"neuf":"");
+    f.cfgFrom=ptxt(C["Nom de la Centrale"])||"la centrale"; return n>0; }catch(e){ return false; } }
 const FRC_ST={C:["OK","ok",[30,122,60]],NC:["À reprendre","co",[181,71,8]],SO:["N.A.","so",[120,120,120]]};
 function frcGet(id){ try{ return JSON.parse(localStorage.getItem("cx_frc_"+id)||"null"); }catch(e){ return null; } }
 function frcSave(){ const f=FRC.cur; if(!f) return; try{ localStorage.setItem("cx_frc_"+f.rc,JSON.stringify(f)); }catch(e){ toast("Mémoire pleine : retirez une photo ou enregistrez la fiche."); } }
 function frcDrop(id){ try{ localStorage.removeItem("cx_frc_"+id); }catch(e){} }
-function frcFix(f){ f.ans=f.ans||{}; f.com=f.com||{}; f.ph=f.ph||{}; f.rev=f.rev||[]; if(typeof f.note==="string"){ f.rem=f.rem||f.note; f.note={}; } f.note=f.note||{}; f.img=f.img||{}; f.rem=f.rem||""; return f; }
-function frcCount(f){ f=frcFix(f); let tot=0,done=0,nc=0; FRC_SECS.forEach(([sk,,,items])=>items.forEach(([k])=>{ tot++; const v=f.ans[sk+"_"+k]; if(v) done++; if(v==="NC") nc++; })); return {tot,done,nc}; }
+function frcFix(f){ f.cfg=f.cfg||{}; f.ans=f.ans||{}; f.com=f.com||{}; f.ph=f.ph||{}; f.rev=f.rev||[]; if(typeof f.note==="string"){ f.rem=f.rem||f.note; f.note={}; } f.note=f.note||{}; f.img=f.img||{}; f.rem=f.rem||""; return f; }
+function frcCount(f){ f=frcFix(f); let tot=0,done=0,nc=0; frcSecs(f).forEach(([sk,,,items])=>items.forEach(([k])=>{ tot++; const v=f.ans[sk+"_"+k]; if(v) done++; if(v==="NC") nc++; })); return {tot,done,nc}; }
 function frcOpen(pg){ const P=pg.properties||{}; const me=SESSION?(SESSION.nom||SESSION.login):"";
   FRC.cur=frcFix(frcGet(pg.id)||{rc:pg.id,name:ptxt(P["Nom du projet"])||"Réception",date:ymd(new Date()),by:me});
-  frcSave(); if(tab!=="recep") switchTab("recep"); else renderFrc(); scrollTo(0,0); }
-function frcNc(f){ const out=[]; FRC_SECS.forEach(([sk,st,who,items])=>items.forEach(([k,l])=>{ const key=sk+"_"+k; if((f.ans[key]||"")==="NC") out.push({sec:st,who,t:l,c:(f.note||{})[key]||"",img:(f.img||{})[key]||""}); })); return out; }
+  frcSave(); if(tab!=="recep") switchTab("recep"); else renderFrc(); scrollTo(0,0);
+  const f0=FRC.cur; if(FRC_CFG.some(([k])=>!f0.cfg[k])) frcPrefill(f0,pg).then(ch=>{ if(ch&&FRC.cur===f0){ frcSave(); const y=scrollY; renderFrc(); scrollTo(0,y); toast("Type d'installation repris de la centrale."); } }); }
+function frcNc(f){ const out=[]; frcSecs(f).forEach(([sk,st,who,items])=>items.forEach(([k,l])=>{ const key=sk+"_"+k; if((f.ans[key]||"")==="NC") out.push({sec:st,who,t:l,c:(f.note||{})[key]||"",img:(f.img||{})[key]||""}); })); return out; }
 function frcEtat(f){ return frcNc(f).length||f.rev.some(r=>r.t||r.img)?"Rectification sur chantier à faire":"Terminé"; }
 function frcPickImg(cb){ const fi=document.createElement("input"); fi.type="file"; fi.accept="image/*"; fi.style.display="none"; document.body.appendChild(fi);
   fi.onchange=async()=>{ const file=fi.files[0]; fi.remove(); if(!file) return;
@@ -3068,8 +3106,9 @@ function frcPickImg(cb){ const fi=document.createElement("input"); fi.type="file
     catch(e){ toast("Photo illisible, réessayez."); } }; fi.click(); }
 function frcProg(){ const f=FRC.cur; if(!f) return; const c=frcCount(f); const b=document.querySelector(".pvx-bar i"); if(b) b.style.width=Math.round(c.done/c.tot*100)+"%"; const t=document.querySelector(".pvx-n"); if(t) t.textContent=c.done+"/"+c.tot; }
 function renderFrc(){ const f=frcFix(FRC.cur); const c=frcCount(f); const nc=frcNc(f), et=frcEtat(f);
-  const secDone=sk=>{ const it=FRC_SECS.find(x=>x[0]===sk)[3]; return it.every(([k])=>f.ans[sk+"_"+k]); };
-  const steps=[["Visite",!!(f.date&&String(f.by||"").trim())]].concat(FRC_SECS.map(([sk,st])=>[{toit:"Toiture",dc:"DC",ac:"AC",mes:"Service"}[sk],secDone(sk)])).concat([["Bilan",c.done===c.tot]]);
+  const secDone=sk=>{ const it=frcSecs(f).find(x=>x[0]===sk)[3]; return it.every(([k])=>f.ans[sk+"_"+k]); };
+  const cfgOk=FRC_CFG.every(([k])=>f.cfg[k]);
+  const steps=[["Visite",!!(f.date&&String(f.by||"").trim()&&cfgOk)]].concat(frcSecs(f).map(([sk,st])=>[{ex:"Extension",toit:f.cfg.pose==="sol"?"Pose":"Toiture",dc:"DC",ac:"AC",mes:"Service"}[sk],secDone(sk)])).concat([["Bilan",c.done===c.tot]]);
   const item=(sk,k,l)=>{ const key=sk+"_"+k, v=f.ans[key]||"";
     return `<div class="frq ${v?FRC_ST[v][1]:""}" id="frq_${key}"><div class="frq-t">${esc(l)}</div><div class="frq-seg" role="group" aria-label="${esc(l)}">${["C","NC","SO"].map(x=>`<button type="button" class="${FRC_ST[x][1]} ${v===x?"on":""}" data-fseg="${key}" data-v="${x}" aria-pressed="${v===x}">${x==="C"?BI.ok:x==="NC"?BI.warn:""}<span>${FRC_ST[x][0]}</span></button>`).join("")}</div>
       ${v==="NC"?`<div class="frq-nc"><textarea rows="2" data-fnote="${key}" placeholder="Ce qu'il faut reprendre">${esc(f.note[key]||"")}</textarea>
@@ -3081,14 +3120,17 @@ function renderFrc(){ const f=frcFix(FRC.cur); const c=frcCount(f); const nc=frc
       <div class="frq-l">${items.map(([k,l])=>item(sk,k,l)).join("")}</div>
       <details class="frx" ${(f.ph[sk]||[]).length||f.com[sk]?"open":""}><summary>Photos et commentaire de la partie</summary>${phs(f.ph[sk]||[],sk)}
       <label class="f full">Commentaire<textarea rows="2" data-fcom="${sk}" placeholder="Facultatif">${esc(f.com[sk]||"")}</textarea></label></details></section>`; };
-  const NS=FRC_SECS.length;
+  const NS=frcSecs(f).length;
   $("#app").innerHTML=`<div class="wrap pved pvx frc"><div class="crumb"><button id="frBack">${ICO.chev}<span>Réceptions</span></button><span class="sec">${ICO.bet||""}BET</span></div>
-    <div class="pvx-head"><h1>Fiche de réception</h1><p>${BI.sun}<b>${esc(rcClient(f.name)||f.name)}</b></p></div>
-    <nav class="pvx-steps fr-steps" aria-label="Parties">${steps.map(([l,ok],i)=>`<a href="#pvs${i}" data-pvstep="${i}" class="${ok?"done":""}"><i>${i+1}</i>${BI.ok}<span>${esc(l)}</span></a>`).join("")}</nav>
+    <div class="pvx-head"><h1>Fiche de réception</h1><p>${BI.sun}<b>${esc(rcClient(f.name)||f.name)}</b>${frcCfgTxt(f.cfg)?`<em>${esc(frcCfgTxt(f.cfg))}</em>`:""}</p></div>
+    <nav class="pvx-steps fr-steps" aria-label="Parties" style="grid-template-columns:repeat(${steps.length},1fr)">${steps.map(([l,ok],i)=>`<a href="#pvs${i}" data-pvstep="${i}" class="${ok?"done":""}"><i>${i+1}</i>${BI.ok}<span>${esc(l)}</span></a>`).join("")}</nav>
     <div class="pvx-prog"><div class="pvx-bar"><i style="width:${Math.round(c.done/c.tot*100)}%"></i></div><span class="pvx-n">${c.done}/${c.tot}</span></div>
-    <section class="pvx-sec" id="pvs0"><header class="pvx-sh ${steps[0][1]?"done":""}"><span class="pvx-num"><i>1</i>${BI.ok}</span><div><h2>Visite</h2><p>Quand et par qui la réception est faite.</p></div></header>
-      <div class="grid"><label class="f">Date de la visite<input type="date" data-ff="date" value="${esc(f.date)}"></label><label class="f">Réceptionné par<input data-ff="by" value="${esc(f.by)}"></label></div></section>
-    ${FRC_SECS.map(([sk,st,who,items],i)=>sec(i+1,sk,st,who,items)).join("")}
+    <section class="pvx-sec" id="pvs0"><header class="pvx-sh ${steps[0][1]?"done":""}"><span class="pvx-num"><i>1</i>${BI.ok}</span><div><h2>Visite et installation</h2><p>La liste des points s'adapte au type d'installation.</p></div></header>
+      <div class="grid"><label class="f">Date de la visite<input type="date" data-ff="date" value="${esc(f.date)}"></label><label class="f">Réceptionné par<input data-ff="by" value="${esc(f.by)}"></label></div>
+      ${f.cfgFrom?`<div class="fr-from">${BI.sun}<span>Prérempli depuis <b>${esc(f.cfgFrom)}</b> : vérifiez et corrigez si besoin.</span></div>`:""}
+      <div class="fr-cfg">${FRC_CFG.map(([k,l,o])=>`<div class="fr-cfg-r ${f.cfg[k]?"":"miss"}"><span>${esc(l)}</span><div class="fr-cfg-b" role="group" aria-label="${esc(l)}">${o.map(([v,t])=>`<button type="button" data-fcfg="${k}" data-v="${v}" class="${f.cfg[k]===v?"on":""}" aria-pressed="${f.cfg[k]===v}">${esc(t)}</button>`).join("")}</div></div>`).join("")}</div>
+      ${cfgOk?"":`<p class="fr-hint">${BI.warn}<span>Choisissez le type d'installation : les points qui ne concernent pas ce chantier disparaissent.</span></p>`}</section>
+    ${frcSecs(f).map(([sk,st,who,items],i)=>sec(i+1,sk,st,who,items)).join("")}
     <section class="pvx-sec" id="pvs${NS+1}"><header class="pvx-sh ${steps[NS+1][1]?"done":""}"><span class="pvx-num"><i>${NS+2}</i>${BI.ok}</span><div><h2>Bilan</h2><p>Calculé à partir des points cochés.</p></div></header>
       <div class="fr-res ${et==="Terminé"?"ok":"co"}"><span class="pvx-dec-ic">${et==="Terminé"?BI.ok:BI.warn}</span><div><b>${et==="Terminé"?"Réception OK":"Rectification sur chantier à faire"}</b><small>${et==="Terminé"?(c.done<c.tot?`${c.tot-c.done} point(s) pas encore cochés`:"Rien à reprendre : vous pouvez faire signer le PV."):`${nc.length+f.rev.filter(r=>r.t||r.img).length} point(s) à reprendre`}</small></div></div>
       ${nc.length?`<div class="pvx-sub">Points à reprendre</div><ul class="fr-nc">${nc.map(x=>`<li><b>${esc(x.t)}</b><small>${esc(x.sec)} · ${esc(x.who)}</small>${x.c?`<span>${esc(x.c)}</span>`:""}</li>`).join("")}</ul>`:""}
@@ -3107,8 +3149,9 @@ function renderFrc(){ const f=frcFix(FRC.cur); const c=frcCount(f); const nc=frc
   document.querySelectorAll("[data-ff]").forEach(i=>i.oninput=()=>{ f[i.dataset.ff]=i.value; frcSave(); });
   document.querySelectorAll("[data-fcom]").forEach(i=>i.oninput=()=>{ f.com[i.dataset.fcom]=i.value; frcSave(); });
   document.querySelectorAll("[data-fnote]").forEach(i=>i.oninput=()=>{ f.note[i.dataset.fnote]=i.value; frcSave(); });
+  document.querySelectorAll("[data-fcfg]").forEach(b=>b.onclick=()=>{ f.cfg[b.dataset.fcfg]=b.dataset.v; re(); });
   document.querySelectorAll("[data-fseg]").forEach(b=>b.onclick=()=>{ const k=b.dataset.fseg; f.ans[k]=f.ans[k]===b.dataset.v?"":b.dataset.v; re(); if(f.ans[k]==="NC") setTimeout(()=>{ const t=document.querySelector(`[data-fnote="${k}"]`); if(t) t.focus({preventScroll:true}); },50); });
-  document.querySelectorAll("[data-fall]").forEach(b=>b.onclick=()=>{ const sk=b.dataset.fall; FRC_SECS.find(x=>x[0]===sk)[3].forEach(([k])=>{ if(!f.ans[sk+"_"+k]) f.ans[sk+"_"+k]="C"; }); re(); toast("Points restants cochés OK."); });
+  document.querySelectorAll("[data-fall]").forEach(b=>b.onclick=()=>{ const sk=b.dataset.fall; frcSecs(f).find(x=>x[0]===sk)[3].forEach(([k])=>{ if(!f.ans[sk+"_"+k]) f.ans[sk+"_"+k]="C"; }); re(); toast("Points restants cochés OK."); });
   document.querySelectorAll("[data-fimg]").forEach(b=>b.onclick=()=>frcPickImg(d=>{ f.img[b.dataset.fimg]=d; re(); }));
   document.querySelectorAll("[data-fimdel]").forEach(b=>b.onclick=()=>{ delete f.img[b.dataset.fimdel]; re(); });
   document.querySelectorAll("[data-fadd]").forEach(b=>b.onclick=()=>frcPickImg(d=>{ const k=b.dataset.fadd; (f.ph[k]=f.ph[k]||[]).push(d); re(); }));
@@ -3126,6 +3169,7 @@ function renderFrc(){ const f=frcFix(FRC.cur); const c=frcCount(f); const nc=frc
   $("#frSend").onclick=frcSend; }
 async function frcUploadImg(data,name){ const r=await nativeCall("notionUpload",String(data).split(",")[1],name,"image/jpeg"); let j=null; try{ j=JSON.parse(r.text); }catch(e){} return r.status===200&&j&&j.id?j.id:null; }
 async function frcSend(){ const f=frcFix(FRC.cur); const c=frcCount(f);
+  if(FRC_CFG.some(([k])=>!f.cfg[k])){ toast("Choisissez d'abord le type d'installation (partie 1)."); scrollTo({top:0,behavior:"smooth"}); return; }
   if(!c.done&&!f.rev.length){ toast("Cochez les points de la fiche avant d'enregistrer."); return; }
   if(c.done<c.tot&&!await confirmBox(`${c.tot-c.done} point(s) ne sont pas cochés. Enregistrer quand même ?`,"Enregistrer")) return;
   if(!MCP||!hasToken()){ toast("Clé Notion non enregistrée sur cet appareil : la fiche reste sur le téléphone."); return; }
@@ -3136,8 +3180,9 @@ async function frcSend(){ const f=frcFix(FRC.cur); const c=frcCount(f);
     if(!pdfId) throw {message:"le PDF n'a pas pu être envoyé ("+pdfErr+"). Rien n'a été enregistré"};
     const blk=[{type:"divider",divider:{}},{type:"heading_2",heading_2:{rich_text:T(`Fiche de réception du ${frDate(f.date)}${f.by?" — "+f.by:""}`)}},
       {type:"callout",callout:{icon:{type:"emoji",emoji:et==="Terminé"?"✅":"⚠️"},rich_text:T(et==="Terminé"?`Réception OK (${c.done}/${c.tot} points vérifiés).`:"Rectification sur chantier à faire.")}},
+      {type:"paragraph",paragraph:{rich_text:T("Installation : "+frcCfgTxt(f.cfg))}},
       {type:"pdf",pdf:{type:"file_upload",file_upload:{id:pdfId}}}]; let up=0;
-    for(const [sk,st,who,items] of FRC_SECS){ blk.push({type:"heading_3",heading_3:{rich_text:T(st)}});
+    for(const [sk,st,who,items] of frcSecs(f)){ blk.push({type:"heading_3",heading_3:{rich_text:T(st)}});
       for(const [k,l] of items){ const key=sk+"_"+k, v=f.ans[key]; blk.push({type:"to_do",to_do:{rich_text:T(`${l} : ${v?FRC_ST[v][0]:"non vérifié"}`),checked:v==="C"||v==="SO"}});
         if(v==="NC"){ if(f.note[key]) blk.push({type:"quote",quote:{rich_text:T(f.note[key])}}); if(f.img[key]){ const id=await frcUploadImg(f.img[key],`${key}.jpg`).catch(()=>null); if(id){ up++; blk.push({type:"image",image:{type:"file_upload",file_upload:{id}}}); } } } }
       if(f.com[sk]) blk.push({type:"paragraph",paragraph:{rich_text:T("Commentaire : "+f.com[sk])}});
@@ -3166,8 +3211,9 @@ async function frcPdf(f){ if(!window.jspdf) throw {message:"générateur PDF non
   const pics=arr=>{ const w=(CW-8)/3; let x=M; arr.forEach((im,i)=>{ const h=w*0.75; if(i%3===0){ need(h+3); x=M; } try{ d.addImage(im,"JPEG",x,y,w,h); }catch(e){} x+=w+4; if(i%3===2||i===arr.length-1) y+=h+3; }); };
   head();
   const ok=et==="Terminé"; d.setFillColor(...(ok?[227,244,234]:[253,235,220])); d.roundedRect(M,y-5,CW,11,2,2,"F"); d.setFont(TF,"bold"); d.setFontSize(11); d.setTextColor(...(ok?[30,122,60]:[181,71,8]));
-  d.text(clean(ok?"Réception OK : rien à reprendre":"Rectification sur chantier à faire"),M+4,y+2); d.setFont(PF,"normal"); d.setFontSize(9); d.text(clean(`${c.done}/${c.tot} points vérifiés · ${c.nc} à reprendre`),W-M-4,y+2,{align:"right"}); y+=13;
-  FRC_SECS.forEach(([sk,st,who,items])=>{ h2(st,who); items.forEach(([k,l])=>{ const key=sk+"_"+k, v=f.ans[key]; row(l,v); if(v==="NC"){ if(f.note[key]) note(f.note[key]); if(f.img[key]) pics([f.img[key]]); } });
+  d.text(clean(ok?"Réception OK : rien à reprendre":"Rectification sur chantier à faire"),M+4,y+2); d.setFont(PF,"normal"); d.setFontSize(9); d.text(clean(`${c.done}/${c.tot} points vérifiés · ${c.nc} à reprendre`),W-M-4,y+2,{align:"right"}); y+=11;
+  if(frcCfgTxt(f.cfg)){ d.setFont(PF,"normal"); d.setFontSize(9); d.setTextColor(...GR); d.text(clean("Installation : "+frcCfgTxt(f.cfg)),M,y); y+=7; } else y+=2;
+  frcSecs(f).forEach(([sk,st,who,items])=>{ h2(st,who); items.forEach(([k,l])=>{ const key=sk+"_"+k, v=f.ans[key]; row(l,v); if(v==="NC"){ if(f.note[key]) note(f.note[key]); if(f.img[key]) pics([f.img[key]]); } });
     if(f.com[sk]){ d.setFont(PF,"normal"); d.setFontSize(9); const L=d.splitTextToSize(clean("Commentaire : "+f.com[sk]),CW); need(L.length*4.3+2); d.text(L,M,y); y+=L.length*4.3+1.5; }
     if((f.ph[sk]||[]).length){ y+=1; pics(f.ph[sk]); } y+=3; });
   const nc=frcNc(f), rv=f.rev.filter(r=>r.t||r.img);
@@ -4123,7 +4169,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1917;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1918;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
