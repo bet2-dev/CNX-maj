@@ -3012,7 +3012,7 @@ async function loadRecep(){ const el=$("#rcRes"); if(!el) return;
   finally{ const r2=$("#rcRf"); if(r2) r2.classList.remove("spin"); }
   if(RCS.items) drawRecep(); }
 function rcClient(n){ return String(n||"").replace(/^\s*RC[\s_\-–—:]*/i,"").trim(); }
-function drawRecep(){ const el=$("#rcRes"), se=$("#rcStats"); if(!el||!RCS.items) return; const A=RCS.items;
+function drawRecep(noScan){ const el=$("#rcRes"), se=$("#rcStats"); if(!el||!RCS.items) return; const A=RCS.items;
   const cnt={todo:0,co:0,ok:0,all:A.length}; A.forEach(pg=>cnt[RC_K(ptxt((pg.properties||{})["État"]))]++);
   if(!["todo","co","ok","all"].includes(RCS.f)) RCS.f="todo";
   if(se){ se.innerHTML=[["todo","À faire",""],["co","À rectifier","co"],["ok","Terminées","ok"],["all","Toutes",""]].map(([k,l,c])=>`<button class="bet-stat ${c} ${RCS.f===k?"on":""}" data-rcf="${k}" aria-pressed="${RCS.f===k}"><b>${cnt[k]}</b><span>${l}</span></button>`).join("");
@@ -3023,12 +3023,13 @@ function drawRecep(){ const el=$("#rcRes"), se=$("#rcStats"); if(!el||!RCS.items
     const dr=frcGet(pg.id); const pvf=pvs.length?pfiles((pvs[0].properties||{})["PDF du PV"])[0]:null; const dn=dr?frcCount(dr):null; const sv=frcSaved(pg);
     return `<article class="bet-pv ${k==="todo"?"":k}"><div class="bet-pv-top"><b>${esc(rcClient(ptxt(P["Nom du projet"]))||"Réception")}</b><span class="bet-tag ${k==="todo"?"":k}">${k==="ok"?BI.ok:k==="co"?BI.warn:BI.cal}${esc(k==="todo"?"À faire":k==="co"?"À rectifier":"Terminée")}</span></div>
       <div class="bet-meta">${d0||d1?`<span>${BI.cal}${esc(d0&&d1&&d0!==d1?`${frDate(d0)} → ${frDate(d1)}`:frDate(d1||d0))}</span>`:""}${prel(P["Centrales Solaires"]).length?`<span>${BI.sun}Centrale reliée</span>`:""}<span>${BI.file}${pvs.length?"PV "+esc(ptxt((pvs[0].properties||{})["Décision"])||"enregistré").toLowerCase():"Pas encore de PV"}</span></div>
-      ${sv&&!dr?`<div class="rc-draft"><span>${BI.ok}Rapport enregistré le ${esc(frDate(ymd(new Date(sv.savedAt))))}${sv.by?" · "+esc(sv.by):""}</span></div>`:""}
+      ${sv&&!dr?`<div class="rc-draft"><span>${BI.ok}Rapport enregistré le ${esc(sv.legacy&&sv.date?frDate(sv.date):frDate(ymd(new Date(sv.savedAt))))}${sv.by?" · "+esc(sv.by):""}</span></div>`:""}
       ${dr?`<div class="rc-draft"><span>${BI.pen}${dr.editOf?"Modification en cours":"Rapport en cours"} : ${dn.done}/${dn.tot} points${dn.nc?` · <b>${dn.nc} à reprendre</b>`:""}</span><div class="bet-bar"><i style="width:${Math.round(dn.done/dn.tot*100)}%"></i></div></div>`:""}
       <div class="bet-actions">${sv&&!dr?`${(sv.ph&&sv.ph.pdf)||pfiles(P["Rapport de réception (PDF)"])[0]?`<button class="btn btn-ghost btn-sm" data-rcvf="${pg.id}">${BI.eye}<span>Voir le PDF</span></button>`:""}<button class="btn btn-ghost btn-sm" data-rced="${pg.id}">${BI.pen}<span>Modifier</span></button>`
         :`<button class="btn btn-or btn-sm" data-rcfi="${pg.id}">${BI.list}<span>${dr?(dr.editOf?"Reprendre la modification":"Reprendre le rapport"):"Faire le rapport"}</span></button>`}
         ${pvf&&pvf.url?`<button class="btn btn-ghost btn-sm" data-rcpdf="${pg.id}">${BI.eye}<span>Voir le PV</span></button>`:`<button class="btn btn-ghost btn-sm" data-rcpv="${pg.id}">${BI.file}<span>Faire le PV</span></button>`}
         <label class="rc-et"><span class="sr">État</span><select data-rcet="${pg.id}" aria-label="État de la réception">${RC_ETATS.map(x=>`<option value="${x}" ${x===e?"selected":""}>${x==="Faire les RC"?"À faire":x==="Terminé"?"Terminée":"À rectifier"}</option>`).join("")}</select></label></div></article>`; }).join("");
+  if(!noScan) frcLegacyScan(L);
   const byId=id=>RCS.items.find(x=>x.id===id);
   el.querySelectorAll("[data-rcet]").forEach(sl=>sl.onchange=async()=>{ const pg=byId(sl.dataset.rcet); try{ await notion("PATCH","pages/"+pg.id,{properties:{"État":{status:{name:sl.value}}}}); pg.properties["État"]={type:"status",status:{name:sl.value}}; toast("État mis à jour."); drawRecep(); }catch(e){ toast("Échec : "+((e&&e.message)||"erreur")); } });
   el.querySelectorAll("[data-rcpdf]").forEach(b=>b.onclick=()=>{ const f=pfiles(((RCS.pv[b.dataset.rcpdf]||[])[0].properties||{})["PDF du PV"])[0]; if(f) openUrl(f.url); });
@@ -3227,7 +3228,34 @@ function renderFrc(){ const f=frcFix(FRC.cur); const c=frcCount(f); const nc=frc
     catch(e){ toast("Aperçu impossible : "+((e&&e.message)||"erreur")); } finally{ const b2=$("#frPrev"); if(b2) b2.disabled=false; } };
   $("#frSend").onclick=frcSend; }
 const FRC_DATA="Fiche réception (données)";
-function frcSaved(pg){ try{ const t=ptxt(((pg&&pg.properties)||{})[FRC_DATA]); if(!t) return null; const d=JSON.parse(t); return d&&d.v?d:null; }catch(e){ return null; } }
+const FRC_LEG={}; let _legRun=0;
+function frcLegNone(){ try{ return JSON.parse(localStorage.getItem("cx_frcleg")||"{}"); }catch(e){ return {}; } }
+async function frcLegacyLoad(pg){ let all=[],cur=null; do{ const j=await notion("GET","blocks/"+pg.id+"/children?page_size=100"+(cur?"&start_cursor="+cur:"")); all=all.concat(j.results||[]); cur=j.has_more?j.next_cursor:null; }while(cur&&all.length<1500);
+  const tx=b=>((b[b.type]||{}).rich_text||[]).map(t=>t.plain_text).join(""); const secs=[]; let c=null;
+  all.forEach((b,ix)=>{ if(b.type==="heading_2"&&/^(Fiche|Rapport) de réception du /.test(tx(b))){ c={head:tx(b),blocks:[]}; if(ix>0&&all[ix-1].type==="divider") c.blocks.push(all[ix-1]); secs.push(c); } if(c) c.blocks.push(b); });
+  let best=null;
+  secs.forEach(sc=>{ const d={v:1,legacy:true,savedAt:Date.parse(pg.last_edited_time||"")||Date.now(),date:"",by:"",cfg:{},ans:{},note:{},com:{},rem:"",rev:[],ph:{i:{},s:{},r:{},pdf:null},blocks:sc.blocks.map(b=>b.id)};
+    const m=sc.head.match(/du (\d{2})\/(\d{2})\/(\d{4})(?:\s+[—-]\s+(.*?))?(?:\s+\(modifi.*\))?$/); if(m){ d.date=`${m[3]}-${m[2]}-${m[1]}`; d.by=(m[4]||"").trim(); }
+    const ins=sc.blocks.find(b=>b.type==="paragraph"&&/^Installation\s*:/.test(tx(b))); if(ins){ const t=tx(ins); d.cfg={kind:/extension/i.test(t)?"ext":"neuf",racc:/triphas/i.test(t)?"tri":"mono",pose:/au sol/i.test(t)?"sol":"toit",opt:/sans optimiseurs/i.test(t)?"non":"oui",bat:/sans batterie/i.test(t)?"non":"oui",sg:/sans smartguard/i.test(t)?"non":"oui"}; }
+    const map={}; const S=frcSecs({cfg:d.cfg}); S.forEach(([sk,st,who,items])=>items.forEach(([k,l])=>{ map[l]=sk+"_"+k; })); const secName={}; S.forEach(([sk,st])=>{ secName[st]=sk; });
+    let sk=null,last=null,mode="";
+    sc.blocks.forEach(b=>{ const t=tx(b);
+      if(b.type==="heading_3"){ sk=secName[t]||null; last=null; mode=/Autres points/.test(t)?"rev":""; }
+      else if(b.type==="to_do"){ const i=t.lastIndexOf(" : "); const lab=i>0?t.slice(0,i):t, st=i>0?t.slice(i+3):""; const key=map[lab]; last=key||null; if(key){ const v=st==="OK"?"C":/reprendre/i.test(st)?"NC":/^N\.A|Sans objet/i.test(st)?"SO":""; if(v) d.ans[key]=v; } }
+      else if(b.type==="quote"&&last){ d.note[last]=t; }
+      else if(b.type==="bulleted_list_item"&&mode==="rev"){ const mm=t.match(/^(.*?)(?:\s+—\s+(Poseur|Électricien|BET))?$/); d.rev.push({t:mm?mm[1]:t,who:(mm&&mm[2])||""}); }
+      else if(b.type==="paragraph"&&/^Commentaire : /.test(t)&&sk){ d.com[sk]=t.slice(14); last=null; }
+      else if(b.type==="paragraph"&&/^Remarque : /.test(t)){ d.rem=t.slice(11); }
+      else if(b.type==="pdf"){ d.ph.pdf=b.id; }
+      else if(b.type==="image"){ if(mode==="rev"&&d.rev.length){ const k=d.rev.length-1; (d.ph.r[k]=d.ph.r[k]||[]).push(b.id); } else if(last&&d.ans[last]==="NC"){ (d.ph.i[last]=d.ph.i[last]||[]).push(b.id); } else if(sk){ (d.ph.s[sk]=d.ph.s[sk]||[]).push(b.id); } } });
+    d.n=Object.keys(d.ans).length; if(!best||d.n>=best.n) best=d; });
+  return best&&(best.n||best.ph.pdf)?best:null; }
+function frcLegacyScan(list){ if(!MCP||!hasToken()) return; const none=frcLegNone(); const run=++_legRun;
+  const todo=list.filter(pg=>!frcSavedRaw(pg)&&FRC_LEG[pg.id]===undefined&&none[pg.id]!==(pg.last_edited_time||"x")&&ptxt((pg.properties||{})["État"])!=="Faire les RC"); if(!todo.length) return;
+  let i=0, found=0; const work=async()=>{ while(i<todo.length&&run===_legRun){ const pg=todo[i++]; try{ const d=await frcLegacyLoad(pg); FRC_LEG[pg.id]=d; if(d) found++; else { none[pg.id]=pg.last_edited_time||"x"; } }catch(e){ } } };
+  Promise.all([work(),work(),work()]).then(()=>{ try{ localStorage.setItem("cx_frcleg",JSON.stringify(none)); }catch(e){} if(found&&run===_legRun&&tab==="recep"&&!FRC.cur) drawRecep(true); }); }
+function frcSaved(pg){ return frcSavedRaw(pg)||(pg&&FRC_LEG[pg.id])||null; }
+function frcSavedRaw(pg){ try{ const t=ptxt(((pg&&pg.properties)||{})[FRC_DATA]); if(!t) return null; const d=JSON.parse(t); return d&&d.v?d:null; }catch(e){ return null; } }
 function frcRt(str){ const o=[]; for(let i=0;i<str.length;i+=2000) o.push({type:"text",text:{content:str.slice(i,i+2000)}}); return o; }
 async function frcFetchImg(blockId){
   const b=await notion("GET","blocks/"+blockId); const im=b&&(b.image||b.pdf); const u=im&&(im.file?im.file.url:im.external&&im.external.url); if(!u) return null;
@@ -4312,7 +4340,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1923;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1924;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
