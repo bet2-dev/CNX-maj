@@ -1,1 +1,1 @@
-{"web": 1914, "sha256": "25baaed27a2173d97ab17584fa54b495d43e2ffc72451934499981ff0dcd7196", "minApk": 10, "apk": 10, "apkName": "v1.9", "apkUrl": "https://github.com/bet2-dev/CNX-maj/raw/main/apk/CONEXUN.apk", "notes": "Écran 1914 : envoi fiable du PDF du PV depuis le site, PV sans PDF signalés"}
+{"web": 1915, "sha256": "de9968f45b483a8eedd54a14686d8f3d257be48d5bfce455d715fb430d34ea15", "minApk": 10, "apk": 10, "apkName": "v1.9", "apkUrl": "https://github.com/bet2-dev/CNX-maj/raw/main/apk/CONEXUN.apk", "notes": "Écran 1915 : signatures du PV gardées quand on le modifie"}
