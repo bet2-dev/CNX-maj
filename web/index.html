@@ -311,6 +311,7 @@ h3.sub2{font-size:14px;color:var(--or-ink);margin:16px 0 4px}
 .pvx-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px;color:#b9b9bb;font-size:14px;pointer-events:none}.pvx-ph svg{width:18px;height:18px}.pvx-ph[hidden]{display:none}
 .pvx-line{position:absolute;left:16px;right:16px;bottom:28px;border-bottom:1px solid #e6e6e6;pointer-events:none}
 .pvx-legal{margin:12px 0 0;font-size:12px;line-height:1.45;color:var(--muted)}
+.pvx-edit{display:flex;gap:10px;align-items:flex-start;margin:8px 0 4px;padding:10px 12px;border-radius:12px;background:var(--or-soft);color:var(--fg);font-size:13px;line-height:1.4}.pvx-edit svg{width:18px;height:18px;flex:none;color:var(--or);margin-top:1px}
 .pvx-drop{display:flex;align-items:center;gap:6px;margin:4px auto 0;border:0;background:none;color:var(--ko);font:inherit;font-size:13px;font-weight:700;cursor:pointer;padding:10px}.pvx-drop svg{width:16px;height:16px}
 .pvx-dock{position:sticky;bottom:0;z-index:6;display:grid;grid-template-columns:auto 1fr;gap:8px;margin:10px -16px 0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line)}
 .pvx-dock .btn{min-height:50px;gap:8px}.pvx-dock .btn svg{width:18px;height:18px}
@@ -2717,7 +2718,7 @@ function renderPv(){ if(PVS.cur) return renderPvEdit();
     <section class="bet-hero"><div class="bet-hero-ic">${ICO.bet||BI.file}</div><div class="bet-hero-tx"><h1>PV de réception</h1>
       <p>À remplir avec le client à la fin du chantier. Le PV est relié au chantier terminé : fiches travaux, autocontrôle et centrale.</p></div>
       <button class="btn btn-or bet-cta" id="pvNew">${BI.plus}<span>Nouveau PV</span></button></section>
-    ${dr?`<section class="bet-draft"><div class="bet-draft-top"><span class="bet-tag co">${BI.pen}Brouillon en cours</span><span class="bet-draft-n">${nd}/5 étapes</span></div>
+    ${dr?`<section class="bet-draft"><div class="bet-draft-top"><span class="bet-tag co">${BI.pen}${dr.pageId?"Modification en cours":"Brouillon en cours"}</span><span class="bet-draft-n">${nd}/5 étapes</span></div>
       <b class="bet-draft-t">${esc(dr.client||dr.affaire||"PV sans client")}</b>${dr.affaire&&dr.client?`<div class="bet-draft-s">${esc(dr.affaire)}</div>`:""}
       <div class="bet-bar"><i style="width:${nd*20}%"></i></div>
       <div class="bet-actions"><button class="btn btn-or btn-sm" id="pvRes">Reprendre</button><button class="btn btn-ghost btn-sm bet-del" id="pvDel">${BI.trash}<span>Supprimer</span></button></div></section>`:""}
@@ -2750,9 +2751,20 @@ function drawPvList(){ const el=$("#pvRes0"), se=$("#pvStats"); if(!el||!PVS.ite
     return `<article class="bet-pv ${D?D[1]:""}"><div class="bet-pv-top"><b>${esc(cli)}</b>${D?`<span class="bet-tag ${D[1]}">${D[2]}${esc(D[0])}</span>`:""}</div>
       <div class="bet-meta">${dt?`<span>${BI.cal}${esc(frDate(dt))}</span>`:""}${rep2?`<span>${BI.user}${esc(rep2)}</span>`:""}${adr?`<span>${BI.pin}${esc(adr)}</span>`:""}</div>
       ${res?`<div class="bet-res ${D?D[1]:""}">${esc(res)}</div>`:""}
-      <div class="bet-actions">${f&&f.url?`<button class="btn btn-ghost btn-sm" data-pvpdf="${i}">${BI.eye}<span>Voir le PDF</span></button>`:""}<button class="btn btn-ghost btn-sm" data-pvpg="${i}">${BI.ext}<span>Notion</span></button></div></article>`; }).join("");
+      <div class="bet-actions">${f&&f.url?`<button class="btn btn-ghost btn-sm" data-pvpdf="${i}">${BI.eye}<span>Voir le PDF</span></button>`:""}<button class="btn btn-ghost btn-sm" data-pved="${i}">${BI.pen}<span>Modifier</span></button></div></article>`; }).join("");
   el.querySelectorAll("[data-pvpdf]").forEach(b=>b.onclick=()=>{ const f=pfiles((L[+b.dataset.pvpdf].properties||{})["PDF du PV"])[0]; if(f) openUrl(f.url); });
-  el.querySelectorAll("[data-pvpg]").forEach(b=>b.onclick=()=>{ const pg=L[+b.dataset.pvpg]; openUrl(pg.url||nurl(pg.id)); }); }
+  el.querySelectorAll("[data-pved]").forEach(b=>b.onclick=()=>pvEditExisting(L[+b.dataset.pved])); }
+async function pvEditExisting(pg){ const dr=pvDraftGet();
+  if(dr&&!(dr.pageId&&dr.pageId===pg.id)&&!await confirmBox("Un brouillon de PV est en cours ("+(dr.client||dr.affaire||"sans client")+"). Le remplacer par la modification de ce PV ?","Remplacer")) return;
+  if(dr&&dr.pageId===pg.id){ PVS.cur=dr; renderPvEdit(); scrollTo(0,0); return; }
+  const P=pg.properties||{}; const d=pvDecKey(ptxt(P["Décision"])); const ms=p=>p&&p.type==="multi_select"?p.multi_select.map(x=>x.name):[];
+  const pv=Object.assign(pvNew(),{pageId:pg.id,client:ptxt(P["Client"]),adresse:ptxt(P["Adresse de la centrale"]),rep:ptxt(P["Représentant CONEXUN"]),qual:ptxt(P["Qualité"]),lieu:ptxt(P["Fait à"]),
+    faitLe:pdate(P["Fait le"])||"",finTx:pdate(P["Fin des travaux"])||"",effet:pdate(P["Date d'effet"])||pdate(P["Fait le"])||"",dec:d,trav:d==="refus"?PV_TRAVAUX.slice():ms(P["Travaux validés"]).filter(t=>PV_TRAVAUX.includes(t)),
+    res:ptxt(P["Réserves"]),motif:ptxt(P["Motif refus / report"]),tvx:prel(P["🧰 Fiches travaux"]),cpv:prel(P["🌞 Centrale solaire"])[0]||null,auto:prel(P["📋 Fiche autocontrôle"])[0]||null,rc:prel(P["Réception de chantier"])[0]||null});
+  const t=ptxt(P["PV"]); pv.affaire=""; pv.titre=t;
+  PVS.cur=pv; pvDraftSet(pv); renderPvEdit(); scrollTo(0,0);
+  const keep={cpv:pv.cpv,auto:pv.auto,rc:pv.rc,adresse:pv.adresse,lieu:pv.lieu}; await pvFindLinks(pv); Object.assign(pv,keep); [["cpv","Centrale reliée"],["auto","Fiche autocontrôle reliée"],["rc","Réception reliée"]].forEach(([k,l])=>{ if(pv[k]&&!pv.cands[k].some(x=>x.id===pv[k])) pv.cands[k].unshift({id:pv[k],t:l}); });
+  if(PVS.cur===pv){ pvDraftSet(pv); const y=scrollY; renderPvEdit(); scrollTo(0,y); } }
 /* choix du chantier terminé : fiches travaux finalisées, regroupées par affaire */
 function pvPickChantier(){ const m=document.createElement("div"); m.className="modal";
   m.innerHTML=`<div class="box wide bet-pick"><div class="bet-pick-h"><div><h3>Quel chantier terminé ?</h3><p>Fiches travaux finalisées. Le PV sera relié au chantier, à sa fiche autocontrôle et à la centrale.</p></div><button class="bet-x" id="pcX" aria-label="Fermer">${BI.no}</button></div>
@@ -2791,8 +2803,8 @@ function renderPvEdit(){ const pv=PVS.cur; const st=pvSteps(pv);
   const decT=k=>{ const D=PV_DEC[k]; return `<label class="pvx-dec ${D[1]} ${pv.dec===k?"on":""}"><input type="radio" name="pvdec" value="${k}" ${pv.dec===k?"checked":""}><span class="pvx-dec-ic">${D[2]}</span><span><b>${k==="refus"?"Réception refusée / différée":"Réception "+D[0].toLowerCase()}</b><small>${esc(D[3])}</small></span></label>`; };
   const pad=(k,t,nm)=>`<div class="pvx-sig"><div class="pvx-sig-h"><div><b>${esc(t)}</b><span>${esc(nm||"—")}</span></div><button class="pvx-clr" data-pvclr="${k}">Effacer</button></div>
     <div class="pvx-pad"><canvas class="sig" data-pvsig="${k}"></canvas><div class="pvx-ph" data-pvph="${k}" ${(pv.sig||{})[k]?"hidden":""}>${BI.pen}<span>Signez ici</span></div><i class="pvx-line"></i></div></div>`;
-  $("#app").innerHTML=`<div class="wrap pved pvx"><div class="crumb"><button id="pvBack">${ICO.chev}<span>PV de réception</span></button><span class="sec">${ICO.bet||""}BET</span></div>
-    <div class="pvx-head"><h1>Procès-verbal de réception</h1>${pv.affaire?`<p>${BI.sun}<b>${esc(pv.affaire)}</b>${pv.tvx.length?`<em>${pv.tvx.length} fiche${pv.tvx.length>1?"s":""} travaux</em>`:""}</p>`:`<p>PV sans fiche travaux</p>`}</div>
+  $("#app").innerHTML=`<div class="wrap pved pvx"><div class="crumb"><button id="pvBack">${ICO.chev}<span>PV de réception</span></button><span class="sec">${ICO.bet||""}${pv.pageId?"Modification":"BET"}</span></div>
+    <div class="pvx-head"><h1>${pv.pageId?"Modifier le PV de réception":"Procès-verbal de réception"}</h1>${pv.pageId?`<div class="pvx-edit">${BI.pen}<span>Vous modifiez un PV déjà enregistré. À l'enregistrement, le PV et son PDF seront remplacés dans Notion. <b>Les deux signatures sont à refaire.</b></span></div>`:""}${pv.affaire?`<p>${BI.sun}<b>${esc(pv.affaire)}</b>${pv.tvx.length?`<em>${pv.tvx.length} fiche${pv.tvx.length>1?"s":""} travaux</em>`:""}</p>`:pv.pageId?"":`<p>PV sans fiche travaux</p>`}</div>
     <nav class="pvx-steps" aria-label="Étapes">${st.map(([l,ok],i)=>`<a href="#pvs${i}" data-pvstep="${i}" class="${ok?"done":""}"><i>${i+1}</i>${BI.ok}<span>${esc(l)}</span></a>`).join("")}</nav>
     <div class="pvx-prog"><div class="pvx-bar"><i style="width:${st.filter(x=>x[1]).length*20}%"></i></div><span class="pvx-n">${st.filter(x=>x[1]).length}/5</span></div>
     ${sec(0,"Chantier et liaisons","Ce que le PV relie dans Notion.",`<div class="pvx-links">${link("cpv","Centrale (CPV)",BI.sun,pv.cands.cpv)}${link("auto","Fiche autocontrôle",BI.list,pv.cands.auto)}${link("rc","Réception de chantier",BI.file,pv.cands.rc)}</div>
@@ -2809,10 +2821,10 @@ function renderPvEdit(){ const pv=PVS.cur; const st=pvSteps(pv);
       ${pv.dec==="refus"?`<label class="f full pvx-ta ko">Motifs du refus / report<textarea data-pv="motif" rows="3">${esc(pv.motif||"")}</textarea></label>`:""}`)}
     ${sec(4,"Signatures","Le client et le représentant CONEXUN signent dans les cadres.",`<div class="pvx-sigs">${pad("E","Pour CONEXUN",`${pv.rep||""}${pv.qual?" · "+pv.qual:""}`)}${pad("C","Le client",pv.client)}</div>
       <p class="pvx-legal">La signature du procès-verbal de réception et le règlement des travaux autorisent le client soussigné à prendre possession de l'ouvrage. Fait en 2 exemplaires.</p>`)}
-    <button class="pvx-drop" id="pvCancel">${BI.trash}<span>Supprimer le brouillon</span></button>
-    <div class="pvx-dock"><button class="btn btn-ghost" id="pvPrev">${BI.eye}<span>Aperçu PDF</span></button><button class="btn btn-or" id="pvSend">${BI.ok}<span>Enregistrer le PV</span></button></div></div>`;
+    <button class="pvx-drop" id="pvCancel">${BI.trash}<span>${pv.pageId?"Annuler la modification":"Supprimer le brouillon"}</span></button>
+    <div class="pvx-dock"><button class="btn btn-ghost" id="pvPrev">${BI.eye}<span>Aperçu PDF</span></button><button class="btn btn-or" id="pvSend">${BI.ok}<span>${pv.pageId?"Mettre à jour le PV":"Enregistrer le PV"}</span></button></div></div>`;
   $("#pvBack").onclick=()=>{ pvSave(); PVS.cur=null; renderPv(); scrollTo(0,0); };
-  $("#pvCancel").onclick=async()=>{ if(await confirmBox("Supprimer ce brouillon de PV ?","Supprimer")){ pvDraftSet(null); PVS.cur=null; renderPv(); scrollTo(0,0); } };
+  $("#pvCancel").onclick=async()=>{ if(await confirmBox(pv.pageId?"Annuler la modification ? Le PV enregistré reste tel quel.":"Supprimer ce brouillon de PV ?",pv.pageId?"Annuler la modification":"Supprimer")){ pvDraftSet(null); PVS.cur=null; renderPv(); scrollTo(0,0); } };
   document.querySelectorAll(".pvx-steps a").forEach(a=>a.onclick=e=>{ e.preventDefault(); const t=document.getElementById("pvs"+a.dataset.pvstep); if(t) scrollTo({top:t.getBoundingClientRect().top+scrollY-12,behavior:"smooth"}); });
   document.querySelectorAll("[data-pv]").forEach(i=>{ i.oninput=()=>{ pv[i.dataset.pv]=i.value; pvSave(); pvProg(); }; i.onchange=()=>{ if(["client","rep","qual"].includes(i.dataset.pv)){ const y=scrollY; renderPvEdit(); scrollTo(0,y); } }; });
   document.querySelectorAll("[data-pvl]").forEach(s2=>s2.onchange=()=>{ pv[s2.dataset.pvl]=s2.value||null; if(s2.dataset.pvl==="cpv"){ const c=pv.cands.cpv.find(x=>x.id===pv.cpv); if(c){ if(!pv.adresse) pv.adresse=c.adr; if(!pv.lieu&&c.com) pv.lieu=c.com.charAt(0)+c.com.slice(1).toLowerCase(); } } pvSave(); const y=scrollY; renderPvEdit(); scrollTo(0,y); });
@@ -2846,10 +2858,12 @@ async function pvSend(){ const pv=PVS.cur; const miss=[];
     if(pv.faitLe) props["Fait le"]={date:{start:pv.faitLe}}; if(pv.finTx) props["Fin des travaux"]={date:{start:pv.finTx}}; if(pv.dec!=="refus"&&pv.effet) props["Date d'effet"]={date:{start:pv.effet}};
     let pdfOk=false; try{ const b64=await pvPdf(pv); const r=await nativeCall("notionUpload",b64,fname,"application/pdf"); let j=null; try{ j=JSON.parse(r.text); }catch(e){}
       if(r.status===200&&j&&j.id){ props["PDF du PV"]={files:[{type:"file_upload",file_upload:{id:j.id},name:fname}]}; pdfOk=true; } }catch(e){ console.warn("pv pdf",e); }
-    await notion("POST","pages",{parent:{database_id:PV_DB},icon:{type:"emoji",emoji:"📝"},properties:props});
+    if(pv.pageId){ if(!pdfOk) delete props["PDF du PV"]; if(pv.dec==="refus") props["Date d'effet"]={date:null}; await notion("PATCH","pages/"+pv.pageId,{properties:props}); PVS.items=null; }
+    else await notion("POST","pages",{parent:{database_id:PV_DB},icon:{type:"emoji",emoji:"📝"},properties:props});
     if(pv.rc){ const et=pv.dec==="sans"?"Terminé":"Rectification sur chantier à faire"; notion("PATCH","pages/"+pv.rc,{properties:{"État":{status:{name:et}}}}).catch(()=>{}); RCS.items=null; }
-    pvDraftSet(null); PVS.cur=null; renderPv(); scrollTo(0,0); toast(pdfOk?"PV de réception enregistré dans Notion.":"PV enregistré (PDF non joint, à refaire)."); }
-  catch(e){ b.disabled=false; b.innerHTML=BI.ok+"<span>Enregistrer le PV</span>"; toast("Échec : "+((e&&e.message)||"erreur")+" — le brouillon est gardé."); } }
+    const wasEdit=!!pv.pageId; pvDraftSet(null); PVS.cur=null; renderPv(); scrollTo(0,0);
+    toast(wasEdit?(pdfOk?"PV modifié et PDF remplacé dans Notion.":"PV modifié (nouveau PDF non joint, à refaire)."):(pdfOk?"PV de réception enregistré dans Notion.":"PV enregistré (PDF non joint, à refaire).")); }
+  catch(e){ b.disabled=false; b.innerHTML=BI.ok+"<span>"+(pv.pageId?"Mettre à jour le PV":"Enregistrer le PV")+"</span>"; toast("Échec : "+((e&&e.message)||"erreur")+" — le brouillon est gardé."); } }
 async function pvPdf(pv){ if(!window.jspdf) throw {message:"générateur PDF non chargé"}; await ensurePdfFonts();
   const {jsPDF}=window.jspdf; const d=new jsPDF({unit:"mm",format:"a4"});
   const HASF=PDF_FONTS&&PDF_FONTS.length===4; if(HASF) PDF_FONTS.forEach(([f,fam,st,b])=>{ d.addFileToVFS(f,b); d.addFont(f,fam,st); });
@@ -3970,7 +3984,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1912;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1913;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
