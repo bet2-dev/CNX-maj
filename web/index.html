@@ -229,6 +229,93 @@ h3.sub2{font-size:14px;color:var(--or-ink);margin:16px 0 4px}
 .frc .frad{min-width:96px;height:72px;border:1.5px dashed var(--line);border-radius:8px;background:transparent;color:var(--muted);font-size:13px}.frc .frrev{border:1px solid var(--line);border-radius:10px;padding:8px;margin-bottom:8px}
 .frc .frrev select{min-height:36px;border:1.5px solid var(--line);border-radius:8px;background:var(--card)}.frc .frnc{margin:0 0 10px 18px;padding:0;font-size:13.5px}.frc .frcc{font-weight:700;padding:10px 12px;border-radius:10px;margin-bottom:8px}
 .frc .frcc.ok{background:#e3f6e8;color:#1e7a3c}.frc .frcc.co{background:#fdecd8;color:#b54708}
+.bet .bet-hero{position:relative;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;margin:14px 0 12px;padding:18px;border-radius:18px;background:linear-gradient(135deg,var(--or-soft),var(--card) 70%);border:1px solid var(--line);overflow:hidden}
+.bet .bet-hero::after{content:"";position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:var(--or);opacity:.08}
+.bet .bet-hero-ic{width:48px;height:48px;border-radius:14px;background:var(--or);color:#fff;display:grid;place-items:center;box-shadow:0 6px 16px rgba(239,123,26,.3)}.bet .bet-hero-ic svg{width:26px;height:26px}
+.bet .bet-hero h1{margin:2px 0 4px;font-size:22px}.bet .bet-hero p{margin:0;font-size:13.5px;line-height:1.45;color:var(--muted)}
+.bet .bet-cta{grid-column:1/-1;width:100%;min-height:48px;font-size:15.5px;gap:8px;position:relative;z-index:1}.bet .bet-cta svg{width:18px;height:18px}
+.bet-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 10px 4px 8px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:var(--so-soft);color:var(--so)}.bet-tag svg{width:14px;height:14px}
+.bet-tag.ok{background:var(--ok-soft);color:var(--ok)}.bet-tag.co{background:var(--or-soft);color:var(--or-ink)}.bet-tag.ko{background:var(--ko-soft);color:var(--ko)}
+.bet .bet-draft{margin:0 0 12px;padding:14px 16px;border-radius:14px;background:var(--card);border:1.5px dashed var(--or)}
+.bet-draft-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}.bet-draft-n{font-size:12px;font-weight:700;color:var(--muted)}
+.bet-draft-t{display:block;font-family:var(--f-title);font-size:16px;color:var(--fg)}.bet-draft-s{font-size:12.5px;color:var(--muted);margin-top:2px}
+.bet-bar,.pvx-bar{height:6px;border-radius:99px;background:var(--so-soft);overflow:hidden;margin:10px 0}.bet-bar i,.pvx-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--or),#f5a25a);transition:width .3s}
+.bet-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.bet-actions .btn{gap:6px}.bet-actions .btn svg{width:16px;height:16px}.bet-del{color:var(--ko)!important}
+.bet-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 12px}
+.bet-stat{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 10px 9px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--muted);cursor:pointer;font:inherit;text-align:left;min-width:0}
+.bet-stat b{font-family:var(--f-title);font-size:20px;line-height:1.1;color:var(--fg)}.bet-stat span{font-size:11px;font-weight:600;line-height:1.2}
+.bet-stat.ok b{color:var(--ok)}.bet-stat.co b{color:var(--or-ink)}.bet-stat.ko b{color:var(--ko)}
+.bet-stat.on{border-color:var(--or);background:var(--or-soft)}.bet-stat:focus-visible{outline:3px solid var(--or);outline-offset:2px}
+.bet-tools{display:flex;gap:8px;margin:0 0 12px}.bet-search{flex:1;display:flex;align-items:center;gap:8px;padding:0 6px 0 12px;min-height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--card)}
+.bet-search svg{width:18px;height:18px;color:var(--muted);flex:none}.bet-search input{flex:1;min-width:0;border:0!important;background:transparent!important;outline:0;padding:10px 0!important;box-shadow:none!important;font:inherit;color:var(--fg)}
+.bet-rf{width:44px;padding:0!important;justify-content:center}.bet-rf svg{width:18px;height:18px}.bet-rf.spin svg{animation:betspin 1s linear infinite}@keyframes betspin{to{transform:rotate(360deg)}}
+.bet-pv{position:relative;margin:0 0 10px;padding:14px 16px 14px 18px;border-radius:14px;background:var(--card);border:1px solid var(--line);overflow:hidden}
+.bet-pv::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--so)}.bet-pv.ok::before{background:var(--ok)}.bet-pv.co::before{background:var(--or)}.bet-pv.ko::before{background:var(--ko)}
+.bet-pv-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.bet-pv-top b{font-family:var(--f-title);font-size:16px;line-height:1.25;color:var(--fg)}
+.bet-meta{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:12.5px;color:var(--muted)}.bet-meta span{display:inline-flex;align-items:center;gap:5px;min-width:0}.bet-meta svg{width:14px;height:14px;flex:none;color:var(--or)}
+.bet-res{margin-top:10px;padding:8px 10px;border-radius:10px;font-size:13px;line-height:1.4;background:var(--so-soft);color:var(--fg)}.bet-res.co{background:var(--or-soft)}.bet-res.ko{background:var(--ko-soft)}
+.bet-empty{display:flex;flex-direction:column;align-items:center;gap:4px;padding:30px 16px;text-align:center;border:1.5px dashed var(--line);border-radius:14px;color:var(--muted);font-size:13px}
+.bet-empty b{color:var(--fg);font-size:15px}.bet-empty-ic{width:46px;height:46px;border-radius:50%;background:var(--or-soft);color:var(--or);display:grid;place-items:center;margin-bottom:6px}.bet-empty-ic svg{width:22px;height:22px}
+.bet-sk{width:100%;height:74px;border-radius:12px;background:linear-gradient(90deg,var(--so-soft),var(--card),var(--so-soft));background-size:200% 100%;animation:betsk 1.2s ease-in-out infinite}@keyframes betsk{to{background-position:-200% 0}}
+.bet-empty:has(.bet-sk){border:0;padding:0;gap:10px}
+.bet-pick .bet-pick-h{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px}.bet-pick h3{margin:0 0 4px;font-family:var(--f-title);font-size:19px}.bet-pick p{margin:0;font-size:13px;color:var(--muted);line-height:1.4}
+.bet-x{flex:none;width:36px;height:36px;border-radius:50%;border:0;background:var(--so-soft);color:var(--muted);display:grid;place-items:center;cursor:pointer}.bet-x svg{width:20px;height:20px}
+.bet-pick-l{display:flex;flex-direction:column;gap:8px;margin-top:10px;max-height:52vh;overflow:auto}
+.bet-ch{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--fg);font:inherit;text-align:left;cursor:pointer}
+.bet-ch:hover,.bet-ch:focus-visible{border-color:var(--or);background:var(--or-soft);outline:0}.bet-ch>svg{width:18px;height:18px;color:var(--muted);flex:none}
+.bet-ch-ic{width:38px;height:38px;flex:none;border-radius:10px;background:var(--or-soft);color:var(--or);display:grid;place-items:center}.bet-ch-ic svg{width:20px;height:20px}
+.bet-ch-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.bet-ch-tx b{font-size:14.5px;line-height:1.3}
+.bet-ch-tx small{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:12px;color:var(--muted)}.bet-ch-tx small svg{width:13px;height:13px}.bet-ch-tx em{font-style:normal;padding:1px 8px;border-radius:99px;background:var(--so-soft)}
+.bet-pick-none{width:100%;margin-top:12px;gap:6px;justify-content:center}.bet-pick-none svg{width:16px;height:16px}
+.pvx .pvx-head{margin:14px 0 10px}.pvx .pvx-head h1{margin:0 0 6px;font-size:23px;line-height:1.2}
+.pvx .pvx-head p{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0;font-size:13.5px;color:var(--muted)}.pvx .pvx-head p svg{width:16px;height:16px;color:var(--or)}.pvx .pvx-head p b{color:var(--fg)}
+.pvx .pvx-head em{font-style:normal;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--or-soft);color:var(--or-ink)}
+.pvx-steps{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:8px 0 4px;background:var(--bg)}
+.pvx-steps a{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;font-weight:700;color:var(--muted);text-decoration:none;text-align:center;min-width:0}
+.pvx-steps a i,.pvx-steps a svg{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:12.5px;background:var(--card);border:1.5px solid var(--line);color:var(--muted);box-sizing:border-box}
+.pvx-steps a svg{display:none;padding:5px;background:var(--ok);border-color:var(--ok);color:#fff}.pvx-steps a.done i{display:none}.pvx-steps a.done svg{display:block}.pvx-steps a.done{color:var(--ok)}
+.pvx-steps a span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.pvx-prog{display:flex;align-items:center;gap:10px;margin:0 0 10px}.pvx-prog .pvx-bar{flex:1;margin:0}.pvx-n{font-size:12px;font-weight:700;color:var(--muted)}
+.pvx-sec{margin:0 0 12px;padding:16px;border-radius:16px;background:var(--card);border:1px solid var(--line);scroll-margin-top:70px}
+.pvx-sh{display:flex;gap:12px;align-items:flex-start;margin:0 0 14px}.pvx-sh h2{margin:3px 0 2px;font-size:16.5px;font-family:var(--f-title);color:var(--fg)}.pvx-sh p{margin:0;font-size:12.5px;color:var(--muted)}
+.pvx-num{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--or);color:#fff;font-family:var(--f-title);font-weight:700;font-size:14px}.pvx-num i{font-style:normal}.pvx-num svg{display:none;width:16px;height:16px}
+.pvx-sh.done .pvx-num{background:var(--ok)}.pvx-sh.done .pvx-num i{display:none}.pvx-sh.done .pvx-num svg{display:block}
+.pvx .grid{margin-bottom:10px}.pvx .grid.one{grid-template-columns:1fr}.pvx .grid:last-child{margin-bottom:0}
+.pvx label.f{font-size:12.5px;font-weight:600}.pvx label.f input,.pvx label.f select,.pvx label.f textarea{min-height:46px;border-radius:10px}
+.pvx-links{display:flex;flex-direction:column;gap:8px}
+.pvx-link{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg)}.pvx-link.on{border-color:var(--ok);background:var(--ok-soft)}
+.pvx-link-ic{width:34px;height:34px;flex:none;border-radius:9px;background:var(--card);color:var(--or);display:grid;place-items:center}.pvx-link-ic svg{width:18px;height:18px}
+.pvx-link label{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.pvx-link select{width:100%;border:0!important;background:transparent!important;padding:2px 0!important;min-height:0!important;font:inherit;font-size:14px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--fg);box-shadow:none!important;text-overflow:ellipsis}
+.pvx-dot{width:22px;height:22px;flex:none;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center}.pvx-link.on .pvx-dot{background:var(--ok);border-color:var(--ok);color:#fff}.pvx-dot svg{width:13px;height:13px}
+.pvx-find{margin-top:10px}.pvx-find .btn{flex:none}
+.pvx-decs{display:flex;flex-direction:column;gap:8px}
+.pvx-dec{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);cursor:pointer;background:var(--card);transition:border-color .15s,background .15s}
+.pvx-dec input{position:absolute;opacity:0;pointer-events:none}.pvx-dec b{display:block;font-size:14.5px;color:var(--fg)}.pvx-dec small{display:block;font-size:12.5px;color:var(--muted);margin-top:1px}
+.pvx-dec-ic{width:36px;height:36px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--so-soft);color:var(--muted)}.pvx-dec-ic svg{width:20px;height:20px}
+.pvx-dec.ok.on{border-color:var(--ok);background:var(--ok-soft)}.pvx-dec.ok.on .pvx-dec-ic{background:var(--ok);color:#fff}
+.pvx-dec.co.on{border-color:var(--or);background:var(--or-soft)}.pvx-dec.co.on .pvx-dec-ic{background:var(--or);color:#fff}
+.pvx-dec.ko.on{border-color:var(--ko);background:var(--ko-soft)}.pvx-dec.ko.on .pvx-dec-ic{background:var(--ko);color:#fff}
+.pvx-dec:has(input:focus-visible){outline:3px solid var(--or);outline-offset:2px}
+.pvx-sub{margin:14px 0 8px;font-size:13px;font-weight:700;color:var(--fg)}
+.pvx-trav{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pvx-chk{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);font-size:13.5px;cursor:pointer;line-height:1.25}
+.pvx-chk input{position:absolute;opacity:0;pointer-events:none}.pvx-box{width:22px;height:22px;flex:none;border-radius:6px;border:1.5px solid var(--line);display:grid;place-items:center;color:transparent;background:var(--card)}.pvx-box svg{width:14px;height:14px}
+.pvx-chk.on{border-color:var(--ok);background:var(--ok-soft)}.pvx-chk.on .pvx-box{background:var(--ok);border-color:var(--ok);color:#fff}.pvx-chk:has(input:focus-visible){outline:3px solid var(--or);outline-offset:2px}
+.pvx-ta{margin-top:12px}.pvx-ta textarea{min-height:90px!important}.pvx-ta.co textarea{border-color:var(--or)}.pvx-ta.ko textarea{border-color:var(--ko)}
+.pvx-sigs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pvx-sig-h{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;margin-bottom:6px}.pvx-sig-h b{display:block;font-size:14px;color:var(--fg)}.pvx-sig-h span{font-size:12.5px;color:var(--muted)}
+.pvx-clr{border:0;background:none;color:var(--or-ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer;padding:6px 4px}
+.pvx-pad{position:relative;height:150px;border-radius:12px;border:1.5px dashed var(--line);background:#fff;overflow:hidden}
+.pvx-pad canvas{display:block;width:100%;height:100%;touch-action:none;border:0!important;border-radius:0!important}
+.pvx-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px;color:#b9b9bb;font-size:14px;pointer-events:none}.pvx-ph svg{width:18px;height:18px}.pvx-ph[hidden]{display:none}
+.pvx-line{position:absolute;left:16px;right:16px;bottom:28px;border-bottom:1px solid #e6e6e6;pointer-events:none}
+.pvx-legal{margin:12px 0 0;font-size:12px;line-height:1.45;color:var(--muted)}
+.pvx-drop{display:flex;align-items:center;gap:6px;margin:4px auto 0;border:0;background:none;color:var(--ko);font:inherit;font-size:13px;font-weight:700;cursor:pointer;padding:10px}.pvx-drop svg{width:16px;height:16px}
+.pvx-dock{position:sticky;bottom:0;z-index:6;display:grid;grid-template-columns:auto 1fr;gap:8px;margin:10px -16px 0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line)}
+.pvx-dock .btn{min-height:50px;gap:8px}.pvx-dock .btn svg{width:18px;height:18px}
+@media (max-width:520px){.pvx-sigs{grid-template-columns:1fr}.pvx-trav{grid-template-columns:1fr}.bet-stat span{font-size:10.5px}.bet-stat{padding:9px 8px}}
+@media (min-width:700px){.bet .bet-hero{grid-template-columns:auto 1fr auto;align-items:center}.bet .bet-cta{grid-column:auto;width:auto;padding-inline:20px}}
 .pved .pvdec{display:flex;gap:8px;align-items:center;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;margin:6px 0;font-size:14px}.pved .pvdec.on{border-color:#ef7b1a;background:rgba(239,123,26,.08)}
 .pved .pvck{display:flex;gap:8px;align-items:center;padding:6px 2px;font-size:14px}.pved .pvtr{padding-left:6px}
 .va .va-h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.va .va-m{font-size:12.5px;color:var(--muted);margin-top:4px}
@@ -2599,43 +2686,89 @@ function pvDraftSet(v){ try{ if(v) localStorage.setItem("cx_pvdraft",JSON.string
 function pvNew(){ const me=SESSION?(SESSION.nom||SESSION.login):""; const t=ymd(new Date());
   return {id:"pv"+Date.now(),client:"",adresse:"",finTx:"",lieu:"",faitLe:t,effet:t,rep:me,qual:"Responsable technique",dec:"",trav:PV_TRAVAUX.slice(),res:"",motif:"",
     affaire:"",tvx:[],cpv:null,auto:null,rc:null,cands:{cpv:[],auto:[],rc:[]},sig:{}}; }
+const BI={
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>',
+  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+  pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+  file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>',
+  ext:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>',
+  ok:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17.5v.01"/></svg>',
+  no:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></svg>',
+  sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/></svg>',
+  tool:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0 5 5L21 13l-8 8-3-3 8-8z" transform="translate(-2 -2)"/><path d="M3 21l6-6"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  pen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg>',
+  eye:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>'};
+const PV_DEC={sans:["Sans réserve","ok",BI.ok,"Tout est conforme, le client prend possession."],avec:["Avec réserves","co",BI.warn,"Des points restent à reprendre."],refus:["Refusée / différée","ko",BI.no,"Le client ne réceptionne pas pour l'instant."]};
+PVS.f=PVS.f||"tous"; PVS.q=PVS.q||"";
+function pvSteps(pv){ return [
+  ["Chantier",!!(pv.affaire||pv.tvx.length||pv.cpv||pv.auto)],
+  ["Client",!!(String(pv.client||"").trim()&&String(pv.adresse||"").trim()&&pv.finTx)],
+  ["CONEXUN",!!(String(pv.rep||"").trim()&&String(pv.qual||"").trim()&&String(pv.lieu||"").trim()&&pv.faitLe)],
+  ["Décision",!!(pv.dec&&(pv.dec!=="avec"||String(pv.res||"").trim())&&(pv.dec!=="refus"||String(pv.motif||"").trim()))],
+  ["Signatures",!!(pv.sig&&pv.sig.E&&pv.sig.C)]]; }
 function renderPv(){ if(PVS.cur) return renderPvEdit();
-  const dr=pvDraftGet();
-  $("#app").innerHTML=`<div class="wrap">${headerHTML("PV de réception","Procès-verbal de réception des travaux, à remplir avec le client à la fin du chantier. Il est relié au chantier terminé (fiches travaux, autocontrôle, centrale).")}
-    <div class="toolbar"><button class="btn btn-or btn-sm" id="pvNew">+ Nouveau PV de réception</button><button class="btn btn-ghost btn-sm" id="pvRf">${ICO.refresh}<span>Actualiser</span></button></div>
-    ${dr?`<div class="card va"><div class="va-h"><b>Brouillon en cours : ${esc(dr.client||dr.affaire||"sans client")}</b><span class="va-st co">Brouillon</span></div><div class="va-b"><button class="btn btn-or btn-sm" id="pvRes">Reprendre</button><button class="btn btn-ghost btn-sm" id="pvDel">Supprimer le brouillon</button></div></div>`:""}
-    <div id="pvRes0"><div class="card empty">Chargement…</div></div></div>`;
+  const dr=pvDraftGet(); const st=dr?pvSteps(dr):[]; const nd=st.filter(x=>x[1]).length;
+  $("#app").innerHTML=`<div class="wrap bet">
+    <section class="bet-hero"><div class="bet-hero-ic">${ICO.bet||BI.file}</div><div class="bet-hero-tx"><h1>PV de réception</h1>
+      <p>À remplir avec le client à la fin du chantier. Le PV est relié au chantier terminé : fiches travaux, autocontrôle et centrale.</p></div>
+      <button class="btn btn-or bet-cta" id="pvNew">${BI.plus}<span>Nouveau PV</span></button></section>
+    ${dr?`<section class="bet-draft"><div class="bet-draft-top"><span class="bet-tag co">${BI.pen}Brouillon en cours</span><span class="bet-draft-n">${nd}/5 étapes</span></div>
+      <b class="bet-draft-t">${esc(dr.client||dr.affaire||"PV sans client")}</b>${dr.affaire&&dr.client?`<div class="bet-draft-s">${esc(dr.affaire)}</div>`:""}
+      <div class="bet-bar"><i style="width:${nd*20}%"></i></div>
+      <div class="bet-actions"><button class="btn btn-or btn-sm" id="pvRes">Reprendre</button><button class="btn btn-ghost btn-sm bet-del" id="pvDel">${BI.trash}<span>Supprimer</span></button></div></section>`:""}
+    <div class="bet-stats" id="pvStats"></div>
+    <div class="bet-tools"><div class="bet-search">${BI.search}<input id="pvQ" type="search" placeholder="Rechercher un client" aria-label="Rechercher un client" value="${esc(PVS.q)}"></div>
+      <button class="btn btn-ghost btn-sm bet-rf" id="pvRf" aria-label="Actualiser">${ICO.refresh}</button></div>
+    <div id="pvRes0"><div class="bet-empty"><div class="bet-sk"></div><div class="bet-sk"></div></div></div></div>`;
   $("#pvNew").onclick=pvPickChantier; $("#pvRf").onclick=loadPvList;
+  $("#pvQ").oninput=e=>{ PVS.q=e.target.value; drawPvList(); };
   if(dr){ $("#pvRes").onclick=()=>{ PVS.cur=dr; renderPvEdit(); scrollTo(0,0); }; $("#pvDel").onclick=async()=>{ if(await confirmBox("Supprimer ce brouillon de PV ?","Supprimer")){ pvDraftSet(null); renderPv(); } }; }
-  loadPvList(); }
+  if(PVS.items) drawPvList(); loadPvList(); }
 async function loadPvList(){ const el=$("#pvRes0"); if(!el) return;
-  if(!MCP||!hasToken()){ el.innerHTML=`<div class="card empty">Clé Notion non enregistrée sur cet appareil (Réglages).</div>`; return; }
-  try{ const j=await notion("POST","databases/"+PV_DB+"/query",{page_size:50,sorts:[{property:"Fait le",direction:"descending"}]}); PVS.items=j.results||[]; }
-  catch(e){ el.innerHTML=`<div class="card empty">${esc((e&&e.message)||"Chargement impossible")}</div>`; return; }
-  const L=PVS.items; if(!L.length){ el.innerHTML=`<div class="card empty">Aucun PV de réception pour le moment.</div>`; return; }
-  el.innerHTML=L.map((pg,i)=>{ const P=pg.properties||{}; const d=ptxt(P["Décision"]); const f=pfiles(P["PDF du PV"])[0];
-    return `<div class="card va"><div class="va-h"><b>${esc(ptxt(P["PV"])||"PV de réception")}</b><span class="va-st ${d==="Sans réserve"?"ok":d==="Avec réserves"?"co":"todo"}">${esc(d||"—")}</span></div>
-      <div class="va-m">${[ptxt(P["Client"]),pdate(P["Fait le"])?"le "+frDate(pdate(P["Fait le"])):"",ptxt(P["Représentant CONEXUN"])].filter(Boolean).map(esc).join(" · ")}</div>
-      ${ptxt(P["Réserves"])?`<div class="va-w">Réserves : ${esc(ptxt(P["Réserves"]))}</div>`:""}
-      <div class="va-b">${f&&f.url?`<button class="btn btn-ghost btn-sm" data-pvpdf="${i}">Voir le PDF</button>`:""}<button class="btn btn-ghost btn-sm" data-pvpg="${i}">Ouvrir dans Notion</button></div></div>`; }).join("");
+  if(!MCP||!hasToken()){ el.innerHTML=`<div class="bet-empty"><div class="bet-empty-ic">${BI.file}</div><b>Clé Notion non enregistrée</b><span>Enregistrez-la dans Réglages pour voir les PV.</span></div>`; return; }
+  const rf=$("#pvRf"); if(rf) rf.classList.add("spin");
+  try{ const j=await notion("POST","databases/"+PV_DB+"/query",{page_size:100,sorts:[{property:"Fait le",direction:"descending"}]}); PVS.items=j.results||[]; }
+  catch(e){ if(!PVS.items){ const el2=$("#pvRes0"); if(el2) el2.innerHTML=`<div class="bet-empty"><div class="bet-empty-ic">${BI.warn}</div><b>Chargement impossible</b><span>${esc((e&&e.message)||"")}</span></div>`; } }
+  finally{ const r2=$("#pvRf"); if(r2) r2.classList.remove("spin"); }
+  if(PVS.items) drawPvList(); }
+function pvDecKey(d){ return d==="Sans réserve"?"sans":d==="Avec réserves"?"avec":d?"refus":""; }
+function drawPvList(){ const el=$("#pvRes0"), se=$("#pvStats"); if(!el||!PVS.items) return; const L=PVS.items;
+  const cnt={tous:L.length,sans:0,avec:0,refus:0}; L.forEach(pg=>{ const k=pvDecKey(ptxt((pg.properties||{})["Décision"])); if(k) cnt[k]++; });
+  if(se){ se.innerHTML=[["tous","Tous",""],["sans","Sans réserve","ok"],["avec","Avec réserves","co"],["refus","Refusés","ko"]].map(([k,l,c])=>`<button class="bet-stat ${c} ${PVS.f===k?"on":""}" data-pvf="${k}" aria-pressed="${PVS.f===k}"><b>${cnt[k]}</b><span>${l}</span></button>`).join("");
+    se.querySelectorAll("[data-pvf]").forEach(b=>b.onclick=()=>{ PVS.f=b.dataset.pvf; drawPvList(); }); }
+  const q=pvNorm(PVS.q); const V=L.filter(pg=>{ const P=pg.properties||{}; if(PVS.f!=="tous"&&pvDecKey(ptxt(P["Décision"]))!==PVS.f) return false;
+    return !q||pvNorm([ptxt(P["Client"]),ptxt(P["PV"]),ptxt(P["Adresse de la centrale"])].join(" ")).includes(q); });
+  if(!L.length){ el.innerHTML=`<div class="bet-empty"><div class="bet-empty-ic">${BI.file}</div><b>Aucun PV pour le moment</b><span>Créez le premier avec « Nouveau PV ».</span></div>`; return; }
+  if(!V.length){ el.innerHTML=`<div class="bet-empty"><div class="bet-empty-ic">${BI.search}</div><b>Aucun résultat</b><span>Changez le filtre ou la recherche.</span></div>`; return; }
+  el.innerHTML=V.map(pg=>{ const i=L.indexOf(pg); const P=pg.properties||{}; const k=pvDecKey(ptxt(P["Décision"])); const D=PV_DEC[k]; const f=pfiles(P["PDF du PV"])[0];
+    const cli=ptxt(P["Client"])||ptxt(P["PV"])||"PV de réception"; const dt=pdate(P["Fait le"]); const adr=ptxt(P["Adresse de la centrale"]); const rep2=ptxt(P["Représentant CONEXUN"]); const res=ptxt(P["Réserves"])||ptxt(P["Motif refus / report"]);
+    return `<article class="bet-pv ${D?D[1]:""}"><div class="bet-pv-top"><b>${esc(cli)}</b>${D?`<span class="bet-tag ${D[1]}">${D[2]}${esc(D[0])}</span>`:""}</div>
+      <div class="bet-meta">${dt?`<span>${BI.cal}${esc(frDate(dt))}</span>`:""}${rep2?`<span>${BI.user}${esc(rep2)}</span>`:""}${adr?`<span>${BI.pin}${esc(adr)}</span>`:""}</div>
+      ${res?`<div class="bet-res ${D?D[1]:""}">${esc(res)}</div>`:""}
+      <div class="bet-actions">${f&&f.url?`<button class="btn btn-ghost btn-sm" data-pvpdf="${i}">${BI.eye}<span>Voir le PDF</span></button>`:""}<button class="btn btn-ghost btn-sm" data-pvpg="${i}">${BI.ext}<span>Notion</span></button></div></article>`; }).join("");
   el.querySelectorAll("[data-pvpdf]").forEach(b=>b.onclick=()=>{ const f=pfiles((L[+b.dataset.pvpdf].properties||{})["PDF du PV"])[0]; if(f) openUrl(f.url); });
   el.querySelectorAll("[data-pvpg]").forEach(b=>b.onclick=()=>{ const pg=L[+b.dataset.pvpg]; openUrl(pg.url||nurl(pg.id)); }); }
 /* choix du chantier terminé : fiches travaux finalisées, regroupées par affaire */
 function pvPickChantier(){ const m=document.createElement("div"); m.className="modal";
-  m.innerHTML=`<div class="box wide"><h3 style="margin:0 0 6px;font-family:var(--f-title)">Quel chantier terminé ?</h3><p class="m" style="font-size:13px;color:var(--muted);margin:0 0 10px">Fiches travaux finalisées. Le PV sera relié au chantier, à sa fiche autocontrôle et à la centrale.</p>
-    <div class="toolbar"><input id="pcQ" type="search" placeholder="Rechercher un client / une affaire" aria-label="Rechercher"></div><div id="pcR"><div class="card empty">Chargement…</div></div>
-    <div style="display:flex;justify-content:space-between;gap:8px;margin-top:12px"><button class="btn btn-ghost btn-sm" id="pcNone">PV sans fiche travaux</button><button class="btn btn-ghost btn-sm" id="pcX">Annuler</button></div></div>`;
+  m.innerHTML=`<div class="box wide bet-pick"><div class="bet-pick-h"><div><h3>Quel chantier terminé ?</h3><p>Fiches travaux finalisées. Le PV sera relié au chantier, à sa fiche autocontrôle et à la centrale.</p></div><button class="bet-x" id="pcX" aria-label="Fermer">${BI.no}</button></div>
+    <div class="bet-search">${BI.search}<input id="pcQ" type="search" placeholder="Rechercher un client / une affaire" aria-label="Rechercher"></div><div id="pcR" class="bet-pick-l"><div class="bet-empty"><div class="bet-sk"></div><div class="bet-sk"></div></div></div>
+    <button class="btn btn-ghost btn-sm bet-pick-none" id="pcNone">${BI.pen}<span>Faire un PV sans fiche travaux</span></button></div>`;
   document.body.appendChild(m); m.querySelector("#pcX").onclick=()=>m.remove();
   m.querySelector("#pcNone").onclick=()=>{ m.remove(); PVS.cur=pvNew(); pvDraftSet(PVS.cur); renderPvEdit(); scrollTo(0,0); };
   let groups=[]; const draw=()=>{ const q=pvNorm(m.querySelector("#pcQ").value); const el=m.querySelector("#pcR"); const G=groups.filter(g=>!q||pvNorm(g.affaire).includes(q));
-    el.innerHTML=G.length?`<div class="evpick">${G.slice(0,40).map((g,i)=>`<button data-pc="${groups.indexOf(g)}"><b>${esc(g.affaire)}</b><small>${esc([g.fin?"fin "+frDate(g.fin):"",g.mets.join(" + "),g.techs].filter(Boolean).join(" · "))}</small></button>`).join("")}</div>`:`<div class="card empty">Aucun chantier terminé trouvé.</div>`;
+    el.innerHTML=G.length?G.slice(0,40).map(g=>`<button class="bet-ch" data-pc="${groups.indexOf(g)}"><span class="bet-ch-ic">${BI.sun}</span><span class="bet-ch-tx"><b>${esc(g.affaire)}</b><small>${g.fin?`${BI.cal}fin ${esc(frDate(g.fin))}`:""}${g.mets.length?`<em>${esc(g.mets.join(" + "))}</em>`:""}${g.techs?`<em>${esc(g.techs)}</em>`:""}</small></span>${ICO.chev}</button>`).join(""):`<div class="bet-empty"><div class="bet-empty-ic">${BI.search}</div><b>Aucun chantier terminé trouvé</b></div>`;
     el.querySelectorAll("[data-pc]").forEach(b=>b.onclick=()=>{ m.remove(); pvFromGroup(groups[+b.dataset.pc]); }); };
   m.querySelector("#pcQ").oninput=draw;
   (async()=>{ try{ let all=[],cursor=null; do{ const j=await notion("POST","databases/"+TVX_DB+"/query",Object.assign({page_size:100,filter:{property:"Statut",select:{equals:"Finalisée"}},sorts:[{property:"Date chantier",direction:"descending"}]},cursor?{start_cursor:cursor}:{})); all=all.concat(j.results||[]); cursor=j.has_more&&all.length<300?j.next_cursor:null; }while(cursor);
       const map=new Map(); all.map(tvxRow).forEach(r=>{ const k=pvNorm(r.affaire)||r.id; const g=map.get(k)||{affaire:r.affaire||"Affaire sans nom",ids:[],fin:"",mets:[],techs:"",chantier:r.chantier};
         g.ids.push(r.id); const fe=r.dateEnd||r.date; if(fe&&fe>g.fin) g.fin=fe; const mt=r.met==="pose"?"Poseur":"Électricité"; if(!g.mets.includes(mt)) g.mets.push(mt); if(r.techs&&!g.techs) g.techs=r.techs; map.set(k,g); });
       groups=[...map.values()]; draw(); }
-    catch(e){ m.querySelector("#pcR").innerHTML=`<div class="card empty">${esc((e&&e.message)||"Chargement impossible")}</div>`; } })(); }
+    catch(e){ m.querySelector("#pcR").innerHTML=`<div class="bet-empty"><div class="bet-empty-ic">${BI.warn}</div><b>Chargement impossible</b><span>${esc((e&&e.message)||"")}</span></div>`; } })(); }
 async function pvFromGroup(g){ const pv=pvNew(); pv.affaire=g.affaire; pv.tvx=g.ids.slice(); pv.finTx=g.fin||""; pv.client=stripEmoji(String(g.affaire).split(/\s+[—–-]\s+/)[0]).trim();
   PVS.cur=pv; pvDraftSet(pv); renderPvEdit(); scrollTo(0,0); toast("Recherche de la centrale et de la fiche autocontrôle…"); await pvFindLinks(pv); if(PVS.cur===pv){ pvDraftSet(pv); renderPvEdit(); } }
 async function pvFindLinks(pv){ const kw=cpvKw(pv.client||pv.affaire); if(!kw||!MCP||!hasToken()) return;
@@ -2647,51 +2780,64 @@ async function pvFindLinks(pv){ const kw=cpvKw(pv.client||pv.affaire); if(!kw||!
   if(!pv.cpv&&pv.cands.cpv.length===1) pv.cpv=pv.cands.cpv[0].id; if(!pv.auto&&pv.cands.auto.length) pv.auto=pv.cands.auto[0].id; if(!pv.rc&&pv.cands.rc.length===1) pv.rc=pv.cands.rc[0].id;
   const c=pv.cands.cpv.find(x=>x.id===pv.cpv); if(c){ if(!pv.adresse) pv.adresse=c.adr; if(!pv.lieu) pv.lieu=c.com?c.com.charAt(0)+c.com.slice(1).toLowerCase():""; } }
 function pvSave(){ if(PVS.cur) pvDraftSet(PVS.cur); }
-function renderPvEdit(){ const pv=PVS.cur; const sel=(k,arr,none)=>`<select data-pvl="${k}"><option value="">${none}</option>${arr.map(x=>`<option value="${x.id}" ${pv[k]===x.id?"selected":""}>${esc(x.t)}</option>`).join("")}</select>`;
-  const inp=(k,l,type,ph)=>`<label class="f">${esc(l)}<input data-pv="${k}" type="${type||"text"}" value="${esc(pv[k]||"")}" ${ph?`placeholder="${esc(ph)}"`:""}></label>`;
-  const dec=(v,l)=>`<label class="pvdec ${pv.dec===v?"on":""}"><input type="radio" name="pvdec" value="${v}" ${pv.dec===v?"checked":""}> ${esc(l)}</label>`;
-  $("#app").innerHTML=`<div class="wrap pved"><div class="crumb"><button id="pvBack">${ICO.chev}<span>PV de réception</span></button><span class="sec">Brouillon</span></div>
-    <h1>Procès-verbal de réception des travaux</h1>${pv.affaire?`<p class="sub">Chantier : <b>${esc(pv.affaire)}</b>${pv.tvx.length?` · ${pv.tvx.length} fiche(s) travaux reliée(s)`:""}</p>`:""}
-    <div class="card"><h3 class="sub2" style="margin-top:0">Liaisons Notion</h3><div class="grid">
-      <label class="f">Centrale (CPV)${sel("cpv",pv.cands.cpv,"— aucune —")}</label>
-      <label class="f">Fiche autocontrôle${sel("auto",pv.cands.auto,"— aucune —")}</label>
-      <label class="f">Réception de chantier${sel("rc",pv.cands.rc,"— aucune —")}</label></div>
-      <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><input id="pvKw" type="search" placeholder="Autre nom de recherche (client, centrale)" style="flex:1"><button class="btn btn-ghost btn-sm" id="pvFind">Rechercher</button></div></div>
-    <div class="card"><h3 class="sub2" style="margin-top:0">En-tête</h3><div class="grid">${inp("lieu","Fait à (commune)","text","ex. Punaauia")}${inp("faitLe","Le","date")}</div></div>
-    <div class="card"><h3 class="sub2" style="margin-top:0">Le client</h3><div class="grid">
-      ${inp("client","Je soussigné(e), M./Mme","text","Nom et prénom du client")}${inp("finTx","Visite de fin des travaux effectués le","date")}</div>
-      ${inp("adresse","Centrale photovoltaïque sise à","text","Adresse de l'installation")}</div>
-    <div class="card"><h3 class="sub2" style="margin-top:0">Représentant CONEXUN</h3><div class="grid">${inp("rep","En présence de","text")}
-      <label class="f">Agissant en tant que<input data-pv="qual" list="pvQualL" value="${esc(pv.qual||"")}"><datalist id="pvQualL">${PV_QUAL.map(q=>`<option value="${esc(q)}">`).join("")}</datalist></label></div></div>
-    <div class="card"><h3 class="sub2" style="margin-top:0">Décision</h3>
-      ${dec("sans","La réception est prononcée sans réserve")}${dec("avec","La réception est prononcée avec réserves")}${dec("refus","La réception est refusée / différée")}
-      ${pv.dec==="sans"||pv.dec==="avec"?`<div class="grid" style="margin-top:8px">${inp("effet","Avec effet à la date du","date")}</div>
-        <div class="pvtr"><div class="hint" style="margin:6px 0">Le client certifie que les travaux suivants sont corrects :</div>${PV_TRAVAUX.map((t,i)=>`<label class="pvck"><input type="checkbox" data-pvtr="${i}" ${pv.trav.includes(t)?"checked":""}> ${esc(t)}</label>`).join("")}</div>`:""}
-      ${pv.dec==="avec"?`<label class="f">Réserves mentionnées<textarea data-pv="res" rows="3">${esc(pv.res||"")}</textarea></label>`:""}
-      ${pv.dec==="refus"?`<label class="f">Motifs du refus / report<textarea data-pv="motif" rows="3">${esc(pv.motif||"")}</textarea></label>`:""}</div>
-    <div class="card"><h3 class="sub2" style="margin-top:0">Signatures</h3><div class="tvsg">
-      <div class="tvsb"><div class="tvst">Signature de l'entreprise</div><div class="tvsn">${esc(pv.rep||"—")}${pv.qual?" · "+esc(pv.qual):""}</div><canvas class="sig" data-pvsig="E" style="height:130px;width:100%"></canvas><div style="text-align:right;margin-top:6px"><button class="btn btn-ghost btn-sm" data-pvclr="E">Effacer</button></div></div>
-      <div class="tvsb"><div class="tvst">Signature du client</div><div class="tvsn">${esc(pv.client||"—")}</div><canvas class="sig" data-pvsig="C" style="height:130px;width:100%"></canvas><div style="text-align:right;margin-top:6px"><button class="btn btn-ghost btn-sm" data-pvclr="C">Effacer</button></div></div></div>
-      <p class="hint">La signature du procès-verbal de réception et le règlement des travaux autorisent le client soussigné à prendre possession de l'ouvrage. Fait en 2 exemplaires.</p></div>
-    <div class="toolbar" style="justify-content:flex-end"><button class="btn btn-ghost btn-sm" id="pvCancel">Supprimer le brouillon</button><button class="btn btn-or" id="pvSend">Enregistrer le PV signé</button></div></div>`;
+function pvProg(){ const pv=PVS.cur; if(!pv) return; const st=pvSteps(pv); const n=st.filter(x=>x[1]).length;
+  st.forEach(([l,ok],i)=>{ const c=document.querySelector(`[data-pvstep="${i}"]`); if(c) c.classList.toggle("done",ok); const h=document.querySelector(`[data-pvsec="${i}"]`); if(h) h.classList.toggle("done",ok); });
+  const b=document.querySelector(".pvx-bar i"); if(b) b.style.width=(n*20)+"%"; const t=document.querySelector(".pvx-n"); if(t) t.textContent=n+"/5"; }
+function renderPvEdit(){ const pv=PVS.cur; const st=pvSteps(pv);
+  const opt=(k,arr)=>arr.map(x=>`<option value="${x.id}" ${pv[k]===x.id?"selected":""}>${esc(x.t)}</option>`).join("");
+  const link=(k,l,ic,arr)=>`<div class="pvx-link ${pv[k]?"on":""}"><span class="pvx-link-ic">${ic}</span><label><span>${esc(l)}</span><select data-pvl="${k}"><option value="">${arr.length?"— choisir —":"— rien trouvé —"}</option>${opt(k,arr)}</select></label><span class="pvx-dot" title="${pv[k]?"Relié":"Non relié"}">${pv[k]?BI.ok:""}</span></div>`;
+  const inp=(k,l,type,ph,full)=>`<label class="f${full?" full":""}">${esc(l)}<input data-pv="${k}" type="${type||"text"}" value="${esc(pv[k]||"")}" ${ph?`placeholder="${esc(ph)}"`:""}></label>`;
+  const sec=(i,title,help,body)=>`<section class="pvx-sec" id="pvs${i}"><header class="pvx-sh ${st[i][1]?"done":""}" data-pvsec="${i}"><span class="pvx-num"><i>${i+1}</i>${BI.ok}</span><div><h2>${esc(title)}</h2>${help?`<p>${esc(help)}</p>`:""}</div></header>${body}</section>`;
+  const decT=k=>{ const D=PV_DEC[k]; return `<label class="pvx-dec ${D[1]} ${pv.dec===k?"on":""}"><input type="radio" name="pvdec" value="${k}" ${pv.dec===k?"checked":""}><span class="pvx-dec-ic">${D[2]}</span><span><b>${k==="refus"?"Réception refusée / différée":"Réception "+D[0].toLowerCase()}</b><small>${esc(D[3])}</small></span></label>`; };
+  const pad=(k,t,nm)=>`<div class="pvx-sig"><div class="pvx-sig-h"><div><b>${esc(t)}</b><span>${esc(nm||"—")}</span></div><button class="pvx-clr" data-pvclr="${k}">Effacer</button></div>
+    <div class="pvx-pad"><canvas class="sig" data-pvsig="${k}"></canvas><div class="pvx-ph" data-pvph="${k}" ${(pv.sig||{})[k]?"hidden":""}>${BI.pen}<span>Signez ici</span></div><i class="pvx-line"></i></div></div>`;
+  $("#app").innerHTML=`<div class="wrap pved pvx"><div class="crumb"><button id="pvBack">${ICO.chev}<span>PV de réception</span></button><span class="sec">${ICO.bet||""}BET</span></div>
+    <div class="pvx-head"><h1>Procès-verbal de réception</h1>${pv.affaire?`<p>${BI.sun}<b>${esc(pv.affaire)}</b>${pv.tvx.length?`<em>${pv.tvx.length} fiche${pv.tvx.length>1?"s":""} travaux</em>`:""}</p>`:`<p>PV sans fiche travaux</p>`}</div>
+    <nav class="pvx-steps" aria-label="Étapes">${st.map(([l,ok],i)=>`<a href="#pvs${i}" data-pvstep="${i}" class="${ok?"done":""}"><i>${i+1}</i>${BI.ok}<span>${esc(l)}</span></a>`).join("")}</nav>
+    <div class="pvx-prog"><div class="pvx-bar"><i style="width:${st.filter(x=>x[1]).length*20}%"></i></div><span class="pvx-n">${st.filter(x=>x[1]).length}/5</span></div>
+    ${sec(0,"Chantier et liaisons","Ce que le PV relie dans Notion.",`<div class="pvx-links">${link("cpv","Centrale (CPV)",BI.sun,pv.cands.cpv)}${link("auto","Fiche autocontrôle",BI.list,pv.cands.auto)}${link("rc","Réception de chantier",BI.file,pv.cands.rc)}</div>
+      <div class="bet-search pvx-find">${BI.search}<input id="pvKw" type="search" placeholder="Chercher sous un autre nom"><button class="btn btn-ghost btn-sm" id="pvFind">Chercher</button></div>`)}
+    ${sec(1,"Le client","Personne qui réceptionne l'installation.",`<div class="grid">${inp("client","Je soussigné(e), M./Mme","text","Nom et prénom du client")}${inp("finTx","Visite de fin des travaux le","date")}</div>
+      <div class="grid one">${inp("adresse","Centrale photovoltaïque située à","text","Adresse de l'installation",1)}</div>`)}
+    ${sec(2,"Représentant CONEXUN","Qui signe pour l'entreprise, où et quand.",`<div class="grid">${inp("rep","En présence de","text")}
+      <label class="f">Agissant en tant que<input data-pv="qual" list="pvQualL" value="${esc(pv.qual||"")}"><datalist id="pvQualL">${PV_QUAL.map(q=>`<option value="${esc(q)}">`).join("")}</datalist></label>
+      ${inp("lieu","Fait à (commune)","text","ex. Punaauia")}${inp("faitLe","Le","date")}</div>`)}
+    ${sec(3,"Décision du client","",`<div class="pvx-decs">${decT("sans")}${decT("avec")}${decT("refus")}</div>
+      ${pv.dec==="sans"||pv.dec==="avec"?`<div class="grid" style="margin-top:12px">${inp("effet","Avec effet à la date du","date")}</div>
+        <div class="pvx-sub">Le client certifie que ces travaux sont corrects :</div><div class="pvx-trav">${PV_TRAVAUX.map((t,i)=>`<label class="pvx-chk ${pv.trav.includes(t)?"on":""}"><input type="checkbox" data-pvtr="${i}" ${pv.trav.includes(t)?"checked":""}><span class="pvx-box">${BI.ok}</span><span>${esc(t)}</span></label>`).join("")}</div>`:""}
+      ${pv.dec==="avec"?`<label class="f full pvx-ta co">Réserves mentionnées<textarea data-pv="res" rows="3" placeholder="Ex. reprendre la fixation du coffret AC">${esc(pv.res||"")}</textarea></label>`:""}
+      ${pv.dec==="refus"?`<label class="f full pvx-ta ko">Motifs du refus / report<textarea data-pv="motif" rows="3">${esc(pv.motif||"")}</textarea></label>`:""}`)}
+    ${sec(4,"Signatures","Le client et le représentant CONEXUN signent dans les cadres.",`<div class="pvx-sigs">${pad("E","Pour CONEXUN",`${pv.rep||""}${pv.qual?" · "+pv.qual:""}`)}${pad("C","Le client",pv.client)}</div>
+      <p class="pvx-legal">La signature du procès-verbal de réception et le règlement des travaux autorisent le client soussigné à prendre possession de l'ouvrage. Fait en 2 exemplaires.</p>`)}
+    <button class="pvx-drop" id="pvCancel">${BI.trash}<span>Supprimer le brouillon</span></button>
+    <div class="pvx-dock"><button class="btn btn-ghost" id="pvPrev">${BI.eye}<span>Aperçu PDF</span></button><button class="btn btn-or" id="pvSend">${BI.ok}<span>Enregistrer le PV</span></button></div></div>`;
   $("#pvBack").onclick=()=>{ pvSave(); PVS.cur=null; renderPv(); scrollTo(0,0); };
-  $("#pvCancel").onclick=async()=>{ if(await confirmBox("Supprimer ce brouillon de PV ?","Supprimer")){ pvDraftSet(null); PVS.cur=null; renderPv(); } };
-  document.querySelectorAll("[data-pv]").forEach(i=>{ i.oninput=()=>{ pv[i.dataset.pv]=i.value; pvSave(); }; i.onchange=()=>{ if(["client","rep","qual"].includes(i.dataset.pv)){ const y=scrollY; renderPvEdit(); scrollTo(0,y); } }; });
-  document.querySelectorAll("[data-pvl]").forEach(s2=>s2.onchange=()=>{ pv[s2.dataset.pvl]=s2.value||null; if(s2.dataset.pvl==="cpv"){ const c=pv.cands.cpv.find(x=>x.id===pv.cpv); if(c){ if(!pv.adresse) pv.adresse=c.adr; if(!pv.lieu&&c.com) pv.lieu=c.com.charAt(0)+c.com.slice(1).toLowerCase(); const y=scrollY; renderPvEdit(); scrollTo(0,y); } } pvSave(); });
+  $("#pvCancel").onclick=async()=>{ if(await confirmBox("Supprimer ce brouillon de PV ?","Supprimer")){ pvDraftSet(null); PVS.cur=null; renderPv(); scrollTo(0,0); } };
+  document.querySelectorAll(".pvx-steps a").forEach(a=>a.onclick=e=>{ e.preventDefault(); const t=document.getElementById("pvs"+a.dataset.pvstep); if(t) scrollTo({top:t.getBoundingClientRect().top+scrollY-12,behavior:"smooth"}); });
+  document.querySelectorAll("[data-pv]").forEach(i=>{ i.oninput=()=>{ pv[i.dataset.pv]=i.value; pvSave(); pvProg(); }; i.onchange=()=>{ if(["client","rep","qual"].includes(i.dataset.pv)){ const y=scrollY; renderPvEdit(); scrollTo(0,y); } }; });
+  document.querySelectorAll("[data-pvl]").forEach(s2=>s2.onchange=()=>{ pv[s2.dataset.pvl]=s2.value||null; if(s2.dataset.pvl==="cpv"){ const c=pv.cands.cpv.find(x=>x.id===pv.cpv); if(c){ if(!pv.adresse) pv.adresse=c.adr; if(!pv.lieu&&c.com) pv.lieu=c.com.charAt(0)+c.com.slice(1).toLowerCase(); } } pvSave(); const y=scrollY; renderPvEdit(); scrollTo(0,y); });
   document.querySelectorAll('input[name="pvdec"]').forEach(r=>r.onchange=()=>{ pv.dec=r.value; pvSave(); const y=scrollY; renderPvEdit(); scrollTo(0,y); });
-  document.querySelectorAll("[data-pvtr]").forEach(c=>c.onchange=()=>{ const t=PV_TRAVAUX[+c.dataset.pvtr]; pv.trav=pv.trav.filter(x=>x!==t); if(c.checked) pv.trav.push(t); pv.trav.sort((a,b)=>PV_TRAVAUX.indexOf(a)-PV_TRAVAUX.indexOf(b)); pvSave(); });
-  $("#pvFind").onclick=async()=>{ const q=$("#pvKw").value.trim(); if(q.length<2){ toast("Tapez au moins 2 lettres."); return; } const c0=pv.client; pv.client=q; await pvFindLinks(pv); pv.client=c0; pvSave(); const y=scrollY; renderPvEdit(); scrollTo(0,y); toast("Liaisons mises à jour."); };
-  setTimeout(()=>{ document.querySelectorAll("canvas[data-pvsig]").forEach(cv=>{ const k=cv.dataset.pvsig; const pad=valPad(cv); const img=(pv.sig||{})[k];
+  document.querySelectorAll("[data-pvtr]").forEach(c=>c.onchange=()=>{ const t=PV_TRAVAUX[+c.dataset.pvtr]; pv.trav=pv.trav.filter(x=>x!==t); if(c.checked) pv.trav.push(t); pv.trav.sort((a,b)=>PV_TRAVAUX.indexOf(a)-PV_TRAVAUX.indexOf(b)); c.closest(".pvx-chk").classList.toggle("on",c.checked); pvSave(); });
+  $("#pvFind").onclick=async()=>{ const q=$("#pvKw").value.trim(); if(q.length<2){ toast("Tapez au moins 2 lettres."); return; } const b=$("#pvFind"); b.disabled=true; b.textContent="…"; const c0=pv.client; pv.client=q; await pvFindLinks(pv); pv.client=c0; pvSave(); const y=scrollY; renderPvEdit(); scrollTo(0,y); toast("Liaisons mises à jour."); };
+  $("#pvPrev").onclick=()=>pvPreview();
+  setTimeout(()=>{ document.querySelectorAll("canvas[data-pvsig]").forEach(cv=>{ const k=cv.dataset.pvsig; const pad=valPad(cv); const img=(pv.sig||{})[k]; const ph=document.querySelector(`[data-pvph="${k}"]`);
       if(img){ const im=new Image(); im.onload=()=>{ const r=cv.getBoundingClientRect(); cv.getContext("2d").drawImage(im,0,0,r.width,r.height); pad.drawn=true; }; im.src=img; }
-      const up=cv.onpointerup; cv.onpointerup=cv.onpointercancel=e=>{ up&&up(e); if(pad.drawn){ pv.sig=pv.sig||{}; pv.sig[k]=pad.img(); pvSave(); } };
-      const b=document.querySelector(`[data-pvclr="${k}"]`); if(b) b.onclick=()=>{ pad.clear(); if(pv.sig) delete pv.sig[k]; pvSave(); }; }); },60);
+      const dn=cv.onpointerdown; cv.onpointerdown=e=>{ if(ph) ph.hidden=true; dn&&dn(e); };
+      const up=cv.onpointerup; cv.onpointerup=cv.onpointercancel=e=>{ up&&up(e); if(pad.drawn){ pv.sig=pv.sig||{}; pv.sig[k]=pad.img(); pvSave(); pvProg(); } else if(ph&&!(pv.sig||{})[k]) ph.hidden=false; };
+      const b=document.querySelector(`[data-pvclr="${k}"]`); if(b) b.onclick=()=>{ pad.clear(); if(pv.sig) delete pv.sig[k]; if(ph) ph.hidden=false; pvSave(); pvProg(); }; }); },60);
   $("#pvSend").onclick=()=>pvSend(); }
+async function pvPreview(){ const pv=PVS.cur; if(!pv) return; const b=$("#pvPrev"); if(b){ b.disabled=true; }
+  try{ const b64=await pvPdf(Object.assign({},pv,{sig:pv.sig||{}})); const name="Apercu_PV_"+String(pv.client||"client").replace(/[^A-Za-z0-9]+/g,"_").slice(0,40)+".pdf";
+    if(NATIVE){ const r=await nativeCall("savePdf",b64,name); if(r.status!==200) toast("Aperçu impossible : "+r.text); else NATIVE.openPdf(r.text); }
+    else { const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0)); window.open(URL.createObjectURL(new Blob([bin],{type:"application/pdf"})),"_blank"); } }
+  catch(e){ toast("Aperçu impossible : "+((e&&e.message)||"erreur")); }
+  finally{ const b2=$("#pvPrev"); if(b2) b2.disabled=false; } }
 async function pvSend(){ const pv=PVS.cur; const miss=[];
   if(!pv.client.trim()) miss.push("le nom du client"); if(!pv.dec) miss.push("la décision (sans réserve / avec réserves / refusée)"); if(pv.dec==="avec"&&!pv.res.trim()) miss.push("les réserves");
   if(pv.dec==="refus"&&!pv.motif.trim()) miss.push("le motif du refus"); if(!pv.sig||!pv.sig.E) miss.push("la signature de l'entreprise"); if(!pv.sig||!pv.sig.C) miss.push("la signature du client");
-  if(miss.length){ toast("Il manque : "+miss.join(", ")+"."); return; }
+  if(miss.length){ toast("Il manque : "+miss.join(", ")+"."); const k=pvSteps(pv).findIndex((x,i)=>i>0&&!x[1]); const t=document.getElementById("pvs"+k); if(t) scrollTo({top:t.getBoundingClientRect().top+scrollY-12,behavior:"smooth"}); return; }
   if(!MCP||!hasToken()){ toast("Clé Notion non enregistrée sur cet appareil : le brouillon est gardé."); return; }
-  const b=$("#pvSend"); b.disabled=true; b.textContent="Envoi…";
+  const b=$("#pvSend"); b.disabled=true; b.innerHTML="<span>Envoi…</span>";
   try{ const title=`PV de réception — ${pv.client}${pv.faitLe?" ("+frDate(pv.faitLe)+")":""}`; const fname="PV_reception_"+String(pv.client).replace(/[^A-Za-z0-9]+/g,"_").slice(0,40)+".pdf";
     const props={"PV":{title:[{text:{content:title.slice(0,200)}}]},"Statut":{select:{name:"Signé"}},"Décision":{select:{name:pv.dec==="sans"?"Sans réserve":pv.dec==="avec"?"Avec réserves":"Refusée / différée"}},
       "Client":rt(pv.client),"Adresse de la centrale":rt(pv.adresse),"Représentant CONEXUN":rt(pv.rep),"Qualité":rt(pv.qual),"Fait à":rt(pv.lieu),"Réserves":rt(pv.dec==="avec"?pv.res:""),"Motif refus / report":rt(pv.dec==="refus"?pv.motif:""),
@@ -2703,7 +2849,7 @@ async function pvSend(){ const pv=PVS.cur; const miss=[];
     await notion("POST","pages",{parent:{database_id:PV_DB},icon:{type:"emoji",emoji:"📝"},properties:props});
     if(pv.rc){ const et=pv.dec==="sans"?"Terminé":"Rectification sur chantier à faire"; notion("PATCH","pages/"+pv.rc,{properties:{"État":{status:{name:et}}}}).catch(()=>{}); RCS.items=null; }
     pvDraftSet(null); PVS.cur=null; renderPv(); scrollTo(0,0); toast(pdfOk?"PV de réception enregistré dans Notion.":"PV enregistré (PDF non joint, à refaire)."); }
-  catch(e){ b.disabled=false; b.textContent="Enregistrer le PV signé"; toast("Échec : "+((e&&e.message)||"erreur")+" — le brouillon est gardé."); } }
+  catch(e){ b.disabled=false; b.innerHTML=BI.ok+"<span>Enregistrer le PV</span>"; toast("Échec : "+((e&&e.message)||"erreur")+" — le brouillon est gardé."); } }
 async function pvPdf(pv){ if(!window.jspdf) throw {message:"générateur PDF non chargé"}; await ensurePdfFonts();
   const {jsPDF}=window.jspdf; const d=new jsPDF({unit:"mm",format:"a4"});
   const HASF=PDF_FONTS&&PDF_FONTS.length===4; if(HASF) PDF_FONTS.forEach(([f,fam,st,b])=>{ d.addFileToVFS(f,b); d.addFont(f,fam,st); });
@@ -3824,7 +3970,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1911;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1912;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
@@ -3841,7 +3987,9 @@ renderList();
   CANEDIT=true; DL=true;
   MCP=NATIVE?{native:true}:null;
   try{ const L=makeLocalDB(); await L.ready; DB=L; }catch(e){ DB=null; toast("Stockage indisponible : les fiches ne seront pas conservées."); }
-  window.__androidBack=()=>{ const mds=document.querySelectorAll(".modal"); const md=mds[mds.length-1]; if(md){ md.remove(); return true; } if(cur){ closeFiche(); return true; } if(tab!=="home"){ switchTab("home"); return true; } return false; };
+  window.__androidBack=()=>{ const mds=document.querySelectorAll(".modal"); const md=mds[mds.length-1]; if(md){ md.remove(); return true; } if(cur){ closeFiche(); return true; } const cb=document.querySelector("#app .crumb button:not(#goHome)"); if(cb){ cb.click(); return true; } if(tab!=="home"){ switchTab("home"); return true; } return false; };
+  if(typeof WEB!=="undefined"&&WEB&&!window.__cxPop){ window.__cxPop=1; try{ history.pushState({cx:1},""); }catch(e){}
+    addEventListener("popstate",()=>{ if(window.__androidBack&&window.__androidBack()){ try{ history.pushState({cx:1},""); }catch(e){} } }); }
   if(DB) unsubList=DB.collection("fiches").onSnapshot(snap=>{ fiches=snap.docs.map(dc=>Object.assign({_id:dc.id},dc.data())); if(!cur) renderList(); },()=>{});
   if(MCP && hasToken() && lsGet("cx_plan_on")) loadPlanning();
   otaStart(); checkSession(); if(SESSION) setTimeout(()=>bkRestore(false).catch(()=>{}),2500);
