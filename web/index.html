@@ -332,7 +332,7 @@ h3.sub2{font-size:14px;color:var(--or-ink);margin:16px 0 4px}
 .frq-seg button{display:flex;align-items:center;justify-content:center;gap:5px;min-height:38px;border-radius:9px;border:1.5px solid var(--line);background:var(--bg);color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .frq-seg button svg{width:15px;height:15px}.frq-seg button:focus-visible{outline:3px solid var(--or);outline-offset:2px}
 .frq-seg button.ok.on{background:var(--ok);border-color:var(--ok);color:#fff}.frq-seg button.co.on{background:var(--or);border-color:var(--or);color:#fff}.frq-seg button.so.on{background:var(--so);border-color:var(--so);color:#fff}
-.frq-nc{display:flex;gap:8px;align-items:flex-start;margin-top:10px}.frq-nc textarea{flex:1;min-height:60px;border-radius:10px;border:1.5px solid var(--or);background:var(--card);color:var(--fg);font:inherit;font-size:13.5px;padding:8px 10px}
+.frq-nc{display:flex;gap:8px;align-items:flex-start;margin-top:10px}.frq-ph{margin:8px 0 0!important}.frq-nc textarea{flex:1;min-height:60px;border-radius:10px;border:1.5px solid var(--or);background:var(--card);color:var(--fg);font:inherit;font-size:13.5px;padding:8px 10px}
 .frc .frim{position:relative;width:84px;height:64px;flex:none;border-radius:10px;overflow:hidden;border:1px solid var(--line)}.frc .frim.sm{width:72px;height:54px}.frc .frim img{width:100%;height:100%;object-fit:cover}
 .frc .frim button{position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:12px;cursor:pointer}
 .frc .frad{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:84px;height:64px;flex:none;border:1.5px dashed var(--line);border-radius:10px;background:var(--card);color:var(--muted);font:inherit;font-size:12px;font-weight:700;cursor:pointer}.frc .frad svg{width:16px;height:16px}.frc .frad.sm{width:72px;height:54px}
@@ -733,7 +733,7 @@ body.on-start .logo-band .slogan{display:none}
 .vfoot{display:flex;gap:8px;justify-content:center;padding:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--line)}
 </style>
 <div id="app"></div>
-<input type="file" id="fileIn" accept="image/*" hidden>
+<input type="file" id="fileIn" accept="image/*" multiple hidden>
 
 <script src="vendor/jspdf.umd.min.js"></script>
 <script>
@@ -1220,12 +1220,15 @@ function compress(file){
 let pickSlot=null;
 function pickPhoto(slot,cap){ pickSlot={slot,cap}; const fi=$("#fileIn"); fi.value=""; fi.click(); }
 $("#fileIn").addEventListener("change", async e=>{
-  const file=e.target.files[0]; if(!file||!pickSlot||!cur) return;
-  const {slot,cap}=pickSlot; pickSlot=null;
-  let p; try{ p=await compress(file); }catch(err){ toast("Photo illisible, réessayez avec une autre image."); return; }
-  const pid=uid(); photos[pid]={slot,cap,data:p.data,pending:true};
-  (cur.photoIdx[slot] ||= []).push({id:pid,cap}); markDirty(); render();
-  await uploadPhoto(pid);
+  const files=[...(e.target.files||[])]; if(!files.length||!pickSlot||!cur) return;
+  const {slot,cap}=pickSlot; pickSlot=null; const c0=cur; let bad=0, ok=0;
+  if(files.length>1) toast(files.length+" photos en cours d'ajout…");
+  for(const file of files){ if(cur!==c0) break;
+    let p; try{ p=await compress(file); }catch(err){ bad++; continue; }
+    const pid=uid(); photos[pid]={slot,cap,data:p.data,pending:true};
+    (cur.photoIdx[slot] ||= []).push({id:pid,cap}); markDirty(); render(); ok++;
+    uploadPhoto(pid); }
+  if(bad) toast(bad+" photo(s) illisible(s), réessayez avec d'autres images."); else if(ok>1) toast(ok+" photos ajoutées.");
 });
 async function uploadPhoto(pid){
   const ph=photos[pid]; if(!ph) return;
@@ -3092,17 +3095,17 @@ const FRC_ST={C:["OK","ok",[30,122,60]],NC:["À reprendre","co",[181,71,8]],SO:[
 function frcGet(id){ try{ return JSON.parse(localStorage.getItem("cx_frc_"+id)||"null"); }catch(e){ return null; } }
 function frcSave(){ const f=FRC.cur; if(!f) return; try{ localStorage.setItem("cx_frc_"+f.rc,JSON.stringify(f)); }catch(e){ toast("Mémoire pleine : retirez une photo ou enregistrez la fiche."); } }
 function frcDrop(id){ try{ localStorage.removeItem("cx_frc_"+id); }catch(e){} }
-function frcFix(f){ f.cfg=f.cfg||{}; f.ans=f.ans||{}; f.com=f.com||{}; f.ph=f.ph||{}; f.rev=f.rev||[]; if(typeof f.note==="string"){ f.rem=f.rem||f.note; f.note={}; } f.note=f.note||{}; f.img=f.img||{}; f.rem=f.rem||""; return f; }
+function frcFix(f){ f.cfg=f.cfg||{}; f.ans=f.ans||{}; f.com=f.com||{}; f.ph=f.ph||{}; f.rev=f.rev||[]; if(typeof f.note==="string"){ f.rem=f.rem||f.note; f.note={}; } f.note=f.note||{}; f.img=f.img||{}; Object.keys(f.img).forEach(k=>{ if(!Array.isArray(f.img[k])) f.img[k]=f.img[k]?[f.img[k]]:[]; }); f.rev.forEach(r=>{ if(!Array.isArray(r.imgs)) r.imgs=r.img?[r.img]:[]; delete r.img; }); f.rem=f.rem||""; return f; }
 function frcCount(f){ f=frcFix(f); let tot=0,done=0,nc=0; frcSecs(f).forEach(([sk,,,items])=>items.forEach(([k])=>{ tot++; const v=f.ans[sk+"_"+k]; if(v) done++; if(v==="NC") nc++; })); return {tot,done,nc}; }
 function frcOpen(pg){ const P=pg.properties||{}; const me=SESSION?(SESSION.nom||SESSION.login):"";
   FRC.cur=frcFix(frcGet(pg.id)||{rc:pg.id,name:ptxt(P["Nom du projet"])||"Réception",date:ymd(new Date()),by:me});
   frcSave(); if(tab!=="recep") switchTab("recep"); else renderFrc(); scrollTo(0,0);
   const f0=FRC.cur; if(FRC_CFG.some(([k])=>!f0.cfg[k])) frcPrefill(f0,pg).then(ch=>{ if(ch&&FRC.cur===f0){ frcSave(); const y=scrollY; renderFrc(); scrollTo(0,y); toast("Type d'installation repris de la centrale."); } }); }
 function frcNc(f){ const out=[]; frcSecs(f).forEach(([sk,st,who,items])=>items.forEach(([k,l])=>{ const key=sk+"_"+k; if((f.ans[key]||"")==="NC") out.push({sec:st,who,t:l,c:(f.note||{})[key]||"",img:(f.img||{})[key]||""}); })); return out; }
-function frcEtat(f){ return frcNc(f).length||f.rev.some(r=>r.t||r.img)?"Rectification sur chantier à faire":"Terminé"; }
-function frcPickImg(cb){ const fi=document.createElement("input"); fi.type="file"; fi.accept="image/*"; fi.style.display="none"; document.body.appendChild(fi);
-  fi.onchange=async()=>{ const file=fi.files[0]; fi.remove(); if(!file) return;
-    try{ const p=await compress(file); const small=await new Promise(res=>{ const im=new Image(); im.onload=()=>{ const sc=Math.min(1,1000/Math.max(im.width,im.height)); const c=document.createElement("canvas"); c.width=Math.round(im.width*sc); c.height=Math.round(im.height*sc); c.getContext("2d").drawImage(im,0,0,c.width,c.height); res(c.toDataURL("image/jpeg",0.62)); }; im.onerror=()=>res(p.data); im.src=p.data; }); cb(small); }
+function frcEtat(f){ return frcNc(f).length||f.rev.some(r=>r.t||(r.imgs||[]).length)?"Rectification sur chantier à faire":"Terminé"; }
+function frcPickImg(cb){ const fi=document.createElement("input"); fi.type="file"; fi.accept="image/*"; fi.multiple=true; fi.style.display="none"; document.body.appendChild(fi);
+  fi.onchange=async()=>{ const files=[...(fi.files||[])]; fi.remove(); if(!files.length) return; if(files.length>1) toast(files.length+" photos en cours d'ajout…");
+    for(const file of files) try{ const p=await compress(file); const small=await new Promise(res=>{ const im=new Image(); im.onload=()=>{ const sc=Math.min(1,1000/Math.max(im.width,im.height)); const c=document.createElement("canvas"); c.width=Math.round(im.width*sc); c.height=Math.round(im.height*sc); c.getContext("2d").drawImage(im,0,0,c.width,c.height); res(c.toDataURL("image/jpeg",0.62)); }; im.onerror=()=>res(p.data); im.src=p.data; }); cb(small); }
     catch(e){ toast("Photo illisible, réessayez."); } }; fi.click(); }
 function frcProg(){ const f=FRC.cur; if(!f) return; const c=frcCount(f); const b=document.querySelector(".pvx-bar i"); if(b) b.style.width=Math.round(c.done/c.tot*100)+"%"; const t=document.querySelector(".pvx-n"); if(t) t.textContent=c.done+"/"+c.tot; }
 function renderFrc(){ const f=frcFix(FRC.cur); const c=frcCount(f); const nc=frcNc(f), et=frcEtat(f);
@@ -3112,7 +3115,7 @@ function renderFrc(){ const f=frcFix(FRC.cur); const c=frcCount(f); const nc=frc
   const item=(sk,k,l)=>{ const key=sk+"_"+k, v=f.ans[key]||"";
     return `<div class="frq ${v?FRC_ST[v][1]:""}" id="frq_${key}"><div class="frq-t">${esc(l)}</div><div class="frq-seg" role="group" aria-label="${esc(l)}">${["C","NC","SO"].map(x=>`<button type="button" class="${FRC_ST[x][1]} ${v===x?"on":""}" data-fseg="${key}" data-v="${x}" aria-pressed="${v===x}">${x==="C"?BI.ok:x==="NC"?BI.warn:""}<span>${FRC_ST[x][0]}</span></button>`).join("")}</div>
       ${v==="NC"?`<div class="frq-nc"><textarea rows="2" data-fnote="${key}" placeholder="Ce qu'il faut reprendre">${esc(f.note[key]||"")}</textarea>
-        ${f.img[key]?`<div class="frim"><img src="${f.img[key]}" alt="Photo du défaut"><button type="button" data-fimdel="${key}" aria-label="Supprimer la photo">✕</button></div>`:`<button type="button" class="frad" data-fimg="${key}">${BI.plus}<span>Photo</span></button>`}</div>`:""}</div>`; };
+        </div><div class="frph frq-ph">${(f.img[key]||[]).map((im,j)=>`<div class="frim"><img src="${im}" alt="Photo du défaut ${j+1}"><button type="button" data-fimdel="${key}:${j}" aria-label="Supprimer la photo">✕</button></div>`).join("")}<button type="button" class="frad" data-fimg="${key}">${BI.plus}<span>Photos</span></button></div>`:""}</div>`; };
   const phs=(arr,sk)=>`<div class="frph">${arr.map((im,i)=>`<div class="frim"><img src="${im}" alt="Photo ${i+1}"><button type="button" data-fdel="${sk}:${i}" aria-label="Supprimer la photo">✕</button></div>`).join("")}<button type="button" class="frad" data-fadd="${sk}">${BI.plus}<span>Photo</span></button></div>`;
   const sec=(i,sk,st,who,items)=>{ const n=items.filter(([k])=>f.ans[sk+"_"+k]).length; const done=n===items.length;
     return `<section class="pvx-sec" id="pvs${i}"><header class="pvx-sh ${done?"done":""}"><span class="pvx-num"><i>${i+1}</i>${BI.ok}</span><div style="flex:1"><h2>${esc(st)}</h2><p>${n}/${items.length} points · ${esc(who)}</p></div>
@@ -3132,12 +3135,12 @@ function renderFrc(){ const f=frcFix(FRC.cur); const c=frcCount(f); const nc=frc
       ${cfgOk?"":`<p class="fr-hint">${BI.warn}<span>Choisissez le type d'installation : les points qui ne concernent pas ce chantier disparaissent.</span></p>`}</section>
     ${frcSecs(f).map(([sk,st,who,items],i)=>sec(i+1,sk,st,who,items)).join("")}
     <section class="pvx-sec" id="pvs${NS+1}"><header class="pvx-sh ${steps[NS+1][1]?"done":""}"><span class="pvx-num"><i>${NS+2}</i>${BI.ok}</span><div><h2>Bilan</h2><p>Calculé à partir des points cochés.</p></div></header>
-      <div class="fr-res ${et==="Terminé"?"ok":"co"}"><span class="pvx-dec-ic">${et==="Terminé"?BI.ok:BI.warn}</span><div><b>${et==="Terminé"?"Réception OK":"Rectification sur chantier à faire"}</b><small>${et==="Terminé"?(c.done<c.tot?`${c.tot-c.done} point(s) pas encore cochés`:"Rien à reprendre : vous pouvez faire signer le PV."):`${nc.length+f.rev.filter(r=>r.t||r.img).length} point(s) à reprendre`}</small></div></div>
+      <div class="fr-res ${et==="Terminé"?"ok":"co"}"><span class="pvx-dec-ic">${et==="Terminé"?BI.ok:BI.warn}</span><div><b>${et==="Terminé"?"Réception OK":"Rectification sur chantier à faire"}</b><small>${et==="Terminé"?(c.done<c.tot?`${c.tot-c.done} point(s) pas encore cochés`:"Rien à reprendre : vous pouvez faire signer le PV."):`${nc.length+f.rev.filter(r=>r.t||(r.imgs||[]).length).length} point(s) à reprendre`}</small></div></div>
       ${nc.length?`<div class="pvx-sub">Points à reprendre</div><ul class="fr-nc">${nc.map(x=>`<li><b>${esc(x.t)}</b><small>${esc(x.sec)} · ${esc(x.who)}</small>${x.c?`<span>${esc(x.c)}</span>`:""}</li>`).join("")}</ul>`:""}
       <div class="pvx-sub">Autres points à revoir</div>
       ${f.rev.map((r,i)=>`<div class="frrev"><div style="display:flex;gap:8px;align-items:flex-start"><textarea rows="2" data-frev="${i}" placeholder="Ce qu'il faut reprendre" style="flex:1">${esc(r.t||"")}</textarea><button type="button" class="bet-x" data-frdel="${i}" aria-label="Supprimer ce point">${BI.trash}</button></div>
         <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><select data-frwho="${i}" aria-label="Qui doit reprendre">${["","Poseur","Électricien","BET"].map(w=>`<option value="${w}" ${r.who===w?"selected":""}>${w||"Qui ?"}</option>`).join("")}</select>
-        ${r.img?`<div class="frim sm"><img src="${r.img}" alt="Photo du point ${i+1}"><button type="button" data-frimdel="${i}" aria-label="Supprimer la photo">✕</button></div>`:`<button type="button" class="frad sm" data-frimg="${i}">${BI.plus}<span>Photo</span></button>`}</div></div>`).join("")}
+        ${(r.imgs||[]).map((im,j)=>`<div class="frim sm"><img src="${im}" alt="Photo ${j+1} du point ${i+1}"><button type="button" data-frimdel="${i}:${j}" aria-label="Supprimer la photo">✕</button></div>`).join("")}<button type="button" class="frad sm" data-frimg="${i}">${BI.plus}<span>Photos</span></button></div></div>`).join("")}
       <button type="button" class="btn btn-ghost btn-sm" id="frAddRev">${BI.plus}<span>Ajouter un point</span></button>
       <label class="f full" style="margin-top:12px">Remarque générale<textarea rows="2" data-ff="rem" placeholder="Facultatif">${esc(f.rem||"")}</textarea></label></section>
     <button class="pvx-drop" id="frDel">${BI.trash}<span>Effacer la fiche</span></button>
@@ -3152,16 +3155,16 @@ function renderFrc(){ const f=frcFix(FRC.cur); const c=frcCount(f); const nc=frc
   document.querySelectorAll("[data-fcfg]").forEach(b=>b.onclick=()=>{ f.cfg[b.dataset.fcfg]=b.dataset.v; re(); });
   document.querySelectorAll("[data-fseg]").forEach(b=>b.onclick=()=>{ const k=b.dataset.fseg; f.ans[k]=f.ans[k]===b.dataset.v?"":b.dataset.v; re(); if(f.ans[k]==="NC") setTimeout(()=>{ const t=document.querySelector(`[data-fnote="${k}"]`); if(t) t.focus({preventScroll:true}); },50); });
   document.querySelectorAll("[data-fall]").forEach(b=>b.onclick=()=>{ const sk=b.dataset.fall; frcSecs(f).find(x=>x[0]===sk)[3].forEach(([k])=>{ if(!f.ans[sk+"_"+k]) f.ans[sk+"_"+k]="C"; }); re(); toast("Points restants cochés OK."); });
-  document.querySelectorAll("[data-fimg]").forEach(b=>b.onclick=()=>frcPickImg(d=>{ f.img[b.dataset.fimg]=d; re(); }));
-  document.querySelectorAll("[data-fimdel]").forEach(b=>b.onclick=()=>{ delete f.img[b.dataset.fimdel]; re(); });
+  document.querySelectorAll("[data-fimg]").forEach(b=>b.onclick=()=>frcPickImg(d=>{ (f.img[b.dataset.fimg]=f.img[b.dataset.fimg]||[]).push(d); re(); }));
+  document.querySelectorAll("[data-fimdel]").forEach(b=>b.onclick=()=>{ const [k,j]=b.dataset.fimdel.split(":"); (f.img[k]||[]).splice(+j,1); re(); });
   document.querySelectorAll("[data-fadd]").forEach(b=>b.onclick=()=>frcPickImg(d=>{ const k=b.dataset.fadd; (f.ph[k]=f.ph[k]||[]).push(d); re(); }));
   document.querySelectorAll("[data-fdel]").forEach(b=>b.onclick=()=>{ const [k,i]=b.dataset.fdel.split(":"); f.ph[k].splice(+i,1); re(); });
-  $("#frAddRev").onclick=()=>{ f.rev.push({t:"",who:"",img:""}); re(); };
+  $("#frAddRev").onclick=()=>{ f.rev.push({t:"",who:"",imgs:[]}); re(); };
   document.querySelectorAll("[data-frev]").forEach(i=>{ i.oninput=()=>{ f.rev[+i.dataset.frev].t=i.value; frcSave(); }; i.onchange=re; });
   document.querySelectorAll("[data-frwho]").forEach(s2=>s2.onchange=()=>{ f.rev[+s2.dataset.frwho].who=s2.value; frcSave(); });
   document.querySelectorAll("[data-frdel]").forEach(b=>b.onclick=()=>{ f.rev.splice(+b.dataset.frdel,1); re(); });
-  document.querySelectorAll("[data-frimg]").forEach(b=>b.onclick=()=>frcPickImg(d=>{ f.rev[+b.dataset.frimg].img=d; re(); }));
-  document.querySelectorAll("[data-frimdel]").forEach(b=>b.onclick=()=>{ f.rev[+b.dataset.frimdel].img=""; re(); });
+  document.querySelectorAll("[data-frimg]").forEach(b=>b.onclick=()=>frcPickImg(d=>{ const r=f.rev[+b.dataset.frimg]; (r.imgs=r.imgs||[]).push(d); re(); }));
+  document.querySelectorAll("[data-frimdel]").forEach(b=>b.onclick=()=>{ const [i,j]=b.dataset.frimdel.split(":"); (f.rev[+i].imgs||[]).splice(+j,1); re(); });
   $("#frPrev").onclick=async()=>{ const b=$("#frPrev"); b.disabled=true; try{ const b64=await frcPdf(f); const name="Apercu_reception_"+String(rcClient(f.name)).replace(/[^A-Za-z0-9]+/g,"_").slice(0,40)+".pdf";
       if(NATIVE){ const r=await nativeCall("savePdf",b64,name); if(r.status!==200) toast("Aperçu impossible : "+r.text); else NATIVE.openPdf(r.text); }
       else { const bin=Uint8Array.from(atob(b64),ch=>ch.charCodeAt(0)); window.open(URL.createObjectURL(new Blob([bin],{type:"application/pdf"})),"_blank"); } }
@@ -3184,12 +3187,12 @@ async function frcSend(){ const f=frcFix(FRC.cur); const c=frcCount(f);
       {type:"pdf",pdf:{type:"file_upload",file_upload:{id:pdfId}}}]; let up=0;
     for(const [sk,st,who,items] of frcSecs(f)){ blk.push({type:"heading_3",heading_3:{rich_text:T(st)}});
       for(const [k,l] of items){ const key=sk+"_"+k, v=f.ans[key]; blk.push({type:"to_do",to_do:{rich_text:T(`${l} : ${v?FRC_ST[v][0]:"non vérifié"}`),checked:v==="C"||v==="SO"}});
-        if(v==="NC"){ if(f.note[key]) blk.push({type:"quote",quote:{rich_text:T(f.note[key])}}); if(f.img[key]){ const id=await frcUploadImg(f.img[key],`${key}.jpg`).catch(()=>null); if(id){ up++; blk.push({type:"image",image:{type:"file_upload",file_upload:{id}}}); } } } }
+        if(v==="NC"){ if(f.note[key]) blk.push({type:"quote",quote:{rich_text:T(f.note[key])}}); for(const [j,im] of (f.img[key]||[]).entries()){ const id=await frcUploadImg(im,`${key}_${j+1}.jpg`).catch(()=>null); if(id){ up++; blk.push({type:"image",image:{type:"file_upload",file_upload:{id}}}); } } } }
       if(f.com[sk]) blk.push({type:"paragraph",paragraph:{rich_text:T("Commentaire : "+f.com[sk])}});
       for(const [i,im] of (f.ph[sk]||[]).entries()){ const id=await frcUploadImg(im,`${sk}_${i+1}.jpg`).catch(()=>null); if(id){ up++; blk.push({type:"image",image:{type:"file_upload",file_upload:{id}}}); } } }
-    const rv=f.rev.filter(r=>r.t||r.img); if(rv.length){ blk.push({type:"heading_3",heading_3:{rich_text:T("Autres points à revoir")}});
+    const rv=f.rev.filter(r=>r.t||(r.imgs||[]).length); if(rv.length){ blk.push({type:"heading_3",heading_3:{rich_text:T("Autres points à revoir")}});
       for(const [i,r] of rv.entries()){ blk.push({type:"bulleted_list_item",bulleted_list_item:{rich_text:T((r.t||"Voir photo")+(r.who?` — ${r.who}`:""))}});
-        if(r.img){ const id=await frcUploadImg(r.img,`revoir_${i+1}.jpg`).catch(()=>null); if(id){ up++; blk.push({type:"image",image:{type:"file_upload",file_upload:{id}}}); } } } }
+        for(const [j,im] of (r.imgs||[]).entries()){ const id=await frcUploadImg(im,`revoir_${i+1}_${j+1}.jpg`).catch(()=>null); if(id){ up++; blk.push({type:"image",image:{type:"file_upload",file_upload:{id}}}); } } } }
     if(f.rem) blk.push({type:"paragraph",paragraph:{rich_text:T("Remarque : "+f.rem)}});
     for(let i=0;i<blk.length;i+=90) await notion("PATCH","blocks/"+f.rc+"/children",{children:blk.slice(i,i+90)});
     await notion("PATCH","pages/"+f.rc,{properties:{"État":{status:{name:et}}}});
@@ -3213,13 +3216,13 @@ async function frcPdf(f){ if(!window.jspdf) throw {message:"générateur PDF non
   const ok=et==="Terminé"; d.setFillColor(...(ok?[227,244,234]:[253,235,220])); d.roundedRect(M,y-5,CW,11,2,2,"F"); d.setFont(TF,"bold"); d.setFontSize(11); d.setTextColor(...(ok?[30,122,60]:[181,71,8]));
   d.text(clean(ok?"Réception OK : rien à reprendre":"Rectification sur chantier à faire"),M+4,y+2); d.setFont(PF,"normal"); d.setFontSize(9); d.text(clean(`${c.done}/${c.tot} points vérifiés · ${c.nc} à reprendre`),W-M-4,y+2,{align:"right"}); y+=11;
   if(frcCfgTxt(f.cfg)){ d.setFont(PF,"normal"); d.setFontSize(9); d.setTextColor(...GR); d.text(clean("Installation : "+frcCfgTxt(f.cfg)),M,y); y+=7; } else y+=2;
-  frcSecs(f).forEach(([sk,st,who,items])=>{ h2(st,who); items.forEach(([k,l])=>{ const key=sk+"_"+k, v=f.ans[key]; row(l,v); if(v==="NC"){ if(f.note[key]) note(f.note[key]); if(f.img[key]) pics([f.img[key]]); } });
+  frcSecs(f).forEach(([sk,st,who,items])=>{ h2(st,who); items.forEach(([k,l])=>{ const key=sk+"_"+k, v=f.ans[key]; row(l,v); if(v==="NC"){ if(f.note[key]) note(f.note[key]); if((f.img[key]||[]).length) pics(f.img[key]); } });
     if(f.com[sk]){ d.setFont(PF,"normal"); d.setFontSize(9); const L=d.splitTextToSize(clean("Commentaire : "+f.com[sk]),CW); need(L.length*4.3+2); d.text(L,M,y); y+=L.length*4.3+1.5; }
     if((f.ph[sk]||[]).length){ y+=1; pics(f.ph[sk]); } y+=3; });
-  const nc=frcNc(f), rv=f.rev.filter(r=>r.t||r.img);
+  const nc=frcNc(f), rv=f.rev.filter(r=>r.t||(r.imgs||[]).length);
   h2("Bilan : à reprendre"); if(!nc.length&&!rv.length){ d.setFont(PF,"normal"); d.setFontSize(9.5); d.text("Rien à reprendre.",M,y); y+=6; }
   nc.forEach(x=>{ d.setFont(PF,"normal"); d.setFontSize(9.5); const L=d.splitTextToSize(clean(`- ${x.t} (${x.who})${x.c?" : "+x.c:""}`),CW); need(L.length*4.6+1.5); d.setTextColor(...GR); d.text(L,M,y); y+=L.length*4.6+1; });
-  rv.forEach(r=>{ d.setFont(PF,"normal"); d.setFontSize(9.5); const L=d.splitTextToSize(clean(`- ${r.t||"Voir photo"}${r.who?" ("+r.who+")":""}`),CW); need(L.length*4.6+1.5); d.text(L,M,y); y+=L.length*4.6+1; if(r.img) pics([r.img]); });
+  rv.forEach(r=>{ d.setFont(PF,"normal"); d.setFontSize(9.5); const L=d.splitTextToSize(clean(`- ${r.t||"Voir photo"}${r.who?" ("+r.who+")":""}`),CW); need(L.length*4.6+1.5); d.text(L,M,y); y+=L.length*4.6+1; if((r.imgs||[]).length) pics(r.imgs); });
   if(f.rem){ y+=2; h2("Remarque"); d.setFont(PF,"normal"); d.setFontSize(9.5); const L=d.splitTextToSize(clean(f.rem),CW); need(L.length*4.6); d.text(L,M,y); y+=L.length*4.6; }
   const n=d.getNumberOfPages(); for(let i=1;i<=n;i++){ d.setPage(i); d.setFontSize(7); d.setTextColor(140,140,140); d.setFont(PF,"normal"); d.text(clean(`CONEXUN — Fiche de réception · ${rcClient(f.name)||f.name} · page ${i}/${n}`),W/2,291,{align:"center"}); }
   return ab2b64(d.output("arraybuffer")); }
@@ -4169,7 +4172,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1918;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1919;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
