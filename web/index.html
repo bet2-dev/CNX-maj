@@ -2981,18 +2981,22 @@ function drawRecep(){ const el=$("#rcRes"), se=$("#rcStats"); if(!el||!RCS.items
   const q=pvNorm(RCS.q); const L=A.filter(pg=>{ const P=pg.properties||{}; if(RCS.f!=="all"&&RC_K(ptxt(P["État"]))!==RCS.f) return false; return !q||pvNorm(ptxt(P["Nom du projet"])).includes(q); });
   if(!L.length){ el.innerHTML=`<div class="bet-empty"><div class="bet-empty-ic">${BI.list}</div><b>Aucune réception ici</b><span>${A.length?"Changez le filtre ou la recherche.":"Créez la première avec « Nouvelle réception »."}</span></div>`; return; }
   el.innerHTML=L.map(pg=>{ const P=pg.properties||{}; const e=ptxt(P["État"])||"Faire les RC"; const k=RC_K(e); const d0=pdate(P["Date de début"]), d1=pdate(P["Date de fin"]); const pvs=RCS.pv[pg.id]||[];
-    const dr=frcGet(pg.id); const pvf=pvs.length?pfiles((pvs[0].properties||{})["PDF du PV"])[0]:null; const dn=dr?frcCount(dr):null;
+    const dr=frcGet(pg.id); const pvf=pvs.length?pfiles((pvs[0].properties||{})["PDF du PV"])[0]:null; const dn=dr?frcCount(dr):null; const sv=frcSaved(pg);
     return `<article class="bet-pv ${k==="todo"?"":k}"><div class="bet-pv-top"><b>${esc(rcClient(ptxt(P["Nom du projet"]))||"Réception")}</b><span class="bet-tag ${k==="todo"?"":k}">${k==="ok"?BI.ok:k==="co"?BI.warn:BI.cal}${esc(k==="todo"?"À faire":k==="co"?"À rectifier":"Terminée")}</span></div>
       <div class="bet-meta">${d0||d1?`<span>${BI.cal}${esc(d0&&d1&&d0!==d1?`${frDate(d0)} → ${frDate(d1)}`:frDate(d1||d0))}</span>`:""}${prel(P["Centrales Solaires"]).length?`<span>${BI.sun}Centrale reliée</span>`:""}<span>${BI.file}${pvs.length?"PV "+esc(ptxt((pvs[0].properties||{})["Décision"])||"enregistré").toLowerCase():"Pas encore de PV"}</span></div>
-      ${dr?`<div class="rc-draft"><span>${BI.pen}Fiche en cours : ${dn.done}/${dn.tot} points${dn.nc?` · <b>${dn.nc} à reprendre</b>`:""}</span><div class="bet-bar"><i style="width:${Math.round(dn.done/dn.tot*100)}%"></i></div></div>`:""}
-      <div class="bet-actions"><button class="btn btn-or btn-sm" data-rcfi="${pg.id}">${BI.list}<span>${dr?"Reprendre la fiche":"Faire la fiche"}</span></button>
+      ${sv&&!dr?`<div class="rc-draft"><span>${BI.ok}Rapport enregistré le ${esc(frDate(ymd(new Date(sv.savedAt))))}${sv.by?" · "+esc(sv.by):""}</span></div>`:""}
+      ${dr?`<div class="rc-draft"><span>${BI.pen}${dr.editOf?"Modification en cours":"Rapport en cours"} : ${dn.done}/${dn.tot} points${dn.nc?` · <b>${dn.nc} à reprendre</b>`:""}</span><div class="bet-bar"><i style="width:${Math.round(dn.done/dn.tot*100)}%"></i></div></div>`:""}
+      <div class="bet-actions">${sv&&!dr?`${(sv.ph&&sv.ph.pdf)||pfiles(P["Rapport de réception (PDF)"])[0]?`<button class="btn btn-ghost btn-sm" data-rcvf="${pg.id}">${BI.eye}<span>Voir le PDF</span></button>`:""}<button class="btn btn-ghost btn-sm" data-rced="${pg.id}">${BI.pen}<span>Modifier</span></button>`
+        :`<button class="btn btn-or btn-sm" data-rcfi="${pg.id}">${BI.list}<span>${dr?(dr.editOf?"Reprendre la modification":"Reprendre le rapport"):"Faire le rapport"}</span></button>`}
         ${pvf&&pvf.url?`<button class="btn btn-ghost btn-sm" data-rcpdf="${pg.id}">${BI.eye}<span>Voir le PV</span></button>`:`<button class="btn btn-ghost btn-sm" data-rcpv="${pg.id}">${BI.file}<span>Faire le PV</span></button>`}
         <label class="rc-et"><span class="sr">État</span><select data-rcet="${pg.id}" aria-label="État de la réception">${RC_ETATS.map(x=>`<option value="${x}" ${x===e?"selected":""}>${x==="Faire les RC"?"À faire":x==="Terminé"?"Terminée":"À rectifier"}</option>`).join("")}</select></label></div></article>`; }).join("");
   const byId=id=>RCS.items.find(x=>x.id===id);
   el.querySelectorAll("[data-rcet]").forEach(sl=>sl.onchange=async()=>{ const pg=byId(sl.dataset.rcet); try{ await notion("PATCH","pages/"+pg.id,{properties:{"État":{status:{name:sl.value}}}}); pg.properties["État"]={type:"status",status:{name:sl.value}}; toast("État mis à jour."); drawRecep(); }catch(e){ toast("Échec : "+((e&&e.message)||"erreur")); } });
   el.querySelectorAll("[data-rcpdf]").forEach(b=>b.onclick=()=>{ const f=pfiles(((RCS.pv[b.dataset.rcpdf]||[])[0].properties||{})["PDF du PV"])[0]; if(f) openUrl(f.url); });
   el.querySelectorAll("[data-rcpv]").forEach(b=>b.onclick=()=>pvFromRecep(byId(b.dataset.rcpv)));
-  el.querySelectorAll("[data-rcfi]").forEach(b=>b.onclick=()=>frcOpen(byId(b.dataset.rcfi))); }
+  el.querySelectorAll("[data-rcfi]").forEach(b=>b.onclick=()=>frcOpen(byId(b.dataset.rcfi)));
+  el.querySelectorAll("[data-rced]").forEach(b=>b.onclick=async()=>{ b.disabled=true; await frcEditSaved(byId(b.dataset.rced)); b.disabled=false; });
+  el.querySelectorAll("[data-rcvf]").forEach(b=>b.onclick=()=>frcViewSaved(byId(b.dataset.rcvf))); }
 async function pvFromRecep(pg){ const P=pg.properties||{}; const pv=pvNew(); const name=ptxt(P["Nom du projet"]);
   pv.client=rcClient(name); pv.affaire=name; pv.finTx=pdate(P["Date de fin"])||""; pv.rc=pg.id; pv.cands.rc=[{id:pg.id,t:name||"Réception"}];
   const cid=prel(P["Centrales Solaires"])[0];
@@ -3090,7 +3094,9 @@ async function frcPrefill(f,pg){ const P=(pg&&pg.properties)||{}; const cid=prel
     const sg=ptxt(C["Smartguards/ BackupBox"]); if(sg) set("sg",/^non$/i.test(sg)?"non":"oui");
     const on=pnum(C["Nombre d'optimiseurs"]); if(on!=null&&on!=="") set("opt",Number(on)>0?"oui":"non");
     const et=ptxt(C["État"]); set("kind",/extension/i.test(et)?"ext":/installation/i.test(et)?"neuf":"");
-    f.cfgFrom=ptxt(C["Nom de la Centrale"])||"la centrale"; return n>0; }catch(e){ return false; } }
+    f.cfgFrom=ptxt(C["Nom de la Centrale"])||"la centrale"; const w=pnum(C["Puissance (Wc)"]);
+    f.cpv={nom:ptxt(C["Nom de la Centrale"]),adr:[ptxt(C["Adresse géographique"]),ptxt(C["Commune"]),ptxt(C["Île"])].filter(Boolean).join(", "),kwc:w?(w/1000).toLocaleString("fr-FR")+" kWc":"",sto:ptxt(C["Stockage (kWh)"])&&ptxt(C["Stockage (kWh)"])!=="0"?ptxt(C["Stockage (kWh)"])+" kWh":""};
+    return n>0||true; }catch(e){ return false; } }
 const FRC_ST={C:["OK","ok",[30,122,60]],NC:["À reprendre","co",[181,71,8]],SO:["N.A.","so",[120,120,120]]};
 function frcGet(id){ try{ return JSON.parse(localStorage.getItem("cx_frc_"+id)||"null"); }catch(e){ return null; } }
 function frcSave(){ const f=FRC.cur; if(!f) return; try{ localStorage.setItem("cx_frc_"+f.rc,JSON.stringify(f)); }catch(e){ toast("Mémoire pleine : retirez une photo ou enregistrez la fiche."); } }
@@ -3100,7 +3106,7 @@ function frcCount(f){ f=frcFix(f); let tot=0,done=0,nc=0; frcSecs(f).forEach(([s
 function frcOpen(pg){ const P=pg.properties||{}; const me=SESSION?(SESSION.nom||SESSION.login):"";
   FRC.cur=frcFix(frcGet(pg.id)||{rc:pg.id,name:ptxt(P["Nom du projet"])||"Réception",date:ymd(new Date()),by:me});
   frcSave(); if(tab!=="recep") switchTab("recep"); else renderFrc(); scrollTo(0,0);
-  const f0=FRC.cur; if(FRC_CFG.some(([k])=>!f0.cfg[k])) frcPrefill(f0,pg).then(ch=>{ if(ch&&FRC.cur===f0){ frcSave(); const y=scrollY; renderFrc(); scrollTo(0,y); toast("Type d'installation repris de la centrale."); } }); }
+  const f0=FRC.cur; if(FRC_CFG.some(([k])=>!f0.cfg[k])||!f0.cpv) frcPrefill(f0,pg).then(ch=>{ if(ch&&FRC.cur===f0){ frcSave(); const y=scrollY; renderFrc(); scrollTo(0,y); } }); }
 function frcNc(f){ const out=[]; frcSecs(f).forEach(([sk,st,who,items])=>items.forEach(([k,l])=>{ const key=sk+"_"+k; if((f.ans[key]||"")==="NC") out.push({sec:st,who,t:l,c:(f.note||{})[key]||"",img:(f.img||{})[key]||""}); })); return out; }
 function frcEtat(f){ return frcNc(f).length||f.rev.some(r=>r.t||(r.imgs||[]).length)?"Rectification sur chantier à faire":"Terminé"; }
 function frcPickImg(cb){ const fi=document.createElement("input"); fi.type="file"; fi.accept="image/*"; fi.multiple=true; fi.style.display="none"; document.body.appendChild(fi);
@@ -3125,7 +3131,8 @@ function renderFrc(){ const f=frcFix(FRC.cur); const c=frcCount(f); const nc=frc
       <label class="f full">Commentaire<textarea rows="2" data-fcom="${sk}" placeholder="Facultatif">${esc(f.com[sk]||"")}</textarea></label></details></section>`; };
   const NS=frcSecs(f).length;
   $("#app").innerHTML=`<div class="wrap pved pvx frc"><div class="crumb"><button id="frBack">${ICO.chev}<span>Réceptions</span></button><span class="sec">${ICO.bet||""}BET</span></div>
-    <div class="pvx-head"><h1>Fiche de réception</h1><p>${BI.sun}<b>${esc(rcClient(f.name)||f.name)}</b>${frcCfgTxt(f.cfg)?`<em>${esc(frcCfgTxt(f.cfg))}</em>`:""}</p></div>
+    ${f.editOf?`<div class="pvx-edit" style="margin-top:12px">${BI.pen}<span>Vous modifiez le rapport enregistré le ${esc(frDate(ymd(new Date(f.editOf))))}. À l'enregistrement, <b>il remplace l'ancien</b> dans Notion (PDF et photos compris).${f.photoMiss?` ${f.photoMiss} photo(s) n'ont pas pu être rechargées.`:""}</span></div>`:""}
+    <div class="pvx-head"><h1>${f.editOf?"Modifier le rapport de réception":"Rapport de réception"}</h1><p>${BI.sun}<b>${esc(rcClient(f.name)||f.name)}</b>${frcCfgTxt(f.cfg)?`<em>${esc(frcCfgTxt(f.cfg))}</em>`:""}</p></div>
     <nav class="pvx-steps fr-steps" aria-label="Parties" style="grid-template-columns:repeat(${steps.length},1fr)">${steps.map(([l,ok],i)=>`<a href="#pvs${i}" data-pvstep="${i}" class="${ok?"done":""}"><i>${i+1}</i>${BI.ok}<span>${esc(l)}</span></a>`).join("")}</nav>
     <div class="pvx-prog"><div class="pvx-bar"><i style="width:${Math.round(c.done/c.tot*100)}%"></i></div><span class="pvx-n">${c.done}/${c.tot}</span></div>
     <section class="pvx-sec" id="pvs0"><header class="pvx-sh ${steps[0][1]?"done":""}"><span class="pvx-num"><i>1</i>${BI.ok}</span><div><h2>Visite et installation</h2><p>La liste des points s'adapte au type d'installation.</p></div></header>
@@ -3143,11 +3150,11 @@ function renderFrc(){ const f=frcFix(FRC.cur); const c=frcCount(f); const nc=frc
         ${(r.imgs||[]).map((im,j)=>`<div class="frim sm"><img src="${im}" alt="Photo ${j+1} du point ${i+1}"><button type="button" data-frimdel="${i}:${j}" aria-label="Supprimer la photo">✕</button></div>`).join("")}<button type="button" class="frad sm" data-frimg="${i}">${BI.plus}<span>Photos</span></button></div></div>`).join("")}
       <button type="button" class="btn btn-ghost btn-sm" id="frAddRev">${BI.plus}<span>Ajouter un point</span></button>
       <label class="f full" style="margin-top:12px">Remarque générale<textarea rows="2" data-ff="rem" placeholder="Facultatif">${esc(f.rem||"")}</textarea></label></section>
-    <button class="pvx-drop" id="frDel">${BI.trash}<span>Effacer la fiche</span></button>
-    <div class="pvx-dock"><button class="btn btn-ghost" id="frPrev">${BI.eye}<span>Aperçu PDF</span></button><button class="btn btn-or" id="frSend">${BI.ok}<span>Enregistrer</span></button></div></div>`;
+    <button class="pvx-drop" id="frDel">${BI.trash}<span>${f.editOf?"Annuler la modification":"Effacer la fiche"}</span></button>
+    <div class="pvx-dock"><button class="btn btn-ghost" id="frPrev">${BI.eye}<span>Aperçu PDF</span></button><button class="btn btn-or" id="frSend">${BI.ok}<span>${f.editOf?"Mettre à jour":"Enregistrer le rapport"}</span></button></div></div>`;
   const re=()=>{ const y=scrollY; frcSave(); renderFrc(); scrollTo(0,y); };
   $("#frBack").onclick=()=>{ frcSave(); FRC.cur=null; renderRecep(); scrollTo(0,0); };
-  $("#frDel").onclick=async()=>{ if(await confirmBox("Effacer cette fiche de réception (photos comprises) ?","Effacer")){ frcDrop(f.rc); FRC.cur=null; renderRecep(); scrollTo(0,0); } };
+  $("#frDel").onclick=async()=>{ if(await confirmBox(f.editOf?"Annuler la modification ? La fiche enregistrée reste telle quelle.":"Effacer cette fiche de réception (photos comprises) ?",f.editOf?"Annuler la modification":"Effacer")){ frcDrop(f.rc); FRC.cur=null; renderRecep(); scrollTo(0,0); } };
   document.querySelectorAll(".fr-steps a").forEach(a=>a.onclick=e=>{ e.preventDefault(); const t=document.getElementById("pvs"+a.dataset.pvstep); if(t) scrollTo({top:t.getBoundingClientRect().top+scrollY-12,behavior:"smooth"}); });
   document.querySelectorAll("[data-ff]").forEach(i=>i.oninput=()=>{ f[i.dataset.ff]=i.value; frcSave(); });
   document.querySelectorAll("[data-fcom]").forEach(i=>i.oninput=()=>{ f.com[i.dataset.fcom]=i.value; frcSave(); });
@@ -3165,11 +3172,41 @@ function renderFrc(){ const f=frcFix(FRC.cur); const c=frcCount(f); const nc=frc
   document.querySelectorAll("[data-frdel]").forEach(b=>b.onclick=()=>{ f.rev.splice(+b.dataset.frdel,1); re(); });
   document.querySelectorAll("[data-frimg]").forEach(b=>b.onclick=()=>frcPickImg(d=>{ const r=f.rev[+b.dataset.frimg]; (r.imgs=r.imgs||[]).push(d); re(); }));
   document.querySelectorAll("[data-frimdel]").forEach(b=>b.onclick=()=>{ const [i,j]=b.dataset.frimdel.split(":"); (f.rev[+i].imgs||[]).splice(+j,1); re(); });
-  $("#frPrev").onclick=async()=>{ const b=$("#frPrev"); b.disabled=true; try{ const b64=await frcPdf(f); const name="Apercu_reception_"+String(rcClient(f.name)).replace(/[^A-Za-z0-9]+/g,"_").slice(0,40)+".pdf";
+  $("#frPrev").onclick=async()=>{ const b=$("#frPrev"); b.disabled=true; try{ const b64=await frcPdf(f); const name="Apercu_rapport_reception_"+String(rcClient(f.name)).replace(/[^A-Za-z0-9]+/g,"_").slice(0,40)+".pdf";
       if(NATIVE){ const r=await nativeCall("savePdf",b64,name); if(r.status!==200) toast("Aperçu impossible : "+r.text); else NATIVE.openPdf(r.text); }
       else { const bin=Uint8Array.from(atob(b64),ch=>ch.charCodeAt(0)); window.open(URL.createObjectURL(new Blob([bin],{type:"application/pdf"})),"_blank"); } }
     catch(e){ toast("Aperçu impossible : "+((e&&e.message)||"erreur")); } finally{ const b2=$("#frPrev"); if(b2) b2.disabled=false; } };
   $("#frSend").onclick=frcSend; }
+const FRC_DATA="Fiche réception (données)";
+function frcSaved(pg){ try{ const t=ptxt(((pg&&pg.properties)||{})[FRC_DATA]); if(!t) return null; const d=JSON.parse(t); return d&&d.v?d:null; }catch(e){ return null; } }
+function frcRt(str){ const o=[]; for(let i=0;i<str.length;i+=2000) o.push({type:"text",text:{content:str.slice(i,i+2000)}}); return o; }
+async function frcFetchImg(blockId){
+  const b=await notion("GET","blocks/"+blockId); const im=b&&(b.image||b.pdf); const u=im&&(im.file?im.file.url:im.external&&im.external.url); if(!u) return null;
+  let blob=null;
+  if(WEB){ const api=await webApi(); const r=await fetch(api+"/file",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+wls.get("cx_wtok")},body:JSON.stringify({url:u})}); if(r.ok) blob=await r.blob(); }
+  else if(NATIVE&&NATIVE.download){ const r=await nativeCall("download",u,"frc_"+String(blockId).replace(/[^a-z0-9]/gi,"")+".jpg"); let j=null; try{ j=JSON.parse(r.text); }catch(e){} if(r.status===200&&j&&j.url){ const r2=await fetch(j.url); if(r2.ok) blob=await r2.blob(); } }
+  if(!blob) return null; return await new Promise(res=>{ const fr=new FileReader(); fr.onload=()=>res(String(fr.result)); fr.onerror=()=>res(null); fr.readAsDataURL(blob); }); }
+async function frcEditSaved(pg){ const d=frcSaved(pg); if(!d){ frcOpen(pg); return; } const P=pg.properties||{};
+  const dr=frcGet(pg.id); if(dr&&dr.editOf){ FRC.cur=frcFix(dr); if(tab!=="recep") switchTab("recep"); else renderFrc(); scrollTo(0,0); return; }
+  if(dr&&!await confirmBox("Une fiche non enregistrée existe déjà pour ce chantier sur cet appareil. La remplacer par la fiche enregistrée ?","Remplacer")) return;
+  const f=frcFix({rc:pg.id,name:ptxt(P["Nom du projet"])||"Réception",date:d.date||ymd(new Date()),by:d.by||"",cfg:d.cfg||{},ans:d.ans||{},note:d.note||{},com:d.com||{},rem:d.rem||"",
+    rev:(d.rev||[]).map(r=>({t:r.t||"",who:r.who||"",imgs:[]})),img:{},ph:{},editOf:d.savedAt||Date.now(),prevBlocks:d.blocks||[],cpv:d.cpv||null});
+  const ph=d.ph||{}; const jobs=[]; Object.entries(ph.i||{}).forEach(([k,ids])=>ids.forEach((id,j)=>jobs.push([id,v=>{ (f.img[k]=f.img[k]||[])[j]=v; }])));
+  Object.entries(ph.s||{}).forEach(([k,ids])=>ids.forEach((id,j)=>jobs.push([id,v=>{ (f.ph[k]=f.ph[k]||[])[j]=v; }])));
+  Object.entries(ph.r||{}).forEach(([k,ids])=>ids.forEach((id,j)=>jobs.push([id,v=>{ if(f.rev[+k]) f.rev[+k].imgs[j]=v; }])));
+  let miss=0;
+  if(jobs.length){ toast(`Chargement de la fiche (${jobs.length} photo${jobs.length>1?"s":""})…`); let n=0;
+    const run=async()=>{ while(n<jobs.length){ const [id,set]=jobs[n++]; try{ const v=await frcFetchImg(id); if(v) set(v); else miss++; }catch(e){ miss++; } } };
+    await Promise.all([run(),run(),run()]); }
+  Object.keys(f.img).forEach(k=>f.img[k]=f.img[k].filter(Boolean)); Object.keys(f.ph).forEach(k=>f.ph[k]=f.ph[k].filter(Boolean)); f.rev.forEach(r=>r.imgs=r.imgs.filter(Boolean));
+  f.photoMiss=miss; FRC.cur=f; frcSave(); if(tab!=="recep") switchTab("recep"); else renderFrc(); scrollTo(0,0);
+  if(miss) toast(miss+" photo(s) n'ont pas pu être rechargées : elles resteront dans l'ancienne version si vous n'enregistrez pas."); }
+async function frcViewSaved(pg){ const pf=pfiles(((pg&&pg.properties)||{})["Rapport de réception (PDF)"])[0];
+  if(pf&&pf.url){ try{ const fresh=await notion("GET","pages/"+pg.id); const f2=pfiles((fresh.properties||{})["Rapport de réception (PDF)"])[0]; openUrl((f2&&f2.url)||pf.url); }catch(e){ openUrl(pf.url); } return; }
+  const d=frcSaved(pg); const id=d&&d.ph&&d.ph.pdf; if(!id){ toast("PDF introuvable."); return; }
+  try{ const b=await notion("GET","blocks/"+id); const u=b&&b.pdf&&(b.pdf.file?b.pdf.file.url:b.pdf.external&&b.pdf.external.url); if(!u) throw 0;
+    openUrl(u); }
+  catch(e){ toast("PDF indisponible pour le moment."); } }
 async function frcUploadImg(data,name){ const r=await nativeCall("notionUpload",String(data).split(",")[1],name,"image/jpeg"); let j=null; try{ j=JSON.parse(r.text); }catch(e){} return r.status===200&&j&&j.id?j.id:null; }
 async function frcSend(){ const f=frcFix(FRC.cur); const c=frcCount(f);
   if(FRC_CFG.some(([k])=>!f.cfg[k])){ toast("Choisissez d'abord le type d'installation (partie 1)."); scrollTo({top:0,behavior:"smooth"}); return; }
@@ -3178,54 +3215,88 @@ async function frcSend(){ const f=frcFix(FRC.cur); const c=frcCount(f);
   if(!MCP||!hasToken()){ toast("Clé Notion non enregistrée sur cet appareil : la fiche reste sur le téléphone."); return; }
   const b=$("#frSend"); b.disabled=true; b.innerHTML="<span>Envoi…</span>"; const et=frcEtat(f);
   try{ const T=t=>[{type:"text",text:{content:String(t).slice(0,1900)}}];
-    let pdfId=null, pdfErr=""; try{ const b64=await frcPdf(f); const r=await nativeCall("notionUpload",b64,"Fiche_reception_"+String(rcClient(f.name)).replace(/[^A-Za-z0-9]+/g,"_").slice(0,40)+".pdf","application/pdf"); let j=null; try{ j=JSON.parse(r.text); }catch(e){}
-      if(r.status===200&&j&&j.id) pdfId=j.id; else pdfErr=(j&&j.message)||("erreur "+r.status); }catch(e){ pdfErr=(e&&e.message)||"PDF impossible"; }
+    let pdfId=null, pdfErr=""; try{ const b64=await frcPdf(f); var pdfName="Rapport_reception_"+String(rcClient(f.name)).replace(/[^A-Za-z0-9]+/g,"_").slice(0,40)+".pdf"; const r=await nativeCall("notionUpload",b64,pdfName,"application/pdf"); let j=null; try{ j=JSON.parse(r.text); }catch(e){}
+      if(r.status===200&&j&&j.id){ pdfId=j.id; const r2=await nativeCall("notionUpload",b64,pdfName,"application/pdf"); let j2=null; try{ j2=JSON.parse(r2.text); }catch(e){} if(r2.status===200&&j2&&j2.id) var pdfId2=j2.id; }
+      else pdfErr=(j&&j.message)||("erreur "+r.status); }catch(e){ pdfErr=(e&&e.message)||"PDF impossible"; }
     if(!pdfId) throw {message:"le PDF n'a pas pu être envoyé ("+pdfErr+"). Rien n'a été enregistré"};
-    const blk=[{type:"divider",divider:{}},{type:"heading_2",heading_2:{rich_text:T(`Fiche de réception du ${frDate(f.date)}${f.by?" — "+f.by:""}`)}},
+    const blk=[{type:"divider",divider:{}},{type:"heading_2",heading_2:{rich_text:T(`Rapport de réception du ${frDate(f.date)}${f.by?" — "+f.by:""}${f.editOf?" (modifiée le "+frDate(ymd(new Date()))+")":""}`)}},
       {type:"callout",callout:{icon:{type:"emoji",emoji:et==="Terminé"?"✅":"⚠️"},rich_text:T(et==="Terminé"?`Réception OK (${c.done}/${c.tot} points vérifiés).`:"Rectification sur chantier à faire.")}},
       {type:"paragraph",paragraph:{rich_text:T("Installation : "+frcCfgTxt(f.cfg))}},
-      {type:"pdf",pdf:{type:"file_upload",file_upload:{id:pdfId}}}]; let up=0;
+      {type:"pdf",pdf:{type:"file_upload",file_upload:{id:pdfId}}}]; let up=0; const tags=[]; tags[blk.length-1]={t:"pdf"};
     for(const [sk,st,who,items] of frcSecs(f)){ blk.push({type:"heading_3",heading_3:{rich_text:T(st)}});
       for(const [k,l] of items){ const key=sk+"_"+k, v=f.ans[key]; blk.push({type:"to_do",to_do:{rich_text:T(`${l} : ${v?FRC_ST[v][0]:"non vérifié"}`),checked:v==="C"||v==="SO"}});
-        if(v==="NC"){ if(f.note[key]) blk.push({type:"quote",quote:{rich_text:T(f.note[key])}}); for(const [j,im] of (f.img[key]||[]).entries()){ const id=await frcUploadImg(im,`${key}_${j+1}.jpg`).catch(()=>null); if(id){ up++; blk.push({type:"image",image:{type:"file_upload",file_upload:{id}}}); } } } }
+        if(v==="NC"){ if(f.note[key]) blk.push({type:"quote",quote:{rich_text:T(f.note[key])}}); for(const [j,im] of (f.img[key]||[]).entries()){ const id=await frcUploadImg(im,`${key}_${j+1}.jpg`).catch(()=>null); if(id){ up++; blk.push({type:"image",image:{type:"file_upload",file_upload:{id}}}); tags[blk.length-1]={t:"i",k:key}; } } } }
       if(f.com[sk]) blk.push({type:"paragraph",paragraph:{rich_text:T("Commentaire : "+f.com[sk])}});
-      for(const [i,im] of (f.ph[sk]||[]).entries()){ const id=await frcUploadImg(im,`${sk}_${i+1}.jpg`).catch(()=>null); if(id){ up++; blk.push({type:"image",image:{type:"file_upload",file_upload:{id}}}); } } }
+      for(const [i,im] of (f.ph[sk]||[]).entries()){ const id=await frcUploadImg(im,`${sk}_${i+1}.jpg`).catch(()=>null); if(id){ up++; blk.push({type:"image",image:{type:"file_upload",file_upload:{id}}}); tags[blk.length-1]={t:"s",k:sk}; } } }
     const rv=f.rev.filter(r=>r.t||(r.imgs||[]).length); if(rv.length){ blk.push({type:"heading_3",heading_3:{rich_text:T("Autres points à revoir")}});
       for(const [i,r] of rv.entries()){ blk.push({type:"bulleted_list_item",bulleted_list_item:{rich_text:T((r.t||"Voir photo")+(r.who?` — ${r.who}`:""))}});
-        for(const [j,im] of (r.imgs||[]).entries()){ const id=await frcUploadImg(im,`revoir_${i+1}_${j+1}.jpg`).catch(()=>null); if(id){ up++; blk.push({type:"image",image:{type:"file_upload",file_upload:{id}}}); } } } }
+        for(const [j,im] of (r.imgs||[]).entries()){ const id=await frcUploadImg(im,`revoir_${i+1}_${j+1}.jpg`).catch(()=>null); if(id){ up++; blk.push({type:"image",image:{type:"file_upload",file_upload:{id}}}); tags[blk.length-1]={t:"r",k:i}; } } } }
     if(f.rem) blk.push({type:"paragraph",paragraph:{rich_text:T("Remarque : "+f.rem)}});
-    for(let i=0;i<blk.length;i+=90) await notion("PATCH","blocks/"+f.rc+"/children",{children:blk.slice(i,i+90)});
-    await notion("PATCH","pages/"+f.rc,{properties:{"État":{status:{name:et}}}});
-    frcDrop(f.rc); FRC.cur=null; RCS.items=null; renderRecep(); scrollTo(0,0); toast(`Fiche enregistrée dans Notion (PDF + ${up} photo(s)). ${et==="Terminé"?"Réception terminée.":"À rectifier."}`); }
+    const ids=[]; for(let i=0;i<blk.length;i+=90){ const j=await notion("PATCH","blocks/"+f.rc+"/children",{children:blk.slice(i,i+90)}); ((j&&j.results)||[]).forEach(x=>ids.push(x.id)); }
+    const ph={i:{},s:{},r:{},pdf:null}; if(ids.length===blk.length) tags.forEach((t,ix)=>{ if(!t) return; const id=ids[ix]; if(t.t==="pdf") ph.pdf=id; else (ph[t.t][t.k]=ph[t.t][t.k]||[]).push(id); });
+    if(f.editOf&&(f.prevBlocks||[]).length){ for(const id of f.prevBlocks){ if(!ids.includes(id)) await notion("DELETE","blocks/"+id).catch(()=>{}); } }
+    const data={v:1,savedAt:Date.now(),date:f.date,by:f.by,cfg:f.cfg,cpv:f.cpv||null,ans:f.ans,note:f.note,com:f.com,rem:f.rem,rev:rv.map(r=>({t:r.t||"",who:r.who||""})),ph,blocks:ids.length===blk.length?ids:[]};
+    let js=JSON.stringify(data); const props={"État":{status:{name:et}}}; if(typeof pdfId2!=="undefined"&&pdfId2) props["Rapport de réception (PDF)"]={files:[{type:"file_upload",file_upload:{id:pdfId2},name:pdfName}]}; if(js.length<=48000) props[FRC_DATA]={rich_text:frcRt(js)};
+    await notion("PATCH","pages/"+f.rc,{properties:props}); const wasEdit=!!f.editOf;
+    frcDrop(f.rc); FRC.cur=null; RCS.items=null; renderRecep(); scrollTo(0,0); toast(`Rapport ${wasEdit?"modifié":"enregistré"} dans Notion (PDF + ${up} photo(s)). ${et==="Terminé"?"Réception terminée.":"À rectifier."}`); }
   catch(e){ const b2=$("#frSend"); if(b2){ b2.disabled=false; b2.innerHTML=BI.ok+"<span>Enregistrer</span>"; } toast("Échec : "+((e&&e.message)||"erreur")+" — la fiche reste sur l'appareil."); } }
 async function frcPdf(f){ if(!window.jspdf) throw {message:"générateur PDF non chargé"}; await ensurePdfFonts(); f=frcFix(f);
   const {jsPDF}=window.jspdf; const d=new jsPDF({unit:"mm",format:"a4"});
   const HASF=PDF_FONTS&&PDF_FONTS.length===4; if(HASF) PDF_FONTS.forEach(([fn,fam,st,b])=>{ d.addFileToVFS(fn,b); d.addFont(fn,fam,st); });
-  const PF=HASF?"Lato":"helvetica", TF=HASF?"LeagueSpartan":"helvetica"; const OR=[239,123,26], GR=[70,71,72], W=210, M=14, CW=W-2*M;
-  const clean=v=>String(v??"").replace(/→/g,">").replace(/[^\x00-\xFF€œŒ’‘“”…–—·]/g,""); let y=0; const c=frcCount(f), et=frcEtat(f);
-  const head=()=>{ d.addImage(LOGO,"PNG",M,6,46,46*294/900); d.setTextColor(...GR); d.setFont(TF,"bold"); d.setFontSize(14); d.text("FICHE DE RÉCEPTION DE CHANTIER",W-M,13,{align:"right"});
-    d.setFont(PF,"normal"); d.setFontSize(8.5); d.setTextColor(...OR); d.text(clean(`${rcClient(f.name)||f.name} · visite du ${frDate(f.date)}${f.by?" · "+f.by:""}`),W-M,18.5,{align:"right"}); d.setFillColor(...OR); d.rect(0,25,W,1.2,"F"); y=33; };
-  const need=h=>{ if(y+h>282){ d.addPage(); head(); } };
-  const h2=(t,sub)=>{ need(14); d.setFont(TF,"bold"); d.setFontSize(11.5); d.setTextColor(...OR); d.text(clean(t),M,y); if(sub){ d.setFont(PF,"normal"); d.setFontSize(8.5); d.setTextColor(140,140,140); d.text(clean(sub),W-M,y,{align:"right"}); } y+=2; d.setDrawColor(230,230,230); d.setLineWidth(0.3); d.line(M,y,W-M,y); y+=5; d.setTextColor(...GR); };
+  const PF=HASF?"Lato":"helvetica", TF=HASF?"LeagueSpartan":"helvetica"; const OR=[239,123,26], GR=[70,71,72], MU=[130,130,130], W=210, M=14, CW=W-2*M;
+  const clean=v=>String(v??"").replace(/→/g,">").replace(/[^\x00-\xFF€œŒ’‘“”…–—·]/g,""); let y=0; const c=frcCount(f), et=frcEtat(f), ok=et==="Terminé";
+  const cli=rcClient(f.name)||f.name, cpv=f.cpv||{}, secs=frcSecs(f), nc=frcNc(f), rv=f.rev.filter(r=>r.t||(r.imgs||[]).length);
+  const head=()=>{ d.addImage(LOGO,"PNG",M,6,46,46*294/900); d.setTextColor(...GR); d.setFont(TF,"bold"); d.setFontSize(14); d.text("RAPPORT DE RÉCEPTION DE CHANTIER",W-M,13,{align:"right"});
+    d.setFont(PF,"normal"); d.setFontSize(8.5); d.setTextColor(...OR); d.text(clean(`${cli} · visite du ${frDate(f.date)}`),W-M,18.5,{align:"right"}); d.setFillColor(...OR); d.rect(0,25,W,1.2,"F"); y=34; };
+  const need=h=>{ if(y+h>280){ d.addPage(); head(); } };
+  const h1=t=>{ need(16); d.setFont(TF,"bold"); d.setFontSize(13); d.setTextColor(...OR); d.text(clean(t),M,y); y+=7; d.setTextColor(...GR); };
+  const h2=(t,sub)=>{ need(14); d.setFont(TF,"bold"); d.setFontSize(11.5); d.setTextColor(...OR); d.text(clean(t),M,y); if(sub){ d.setFont(PF,"normal"); d.setFontSize(8.5); d.setTextColor(...MU); d.text(clean(sub),W-M,y,{align:"right"}); } y+=2; d.setDrawColor(230,230,230); d.setLineWidth(0.3); d.line(M,y,W-M,y); y+=5; d.setTextColor(...GR); };
+  const txt=(t,sz,col,ind)=>{ d.setFont(PF,"normal"); d.setFontSize(sz||9.5); const L=d.splitTextToSize(clean(t),CW-(ind||0)); need(L.length*(sz||9.5)*0.48+1.5); d.setTextColor(...(col||GR)); d.text(L,M+(ind||0),y); y+=L.length*(sz||9.5)*0.48+1.2; d.setTextColor(...GR); };
   const pill=(st,x,yy)=>{ const [l,,col]=st; d.setFont(PF,"bold"); d.setFontSize(8); const w=d.getTextWidth(clean(l))+5; d.setFillColor(...col.map(v=>Math.round(v+(255-v)*0.85))); d.roundedRect(x-w,yy-3.6,w,5,1.2,1.2,"F"); d.setTextColor(...col); d.text(clean(l),x-w/2,yy,{align:"center"}); };
   const row=(t,v)=>{ d.setFont(PF,"normal"); d.setFontSize(9.5); const L=d.splitTextToSize(clean(t),CW-30); need(L.length*4.6+2.5); d.setTextColor(...GR); d.text(L,M,y);
-    if(v) pill(FRC_ST[v],W-M,y); else { d.setFont(PF,"normal"); d.setFontSize(8); d.setTextColor(170,170,170); d.text("non vérifié",W-M,y,{align:"right"}); } y+=L.length*4.6+1.6; };
-  const note=t=>{ d.setFont(PF,"italic"); d.setFontSize(9); const L=d.splitTextToSize(clean(t),CW-10); need(L.length*4.3+2); d.setTextColor(181,71,8); d.text(L,M+5,y); y+=L.length*4.3+1.5; d.setTextColor(...GR); };
-  const pics=arr=>{ const w=(CW-8)/3; let x=M; arr.forEach((im,i)=>{ const h=w*0.75; if(i%3===0){ need(h+3); x=M; } try{ d.addImage(im,"JPEG",x,y,w,h); }catch(e){} x+=w+4; if(i%3===2||i===arr.length-1) y+=h+3; }); };
+    if(v) pill(FRC_ST[v],W-M,y); else { d.setFontSize(8); d.setTextColor(170,170,170); d.text("non vérifié",W-M,y,{align:"right"}); } y+=L.length*4.6+1.6; };
+  /* photos avec légende d'une ligne sous chaque photo */
+  const pics=(arr,cap)=>{ const w=(CW-8)/3, h=w*0.75; let x=M; arr.forEach((im,i)=>{ if(i%3===0){ need(h+10); x=M; } try{ d.addImage(im,"JPEG",x,y,w,h); }catch(e){}
+      d.setFont(PF,"normal"); d.setFontSize(7.5); d.setTextColor(...MU); const L=d.splitTextToSize(clean(cap(i)),w); d.text(L[0]+(L.length>1?"…":""),x,y+h+3.6); x+=w+4; if(i%3===2||i===arr.length-1) y+=h+9.5; }); d.setTextColor(...GR); };
   head();
-  const ok=et==="Terminé"; d.setFillColor(...(ok?[227,244,234]:[253,235,220])); d.roundedRect(M,y-5,CW,11,2,2,"F"); d.setFont(TF,"bold"); d.setFontSize(11); d.setTextColor(...(ok?[30,122,60]:[181,71,8]));
-  d.text(clean(ok?"Réception OK : rien à reprendre":"Rectification sur chantier à faire"),M+4,y+2); d.setFont(PF,"normal"); d.setFontSize(9); d.text(clean(`${c.done}/${c.tot} points vérifiés · ${c.nc} à reprendre`),W-M-4,y+2,{align:"right"}); y+=11;
-  if(frcCfgTxt(f.cfg)){ d.setFont(PF,"normal"); d.setFontSize(9); d.setTextColor(...GR); d.text(clean("Installation : "+frcCfgTxt(f.cfg)),M,y); y+=7; } else y+=2;
-  frcSecs(f).forEach(([sk,st,who,items])=>{ h2(st,who); items.forEach(([k,l])=>{ const key=sk+"_"+k, v=f.ans[key]; row(l,v); if(v==="NC"){ if(f.note[key]) note(f.note[key]); if((f.img[key]||[]).length) pics(f.img[key]); } });
-    if(f.com[sk]){ d.setFont(PF,"normal"); d.setFontSize(9); const L=d.splitTextToSize(clean("Commentaire : "+f.com[sk]),CW); need(L.length*4.3+2); d.text(L,M,y); y+=L.length*4.3+1.5; }
-    if((f.ph[sk]||[]).length){ y+=1; pics(f.ph[sk]); } y+=3; });
-  const nc=frcNc(f), rv=f.rev.filter(r=>r.t||(r.imgs||[]).length);
-  h2("Bilan : à reprendre"); if(!nc.length&&!rv.length){ d.setFont(PF,"normal"); d.setFontSize(9.5); d.text("Rien à reprendre.",M,y); y+=6; }
-  nc.forEach(x=>{ d.setFont(PF,"normal"); d.setFontSize(9.5); const L=d.splitTextToSize(clean(`- ${x.t} (${x.who})${x.c?" : "+x.c:""}`),CW); need(L.length*4.6+1.5); d.setTextColor(...GR); d.text(L,M,y); y+=L.length*4.6+1; });
-  rv.forEach(r=>{ d.setFont(PF,"normal"); d.setFontSize(9.5); const L=d.splitTextToSize(clean(`- ${r.t||"Voir photo"}${r.who?" ("+r.who+")":""}`),CW); need(L.length*4.6+1.5); d.text(L,M,y); y+=L.length*4.6+1; if((r.imgs||[]).length) pics(r.imgs); });
-  if(f.rem){ y+=2; h2("Remarque"); d.setFont(PF,"normal"); d.setFontSize(9.5); const L=d.splitTextToSize(clean(f.rem),CW); need(L.length*4.6); d.text(L,M,y); y+=L.length*4.6; }
-  const n=d.getNumberOfPages(); for(let i=1;i<=n;i++){ d.setPage(i); d.setFontSize(7); d.setTextColor(140,140,140); d.setFont(PF,"normal"); d.text(clean(`CONEXUN — Fiche de réception · ${rcClient(f.name)||f.name} · page ${i}/${n}`),W/2,291,{align:"center"}); }
+  /* --- informations */
+  const info=[["Client",cli],["Centrale",cpv.nom||"—"],["Adresse",cpv.adr||"—"],["Puissance",[cpv.kwc,cpv.sto?"stockage "+cpv.sto:""].filter(Boolean).join(" · ")||"—"],
+    ["Installation",frcCfgTxt(f.cfg)||"—"],["Date de la visite",frDate(f.date)],["Réceptionné par",f.by||"—"]];
+  d.setFillColor(247,247,247); const ih=info.length*6.2+6; d.roundedRect(M,y-4,CW,ih,2,2,"F");
+  info.forEach(([k,v],i)=>{ const yy=y+1+i*6.2; d.setFont(PF,"bold"); d.setFontSize(9); d.setTextColor(...MU); d.text(clean(k),M+4,yy); d.setFont(PF,"normal"); d.setTextColor(...GR); const L=d.splitTextToSize(clean(v),CW-48); d.text(L[0],M+44,yy); }); y+=ih+4;
+  /* --- conclusion */
+  d.setFillColor(...(ok?[227,244,234]:[253,235,220])); d.roundedRect(M,y-5,CW,14,2,2,"F"); d.setFont(TF,"bold"); d.setFontSize(12.5); d.setTextColor(...(ok?[30,122,60]:[181,71,8]));
+  d.text(clean(ok?"Conclusion : réception OK, rien à reprendre":"Conclusion : rectification sur chantier à faire"),M+4,y+1.5);
+  d.setFont(PF,"normal"); d.setFontSize(9); d.text(clean(`${c.done}/${c.tot} points vérifiés · ${c.nc+rv.length} point(s) à reprendre`),M+4,y+6.5); y+=15;
+  /* --- synthèse par partie */
+  h2("Synthèse par partie");
+  const cols=[["Partie",M],["OK",W-M-74],["À reprendre",W-M-48],["N.A.",W-M-26],["Non vérifié",W-M]];
+  d.setFont(PF,"bold"); d.setFontSize(8.5); d.setTextColor(...MU); cols.forEach(([t,x],i)=>d.text(t,x,y,{align:i?"right":"left"})); y+=5;
+  secs.forEach(([sk,st,who,items])=>{ const n={C:0,NC:0,SO:0,X:0}; items.forEach(([k])=>{ const v=f.ans[sk+"_"+k]; n[v||"X"]++; }); need(7);
+    d.setFont(PF,"normal"); d.setFontSize(9.5); d.setTextColor(...GR); d.text(clean(st),M,y); d.setFont(PF,"bold");
+    [[n.C,[30,122,60]],[n.NC,[181,71,8]],[n.SO,MU],[n.X,[170,170,170]]].forEach(([v,col],i)=>{ d.setTextColor(...(v?col:[200,200,200])); d.text(String(v),cols[i+1][1],y,{align:"right"}); });
+    y+=2; d.setDrawColor(238,238,238); d.line(M,y,W-M,y); y+=4.5; }); y+=3;
+  /* --- points à reprendre */
+  h2("Points à reprendre",nc.length+rv.length?`${nc.length+rv.length} point(s)`:"");
+  if(!nc.length&&!rv.length) txt("Aucun point à reprendre.");
+  nc.forEach(x=>{ need(10); d.setFont(PF,"bold"); d.setFontSize(9.5); d.setTextColor(...GR); const L=d.splitTextToSize(clean("• "+x.t),CW-30); d.text(L,M,y); d.setFont(PF,"normal"); d.setFontSize(8.5); d.setTextColor(...MU); d.text(clean(x.who),W-M,y,{align:"right"}); y+=L.length*4.6+0.6;
+    d.setFontSize(8.5); d.text(clean(x.sec),M+3,y); y+=4.2; if(x.c) txt(x.c,9,[181,71,8],3); y+=1; });
+  rv.forEach(r=>{ need(8); d.setFont(PF,"bold"); d.setFontSize(9.5); d.setTextColor(...GR); const L=d.splitTextToSize(clean("• "+(r.t||"Voir photo")),CW-30); d.text(L,M,y); if(r.who){ d.setFont(PF,"normal"); d.setFontSize(8.5); d.setTextColor(...MU); d.text(clean(r.who),W-M,y,{align:"right"}); } y+=L.length*4.6+1.5;
+    if((r.imgs||[]).length) pics(r.imgs,i=>`${r.t||"Point à revoir"} – photo ${i+1}`); });
+  /* --- détail des contrôles */
+  d.addPage(); head(); h1("Détail des contrôles");
+  secs.forEach(([sk,st,who,items])=>{ h2(st,who); items.forEach(([k,l])=>{ const key=sk+"_"+k, v=f.ans[key]; row(l,v);
+      if(v==="NC"){ if(f.note[key]) txt(f.note[key],9,[181,71,8],5); if((f.img[key]||[]).length) pics(f.img[key],i=>`${l} – photo ${i+1}`); } });
+    if(f.com[sk]) txt("Commentaire : "+f.com[sk],9);
+    if((f.ph[sk]||[]).length){ y+=1; pics(f.ph[sk],i=>`${st} – photo ${i+1}`); } y+=3; });
+  if(f.rem){ h2("Remarque générale"); txt(f.rem); y+=2; }
+  /* --- visa */
+  need(26); y+=4; d.setDrawColor(220,220,220); d.setLineWidth(0.3); d.roundedRect(M,y,CW,20,2,2,"S"); d.setFont(PF,"bold"); d.setFontSize(9.5); d.setTextColor(...GR);
+  d.text(clean(`Réception réalisée par ${f.by||"—"} le ${frDate(f.date)}`),M+4,y+7); d.setFont(PF,"normal"); d.setFontSize(8.5); d.setTextColor(...MU);
+  d.text(clean(`Rapport établi par l'appli CONEXUN le ${frDate(ymd(new Date()))}${f.editOf?" (version modifiée)":""}.`),M+4,y+13); y+=24;
+  const n=d.getNumberOfPages(); for(let i=1;i<=n;i++){ d.setPage(i); d.setFontSize(7); d.setTextColor(140,140,140); d.setFont(PF,"normal"); d.text(clean(`CONEXUN — Rapport de réception · ${cli} · page ${i}/${n}`),W/2,291,{align:"center"}); }
   return ab2b64(d.output("arraybuffer")); }
+
 /* ---- validation des fiches autocontrôle par le responsable technique ---- */
 const VAL={items:null};
 const pchkb=p=>!!(p&&p.type==="checkbox"&&p.checkbox);
@@ -4172,7 +4243,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1919;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1922;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
