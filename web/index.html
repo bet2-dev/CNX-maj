@@ -311,6 +311,9 @@ h3.sub2{font-size:14px;color:var(--or-ink);margin:16px 0 4px}
 .pvx-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px;color:#b9b9bb;font-size:14px;pointer-events:none}.pvx-ph svg{width:18px;height:18px}.pvx-ph[hidden]{display:none}
 .pvx-line{position:absolute;left:16px;right:16px;bottom:28px;border-bottom:1px solid #e6e6e6;pointer-events:none}
 .pvx-legal{margin:12px 0 0;font-size:12px;line-height:1.45;color:var(--muted)}
+.rn-cpv .bet-ch{border-style:dashed}.rn-cpv.on .bet-ch{border-style:solid;border-color:var(--ok);background:var(--ok-soft)}.rn-cpv.on .bet-ch-ic{background:var(--ok);color:#fff}
+.rn-act{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.rn-act .btn{gap:6px}.rn-act .btn svg{width:16px;height:16px}
+#rnN.rn-flash{border-color:var(--ok)!important;background:var(--ok-soft)!important;transition:background .3s}
 .rc-draft{margin-top:10px;font-size:12.5px;color:var(--muted)}.rc-draft span{display:inline-flex;align-items:center;gap:6px}.rc-draft svg{width:14px;height:14px;color:var(--or)}.rc-draft b{color:var(--or-ink)}.rc-draft .bet-bar{margin:6px 0 0}
 .rc-et{margin-left:auto}.rc-et select{min-height:36px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);font:inherit;font-size:13px;padding:0 8px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .frc .fr-steps{grid-template-columns:repeat(6,1fr)}.frc .frok{flex:none;gap:5px}.frc .frok svg{width:15px;height:15px}.frc .frok[disabled]{opacity:.45}
@@ -2987,18 +2990,30 @@ async function pvFromRecep(pg){ const P=pg.properties||{}; const pv=pvNew(); con
   await pvFindLinks(pv); if(!pv.cands.rc.some(x=>x.id===pg.id)) pv.cands.rc.unshift({id:pg.id,t:name||"Réception"}); pv.rc=pg.id;
   const kw=cpvKw(pv.client); if(kw){ try{ const j=await notion("POST","databases/"+TVX_DB+"/query",{page_size:20,filter:{and:[{property:"Affaire",title:{contains:kw}},{property:"Statut",select:{equals:"Finalisée"}}]}}); pv.tvx=(j.results||[]).map(x=>x.id); }catch(e){} }
   if(PVS.cur===pv){ pvDraftSet(pv); if(tab==="pvrec") renderPvEdit(); } }
-function rcNewModal(){ const m=document.createElement("div"); m.className="modal"; const t=ymd(new Date()); let cen=null;
-  m.innerHTML=`<div class="box wide"><h3 style="margin:0 0 8px;font-family:var(--f-title)">Nouvelle réception de chantier</h3>
-    <label class="f">Nom<input id="rnN" value="RC_" placeholder="RC_NOM Prénom"></label>
-    <div class="grid"><label class="f">Date de début<input id="rnD0" type="date"></label><label class="f">Date de fin<input id="rnD1" type="date" value="${t}"></label></div>
-    <div style="display:flex;gap:8px;align-items:center;margin:6px 0"><button class="btn btn-ghost btn-sm" id="rnCpv" type="button">Relier une centrale…</button><span id="rnCpvT" class="hint" style="margin:0"></span></div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px"><button class="btn btn-ghost btn-sm" id="rnX">Annuler</button><button class="btn btn-or btn-sm" id="rnOk">Créer</button></div></div>`;
-  document.body.appendChild(m); m.querySelector("#rnX").onclick=()=>m.remove();
-  m.querySelector("#rnCpv").onclick=async()=>{ const pg=await cpvPick(cpvKw(rcClient(m.querySelector("#rnN").value)),"Relier une centrale","Choisissez la centrale (CPV) concernée par cette réception."); if(pg){ cen=pg; m.querySelector("#rnCpvT").textContent=ptxt((pg.properties||{})["Nom de la Centrale"])||"Centrale reliée"; } };
-  m.querySelector("#rnOk").onclick=async()=>{ const n=m.querySelector("#rnN").value.trim(); if(rcClient(n).length<2){ toast("Indiquez le nom du client."); return; }
-    const d0=m.querySelector("#rnD0").value, d1=m.querySelector("#rnD1").value;
+function rcFromCpvName(n){ return String(n||"").replace(/^\s*CPV[\s_\-:]*/i,"").replace(/[\s_\-]+\d[\s\S]*$/,"").replace(/_+/g," ").replace(/\s+/g," ").trim(); }
+async function rcClientOfCpv(pg){ const P=pg.properties||{}; const cid=prel(P["Client"])[0];
+  if(cid){ try{ const c=await notion("GET","pages/"+cid); const t=Object.values(c.properties||{}).find(p=>p&&p.type==="title"); const n=ptxt(t).trim(); if(n) return n; }catch(e){} }
+  return rcFromCpvName(ptxt(P["Nom de la Centrale"])); }
+function rcNewModal(){ const m=document.createElement("div"); m.className="modal"; const t=ymd(new Date()); let cen=null, auto="RC_";
+  m.innerHTML=`<div class="box wide bet-pick"><div class="bet-pick-h"><div><h3>Nouvelle réception</h3><p>Choisissez la centrale : le nom de la réception se remplit tout seul.</p></div><button class="bet-x" id="rnX" aria-label="Fermer">${BI.no}</button></div>
+    <div class="rn-cpv" id="rnCpvBox"><button class="bet-ch" id="rnCpv" type="button"><span class="bet-ch-ic">${BI.sun}</span><span class="bet-ch-tx"><b id="rnCpvT">Choisir la centrale</b><small id="rnCpvS">Centrale solaire (CPV) concernée</small></span>${ICO.chev}</button></div>
+    <label class="f" style="margin-top:12px">Nom de la réception<input id="rnN" value="RC_" placeholder="RC_NOM Prénom"></label>
+    <div class="grid" style="margin-top:10px"><label class="f">Date de début<input id="rnD0" type="date"></label><label class="f">Date de fin<input id="rnD1" type="date" value="${t}"></label></div>
+    <div class="rn-act"><button class="btn btn-ghost" id="rnX2">Annuler</button><button class="btn btn-or" id="rnOk">${BI.plus}<span>Créer et faire la fiche</span></button></div></div>`;
+  document.body.appendChild(m); const close=()=>m.remove(); m.querySelector("#rnX").onclick=close; m.querySelector("#rnX2").onclick=close;
+  const nI=m.querySelector("#rnN");
+  m.querySelector("#rnCpv").onclick=async()=>{ const pg=await cpvPick(cpvKw(rcClient(nI.value)),"Choisir la centrale","Centrale (CPV) concernée par cette réception.");
+    if(!pg) return; cen=pg; const P=pg.properties||{}; const cn=ptxt(P["Nom de la Centrale"])||"Centrale";
+    m.querySelector("#rnCpvT").textContent=cn; m.querySelector("#rnCpvS").textContent=[ptxt(P["Adresse géographique"]),ptxt(P["Commune"])].filter(Boolean).join(", ")||"Centrale reliée"; m.querySelector("#rnCpvBox").classList.add("on");
+    const cur0=nI.value.trim(); m.querySelector("#rnCpvS").textContent+=" · recherche du client…";
+    const cl=await rcClientOfCpv(pg); m.querySelector("#rnCpvS").textContent=m.querySelector("#rnCpvS").textContent.replace(" · recherche du client…","");
+    if(cl&&(cur0==="RC_"||cur0===""||cur0===auto)){ auto="RC_"+cl; nI.value=auto; nI.classList.add("rn-flash"); setTimeout(()=>nI.classList.remove("rn-flash"),900); }
+    };
+  m.querySelector("#rnOk").onclick=async()=>{ const n=nI.value.trim(); if(rcClient(n).length<2){ toast(cen?"Indiquez le nom du client.":"Choisissez la centrale ou indiquez le nom du client."); return; }
+    const d0=m.querySelector("#rnD0").value, d1=m.querySelector("#rnD1").value; const ok=m.querySelector("#rnOk"); ok.disabled=true;
     const props={"Nom du projet":{title:[{text:{content:n.slice(0,200)}}]},"État":{status:{name:"Faire les RC"}}}; if(d0) props["Date de début"]={date:{start:d0}}; if(d1) props["Date de fin"]={date:{start:d1}}; if(cen) props["Centrales Solaires"]={relation:[{id:cen.id}]};
-    try{ const pg=await notion("POST","pages",{parent:{database_id:RC_DB},properties:props}); m.remove(); toast("Réception créée."); RCS.f="todo"; RCS.items=null; if(pg&&pg.id){ pg.properties=pg.properties||{}; if(!ptxt(pg.properties["Nom du projet"])) pg.properties["Nom du projet"]={type:"title",title:[{plain_text:n}]}; frcOpen(pg); } else loadRecep(); }catch(e){ toast("Échec : "+((e&&e.message)||"erreur")); } }; }
+    try{ const pg=await notion("POST","pages",{parent:{database_id:RC_DB},properties:props}); close(); toast("Réception créée."); RCS.f="todo"; RCS.items=null; if(pg&&pg.id){ pg.properties=pg.properties||{}; if(!ptxt(pg.properties["Nom du projet"])) pg.properties["Nom du projet"]={type:"title",title:[{plain_text:n}]}; frcOpen(pg); } else loadRecep(); }
+    catch(e){ ok.disabled=false; toast("Échec : "+((e&&e.message)||"erreur")); } }; }
 /* ---- BET : fiche de réception de chantier ---- */
 const FRC_SECS=[
  ["toit","Toiture et pose des modules","Poseur",[
@@ -4108,7 +4123,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1916;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1917;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
