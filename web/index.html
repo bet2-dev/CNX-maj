@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><style>
+<!doctype html><html lang="fr"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow,noarchive"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><style>
 #splash{position:fixed;inset:0;z-index:9999;background:#FFFFFF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .45s ease}
 #splash.out{opacity:0;pointer-events:none}
 #splash .sp-dk{display:none}[data-theme="dark"] #splash{background:#121314}[data-theme="dark"] #splash .sp-lt{display:none}[data-theme="dark"] #splash .sp-dk{display:block}[data-theme="dark"] #splash .bar{background:#36383A}
@@ -66,7 +66,7 @@ h1{font-weight:700;color:var(--gr)}
 .btn[disabled]{opacity:.5}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
 .toolbar input{flex:1;min-width:0}
-input[type=text],input[type=date],input[type=number],input:not([type]),select,textarea{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:9px;padding:10px 12px;min-height:44px}
+input[type=text],input[type=search],input[type=date],input[type=number],input:not([type]),select,textarea{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:9px;padding:10px 12px;min-height:44px}
 textarea{min-height:70px;resize:vertical}
 label.f{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:500;color:var(--muted);min-width:0}
 .grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
@@ -319,6 +319,18 @@ h3.sub2{font-size:14px;color:var(--or-ink);margin:16px 0 4px}
 .fr-from,.fr-hint{display:flex;gap:8px;align-items:flex-start;margin:12px 0 0;padding:8px 10px;border-radius:10px;font-size:12.5px;line-height:1.4}.fr-from{background:var(--ok-soft)}.fr-hint{background:var(--or-soft)}
 .fr-from svg,.fr-hint svg{width:16px;height:16px;flex:none;margin-top:1px}.fr-from svg{color:var(--ok)}.fr-hint svg{color:var(--or)}
 @media (max-width:420px){.fr-cfg-r{grid-template-columns:1fr}}
+.hero-s{position:relative;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;margin:14px 0 14px;padding:16px;border-radius:18px;background:linear-gradient(135deg,var(--or-soft),var(--card) 70%);border:1px solid var(--line);overflow:hidden}
+.hero-s::after{content:"";position:absolute;right:-40px;top:-40px;width:130px;height:130px;border-radius:50%;background:var(--or);opacity:.07;pointer-events:none}
+.hero-s .hero-ic{width:46px;height:46px;border-radius:14px;background:var(--or);color:#fff;display:grid;place-items:center;box-shadow:0 6px 16px rgba(239,123,26,.28)}.hero-s .hero-ic svg{width:24px;height:24px}
+.hero-s h1{margin:0 0 3px;font-size:21px;line-height:1.2}.hero-s .sub{margin:0;font-size:13px;line-height:1.45;color:var(--muted)}
+#app input[type=search]{border-radius:12px;min-height:44px}
+#vaRes .va{margin-bottom:10px;padding:14px 16px}
+.subnav.more{-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+#netbar{position:fixed;left:0;right:0;top:0;z-index:999;padding:8px 14px;background:#b54708;color:#fff;font-size:13px;font-weight:700;text-align:center}
+.todo-h{margin:6px 0 8px;font-family:var(--f-title);font-size:15px;color:var(--fg)}
+.todo-l{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}.todo-i{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--fg);font:inherit;text-align:left;cursor:pointer}
+.todo-i:hover,.todo-i:focus-visible{border-color:var(--or);outline:0}.todo-i .ti{width:36px;height:36px;flex:none;border-radius:10px;background:var(--or-soft);color:var(--or);display:grid;place-items:center}.todo-i .ti svg{width:18px;height:18px}
+.todo-i b{display:block;font-size:14px}.todo-i small{display:block;font-size:12.5px;color:var(--muted)}.todo-i>svg{width:18px;height:18px;margin-left:auto;color:var(--muted);flex:none}
 .rn-cpv .bet-ch{border-style:dashed}.rn-cpv.on .bet-ch{border-style:solid;border-color:var(--ok);background:var(--ok-soft)}.rn-cpv.on .bet-ch-ic{background:var(--ok);color:#fff}
 .rn-act{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.rn-act .btn{gap:6px}.rn-act .btn svg{width:16px;height:16px}
 #rnN.rn-flash{border-color:var(--ok)!important;background:var(--ok-soft)!important;transition:background .3s}
@@ -569,7 +581,7 @@ body.on-start .logo-band .slogan{display:none}
 .cgrp{gap:8px}
 .cgrp .top .c{font-size:16.5px}
 .cgrp .tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-.chip.nb{background:var(--gr);color:#fff}
+.chip.nb{background:var(--gr);color:var(--card)}
 .cen{display:flex;flex-direction:column;gap:6px;cursor:pointer}
 .cgrp.many .cen{border-top:1px dashed var(--line);padding-top:10px}
 .cgrp.many .cen:first-of-type{border-top:0;padding-top:0}
@@ -1257,11 +1269,13 @@ const stripEmoji=s=>String(s||"").replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}
 const pageIdOf=u=>{ const m=String(u||"").replace(/-/g,"").match(/[0-9a-f]{32}/i); return m?m[0]:""; };
 /* site web : pas de pont Android, on passe par le relais (clé Notion gardée côté serveur) */
 const WEB=!window.AndroidBridge&&/^https?:$/.test(location.protocol);
-const wstore=k=>k==="cx_wtok"?sessionStorage:localStorage;   // connexion du site : valable seulement tant que l'onglet est ouvert
+const AREL=!!window.AndroidBridge&&(()=>{ try{ return localStorage.getItem("cx_relay")==="1"; }catch(e){ return false; } })();   // Android en mode sécurisé (relais)
+const SRV=WEB||AREL;
+const wstore=k=>k==="cx_wtok"&&WEB?sessionStorage:localStorage;   // connexion du site : valable seulement tant que l'onglet est ouvert
 const wls={ get:k=>{ try{ return wstore(k).getItem(k)||""; }catch(e){ return ""; } }, set:(k,v)=>{ try{ if(v) wstore(k).setItem(k,v); else wstore(k).removeItem(k); }catch(e){} } };
 try{ if(WEB) localStorage.removeItem("cx_wtok"); }catch(e){}
 let WEB_API=wls.get("cx_wapi");
-async function webApi(){ if(!WEB_API){ try{ const c=await (await fetch("config.json?"+Date.now(),{cache:"no-store"})).json(); WEB_API=String(c.api||"").replace(/\/+$/,""); wls.set("cx_wapi",WEB_API); }catch(e){} } return WEB_API; }
+async function webApi(){ if(AREL) return "https://cnx-relais.bet2.workers.dev"; if(!WEB_API){ try{ const c=await (await fetch("config.json?"+Date.now(),{cache:"no-store"})).json(); WEB_API=String(c.api||"").replace(/\/+$/,""); wls.set("cx_wapi",WEB_API); }catch(e){} } return WEB_API; }
 async function webCall(ep,body){ const api=await webApi(); if(!api) return {status:-1,text:JSON.stringify({message:"Adresse du serveur relais non configurée."})};
   try{ const r=await fetch(api+ep,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+wls.get("cx_wtok")},body:JSON.stringify(body)});
     const t=await r.text(); if(r.status===401&&ep!=="/login") setTimeout(()=>{ try{ webExpired(); }catch(e){} },0); return {status:r.status,text:t}; }
@@ -1284,12 +1298,21 @@ function webBridge(){ if(!WEB) return null; const blobs={}; const cb=(id,p)=>p.t
     sharePdf:async u=>{ try{ const b=await (await fetch(u)).blob(); const f=new File([b],blobs[u]||"document.pdf",{type:"application/pdf"}); if(navigator.canShare&&navigator.canShare({files:[f]})) await navigator.share({files:[f]}); else window.open(u,"_blank"); }catch(e){} },
     openUrl:u=>window.open(u,"_blank","noopener"), cached:()=>"",
     download:(id,url)=>setTimeout(()=>window.__nativeCb(id,200,url),0), saveCached:(id)=>setTimeout(()=>window.__nativeCb(id,-1,"Indisponible sur le site web"),0), openFile:u=>{ if(u) window.open(u,"_blank","noopener"); } }; }
-function webExpired(){ if(!WEB) return; wls.set("cx_wtok",""); if(typeof SESSION!=="undefined"&&SESSION){ SESSION=null; lsSet("cx_session",null); toast("Session expirée : reconnectez-vous."); renderList(); } }
+function webExpired(){ if(!SRV) return; wls.set("cx_wtok",""); if(typeof SESSION!=="undefined"&&SESSION){ SESSION=null; lsSet("cx_session",null); toast("Session expirée : reconnectez-vous."); renderList(); } }
 const NATIVE=window.AndroidBridge||webBridge();
+const has0=()=>{ try{ return !!(window.AndroidBridge&&window.AndroidBridge.hasToken()); }catch(e){ return false; } };
+document.addEventListener("click",async e=>{ const b=e.target&&e.target.closest&&e.target.closest("[data-rel]"); if(!b) return; const a=b.dataset.rel;
+  const reload=()=>{ try{ if(window.AndroidBridge&&window.AndroidBridge.reloadApp) window.AndroidBridge.reloadApp(); else location.reload(); }catch(e2){ location.reload(); } };
+  if(a==="on"){ if(typeof SESSION!=="undefined"&&SESSION&&!await confirmBox("Activer le mode sécurisé ? Vous devrez vous reconnecter. En cas de souci, « Revenir à l'ancienne méthode » reste possible dans Réglages.","Activer")) return;
+    try{ localStorage.setItem("cx_relay","1"); localStorage.removeItem("cx_session"); }catch(e2){} reload(); }
+  if(a==="off"){ try{ localStorage.removeItem("cx_relay"); localStorage.removeItem("cx_wtok"); localStorage.removeItem("cx_session"); }catch(e2){} reload(); }
+  if(a==="wipe"){ if(!await confirmBox("Effacer la clé Notion de ce téléphone ? L'appli continuera de marcher en mode sécurisé. Pour revenir à l'ancienne méthode il faudra recoller la clé.","Effacer la clé")) return;
+    try{ window.AndroidBridge.setToken(""); }catch(e2){} toast("Clé Notion effacée de ce téléphone."); if(typeof renderList==="function") renderList(); } });
 const _cbs={};
 window.__nativeCb=(id,status,text)=>{ const f=_cbs[id]; delete _cbs[id]; if(f) f(status,text); };
-function nativeCall(fn,...args){ return new Promise(res=>{ const id="cb"+uid(); _cbs[id]=(st,t)=>res({status:st,text:t}); try{ NATIVE[fn](id,...args); }catch(e){ delete _cbs[id]; res({status:-1,text:String(e&&e.message||e)}); } }); }
-function hasToken(){ try{ return !!(NATIVE && NATIVE.hasToken()); }catch(e){ return false; } }
+function nativeCall(fn,...args){ if(AREL&&fn==="http") return webCall("/notion",{method:args[0],path:String(args[1]).replace("https://api.notion.com/v1/",""),body:args[2]||null}); if(AREL&&fn==="notionUpload") return webUpload(args[0],args[1],args[2]);
+  return new Promise(res=>{ const id="cb"+uid(); _cbs[id]=(st,t)=>res({status:st,text:t}); try{ NATIVE[fn](id,...args); }catch(e){ delete _cbs[id]; res({status:-1,text:String(e&&e.message||e)}); } }); }
+function hasToken(){ if(AREL) return true; try{ return !!(NATIVE && NATIVE.hasToken()); }catch(e){ return false; } }
 function notionErr(st,j,t){
   if(st===-1||st===0) return "Pas de connexion internet (ou Notion injoignable).";
   if(st===401) return "Clé Notion refusée : vérifiez-la dans Réglages.";
@@ -1924,11 +1947,17 @@ function pwCheck(stored,pw){ stored=String(stored||""); if(stored.startsWith("h1
 const SESSION_DAYS=30;
 let SESSION=lsGet("cx_session");
 if(SESSION){ if(!SESSION.at){ SESSION.at=Date.now(); lsSet("cx_session",SESSION); } else if(Date.now()-SESSION.at>SESSION_DAYS*864e5){ SESSION=null; lsSet("cx_session",null); setTimeout(()=>{ try{ toast("Session expirée (30 jours) : reconnectez-vous."); }catch(e){} },800); } }
-if(WEB&&SESSION&&!wls.get("cx_wtok")){ SESSION=null; lsSet("cx_session",null); }
+if(SRV&&SESSION&&!wls.get("cx_wtok")){ SESSION=null; lsSet("cx_session",null); }
 let loginFails=0, loginWait=0;
 const isAdmin=()=>!!(SESSION&&(SESSION.groupes||[]).includes("Admin"));
 function canEnter(g){ const need=GROUP_LOCK[g]; return !need || isAdmin() || !!(SESSION && (SESSION.groupes||[]).includes(need)); }
-function logout(){ if(WEB) wls.set("cx_wtok",""); SESSION=null; GUEST=false; lsSet("cx_session",null); if(cur) closeFiche(); toast("Déconnecté."); tab="home"; window.scrollTo(0,0); renderList(); }
+let _lastAct=Date.now(); ["pointerdown","keydown","touchstart"].forEach(ev=>addEventListener(ev,()=>{ _lastAct=Date.now(); },{passive:true,capture:true}));
+setInterval(()=>{ if(WEB&&typeof SESSION!=="undefined"&&SESSION&&Date.now()-_lastAct>30*60e3){ logout(); toast("Déconnecté après 30 minutes sans activité. Vos brouillons sont gardés."); } },30000);
+function netBar(){ let el=document.getElementById("netbar"); const off=navigator.onLine===false;
+  if(off&&!el){ el=document.createElement("div"); el.id="netbar"; el.setAttribute("role","status"); el.textContent="Hors ligne : vos saisies restent sur l'appareil. Enregistrez quand le réseau revient."; document.body.appendChild(el); }
+  if(!off&&el){ el.remove(); toast("Réseau revenu : vous pouvez enregistrer."); } }
+addEventListener("online",netBar); addEventListener("offline",netBar); setTimeout(netBar,1500);
+function logout(){ if(SRV) wls.set("cx_wtok",""); SESSION=null; GUEST=false; lsSet("cx_session",null); if(cur) closeFiche(); toast("Déconnecté."); tab="home"; window.scrollTo(0,0); renderList(); }
 async function checkSession(){
   if(!SESSION||notionReady()) return;
   try{ const pg=await notion("GET","pages/"+SESSION.id); const P=pg.properties||{};
@@ -1948,7 +1977,7 @@ function renderLogin(g){
     <label for="lgPw">Mot de passe<span class="pwrow"><input id="lgPw" type="password" autocomplete="current-password"><button type="button" class="btn btn-ghost btn-sm" id="lgEye" aria-label="Afficher le mot de passe">Voir</button></span></label>
     <span class="err" id="lgErr" role="alert"></span>
     <button class="btn btn-or" id="lgGo" type="submit">Se connecter</button>
-    ${hasToken()?"":`<button type="button" class="btn btn-ghost btn-sm" id="lgSet">Première installation : coller la clé Notion</button>`}
+    ${hasToken()?"":`<button type="button" class="btn btn-ghost btn-sm" data-rel="on">Première installation : connexion sécurisée (conseillé)</button><button type="button" class="btn btn-ghost btn-sm" id="lgSet">Coller la clé Notion (ancienne méthode)</button>`}
     
   </form></div>`;
   const f=$("#lgF"), err=t=>{ $("#lgErr").textContent=t; };
@@ -1963,17 +1992,17 @@ function renderLogin(g){
     const b=$("#lgGo"); b.disabled=true; b.textContent="Vérification…"; err("");
     try{
       let pg=null, stPw="";
-      if(WEB){ const r=await webCall("/login",{login:id,password:pw}); let j=null; try{ j=JSON.parse(r.text); }catch(e){}
+      if(SRV){ const r=await webCall("/login",{login:id,password:pw}); let j=null; try{ j=JSON.parse(r.text); }catch(e){}
         if(r.status===200&&j&&j.token&&j.page){ wls.set("cx_wtok",j.token); pg=j.page; stPw="h1$web"; } else if(r.status!==401) throw {message:(j&&j.message)||"Serveur relais injoignable."}; }
       else{ let all=[], cursor=null;
       do{ const j=await notion("POST","databases/"+ACCES_DB+"/query",Object.assign({page_size:100,filter:{property:"Actif",checkbox:{equals:true}}},cursor?{start_cursor:cursor}:{}));
         all=all.concat(j.results||[]); cursor=j.has_more?j.next_cursor:null; }while(cursor);
       pg=all.find(x=>ptxt((x.properties||{})["Identifiant"]).trim().toLowerCase()===id.toLowerCase());
       stPw=pg?ptxt(pg.properties["Mot de passe"]):""; }
-      if(!pg||(!WEB&&!pwCheck(stPw,pw))){ loginFails++; if(loginFails>=5){ loginWait=Date.now()+30000; loginFails=0; } err("Identifiant ou mot de passe incorrect."); b.disabled=false; b.textContent="Se connecter"; return; }
+      if(!pg||(!SRV&&!pwCheck(stPw,pw))){ loginFails++; if(loginFails>=5){ loginWait=Date.now()+30000; loginFails=0; } err("Identifiant ou mot de passe incorrect."); b.disabled=false; b.textContent="Se connecter"; return; }
       const groupes=pmulti(pg.properties["Groupes"]);
       if(need&&!groupes.includes(need)&&!groupes.includes("Admin")){ err(need==="Admin"?"Ce compte n'est pas administrateur.":"Ce compte n'a pas accès à "+need+"."); b.disabled=false; b.textContent="Se connecter"; return; }
-      if(!WEB&&!stPw.startsWith("h1$")) notion("PATCH","pages/"+pg.id,{properties:{"Mot de passe":rt(pwHash(pw))}}).catch(()=>{});
+      if(!SRV&&!stPw.startsWith("h1$")) notion("PATCH","pages/"+pg.id,{properties:{"Mot de passe":rt(pwHash(pw))}}).catch(()=>{});
       loginFails=0; SESSION={id:pg.id,login:ptxt(pg.properties["Identifiant"]).trim(),nom:ptxt(pg.properties["Nom"]).trim()||id,groupes,at:Date.now()};
       lsSet("cx_session",SESSION); lsSet("cx_last_login",SESSION.login); toast("Bonjour "+SESSION.nom+" !"); renderList(); beat(true); setTimeout(()=>bkRestore().catch(()=>{}),1500);
     }catch(e2){ err(e2&&e2.code==="http_404"?"Base « Accès appli » non connectée à l'intégration CONEXUN dans Notion.":((e2&&e2.message)||"Erreur Notion")); b.disabled=false; b.textContent="Se connecter"; }
@@ -1992,12 +2021,21 @@ const HOME_TILES=[
   ["admin","Administrateur","Activité · Fiches à valider · Comptes · Réglages"],
   ["compte","Mon compte","Mes infos · Mot de passe · Mes fiches sauvegardées"]];
 function openGroup(k){ const g=GROUPS.find(x=>x[0]===k); if(!g) return; const ls=lastSub[k]; switchTab(ls&&g[2].some(x=>x[0]===ls)?ls:g[2][0][0]); }
+let _todoVal=null;
+function homeTodo(){ const el=document.getElementById("homeTodo"); if(!el||!SESSION) return; const it=[];
+  if(canEnter("bet")){ Object.values(FRC_MEM).forEach(f=>{ if(!f||!f.rc) return; const c=frcCount(f); it.push(["recep",BI.list,(f.editOf?"Modification en cours : ":"Rapport de réception en cours : ")+(rcClient(f.name)||f.name),`${c.done}/${c.tot} points${c.nc?" · "+c.nc+" à reprendre":""}`,f.rc]); });
+    const pd=pvDraftGet(); if(pd) it.push(["pvrec",BI.file,"PV de réception en cours : "+(pd.client||pd.affaire||"sans client"),"Brouillon à terminer et faire signer",""]); }
+  if(isAdmin()&&_todoVal) it.push(["valider",BI.ok,_todoVal+" fiche(s) autocontrôle à valider","À contrôler et signer",""]);
+  el.innerHTML=it.length?`<h2 class="todo-h">À faire</h2><div class="todo-l">${it.map((x,i)=>`<button class="todo-i" data-todo="${i}"><span class="ti">${x[1]}</span><span><b>${esc(x[2])}</b><small>${esc(x[3])}</small></span>${ICO.chev}</button>`).join("")}</div>`:"";
+  el.querySelectorAll("[data-todo]").forEach(b=>b.onclick=()=>{ const x=it[+b.dataset.todo]; if(x[0]==="recep"&&x[4]&&FRC_MEM[x[4]]){ FRC.cur=frcFix(FRC_MEM[x[4]]); } switchTab(x[0]); });
+  if(isAdmin()&&_todoVal===null&&MCP&&hasToken()){ _todoVal=0; notion("POST","databases/"+AUTO_DB+"/query",{page_size:50,filter:{property:"Statut",select:{equals:"À valider"}}}).then(j=>{ _todoVal=(j.results||[]).length; if(_todoVal&&tab==="home") homeTodo(); }).catch(()=>{}); } }
 function renderHome(){
   const h=new Date().getHours(); const hello=h<12?"Bonjour":h<18?"Bon après-midi":"Bonsoir";
   const who=SESSION?(SESSION.nom||SESSION.login):"";
   $("#app").innerHTML=`<div class="wrap home">
     <h1>${hello}${who?" "+esc(who.split(" ").slice(-1)[0]):""} !</h1>
     <p class="sub">Choisissez une section.</p>
+    <div id="homeTodo"></div>
     <div class="tiles">${HOME_TILES.filter(([k,l,d,soon])=>soon?isAdmin():canEnter(k)).map(([k,l,d,soon])=>{ const lk=!soon&&!canEnter(k);
       return `<button class="tile ${soon?"soon":""} t-${k}" ${soon?'disabled aria-disabled="true"':`data-go="${k}"`}>
         <span class="ic">${ICO[k]}</span>
@@ -2006,6 +2044,7 @@ function renderHome(){
       </button>`; }).join("")}</div>
     ${SESSION?`<div class="whoami"><span>Connecté : <b>${esc(who)}</b></span></div>`:`<div class="whoami"><span>Sans compte</span><button id="wIn">Se connecter</button></div>`}
   </div>`;
+  homeTodo();
   $("#app").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openGroup(b.dataset.go));
   const o=$("#wOut"); if(o) o.onclick=logout;
   const wi=$("#wIn"); if(wi) wi.onclick=()=>{ GUEST=false; renderList(); };
@@ -2870,7 +2909,7 @@ function renderPvEdit(){ const pv=PVS.cur; const st=pvSteps(pv);
     ${sec(3,"Décision du client","",`<div class="pvx-decs">${decT("sans")}${decT("avec")}${decT("refus")}</div>
       ${pv.dec==="sans"||pv.dec==="avec"?`<div class="grid" style="margin-top:12px">${inp("effet","Avec effet à la date du","date")}</div>
         <div class="pvx-sub">Le client certifie que ces travaux sont corrects :</div><div class="pvx-trav">${PV_TRAVAUX.map((t,i)=>`<label class="pvx-chk ${pv.trav.includes(t)?"on":""}"><input type="checkbox" data-pvtr="${i}" ${pv.trav.includes(t)?"checked":""}><span class="pvx-box">${BI.ok}</span><span>${esc(t)}</span></label>`).join("")}</div>`:""}
-      ${pv.dec==="avec"?`<label class="f full pvx-ta co">Réserves mentionnées<textarea data-pv="res" rows="3" placeholder="Ex. reprendre la fixation du coffret AC">${esc(pv.res||"")}</textarea></label>`:""}
+      ${pv.dec==="avec"?`${pv.resFrom?`<div class="fr-from" style="margin-top:12px">${BI.list}<span>Réserves reprises du rapport de réception : vérifiez avec le client.</span></div>`:""}<label class="f full pvx-ta co">Réserves mentionnées<textarea data-pv="res" rows="3" placeholder="Ex. reprendre la fixation du coffret AC">${esc(pv.res||"")}</textarea></label>`:""}
       ${pv.dec==="refus"?`<label class="f full pvx-ta ko">Motifs du refus / report<textarea data-pv="motif" rows="3">${esc(pv.motif||"")}</textarea></label>`:""}`)}
     ${sec(4,"Signatures","Le client et le représentant CONEXUN signent dans les cadres.",`<div class="pvx-sigs">${pad("E","Pour CONEXUN",`${pv.rep||""}${pv.qual?" · "+pv.qual:""}`)}${pad("C","Le client",pv.client)}</div>
       <p class="pvx-legal">La signature du procès-verbal de réception et le règlement des travaux autorisent le client soussigné à prendre possession de l'ouvrage. Fait en 2 exemplaires.</p>`)}
@@ -3000,6 +3039,8 @@ function drawRecep(){ const el=$("#rcRes"), se=$("#rcStats"); if(!el||!RCS.items
 async function pvFromRecep(pg){ const P=pg.properties||{}; const pv=pvNew(); const name=ptxt(P["Nom du projet"]);
   pv.client=rcClient(name); pv.affaire=name; pv.finTx=pdate(P["Date de fin"])||""; pv.rc=pg.id; pv.cands.rc=[{id:pg.id,t:name||"Réception"}];
   const cid=prel(P["Centrales Solaires"])[0];
+  try{ const sv=frcSaved(pg); if(sv){ const f2=frcFix({cfg:sv.cfg||{},ans:sv.ans||{},note:sv.note||{},rev:(sv.rev||[]).map(r=>({t:r.t,who:r.who,imgs:[]}))});
+      const pts=frcNc(f2).map(x=>"- "+x.t+(x.c?" : "+x.c:"")).concat(f2.rev.filter(r=>r.t).map(r=>"- "+r.t)); if(pts.length){ pv.dec="avec"; pv.res=pts.join("\n"); pv.resFrom=true; } } }catch(e){}
   PVS.cur=pv; pvDraftSet(pv); switchTab("pvrec"); toast("Recherche de la centrale, des fiches travaux et de l'autocontrôle…");
   if(cid){ try{ const c=await notion("GET","pages/"+cid); const CP=c.properties||{}; const com=ptxt(CP["Commune"]); pv.cands.cpv=[{id:c.id,t:ptxt(CP["Nom de la Centrale"])||"Centrale",adr:[ptxt(CP["Adresse géographique"]),com].filter(Boolean).join(", "),com}]; pv.cpv=c.id; pv.adresse=pv.cands.cpv[0].adr; if(com) pv.lieu=com.charAt(0)+com.slice(1).toLowerCase(); }catch(e){} }
   await pvFindLinks(pv); if(!pv.cands.rc.some(x=>x.id===pg.id)) pv.cands.rc.unshift({id:pg.id,t:name||"Réception"}); pv.rc=pg.id;
@@ -3098,9 +3139,17 @@ async function frcPrefill(f,pg){ const P=(pg&&pg.properties)||{}; const cid=prel
     f.cpv={nom:ptxt(C["Nom de la Centrale"]),adr:[ptxt(C["Adresse géographique"]),ptxt(C["Commune"]),ptxt(C["Île"])].filter(Boolean).join(", "),kwc:w?(w/1000).toLocaleString("fr-FR")+" kWc":"",sto:ptxt(C["Stockage (kWh)"])&&ptxt(C["Stockage (kWh)"])!=="0"?ptxt(C["Stockage (kWh)"])+" kWh":""};
     return n>0||true; }catch(e){ return false; } }
 const FRC_ST={C:["OK","ok",[30,122,60]],NC:["À reprendre","co",[181,71,8]],SO:["N.A.","so",[120,120,120]]};
-function frcGet(id){ try{ return JSON.parse(localStorage.getItem("cx_frc_"+id)||"null"); }catch(e){ return null; } }
-function frcSave(){ const f=FRC.cur; if(!f) return; try{ localStorage.setItem("cx_frc_"+f.rc,JSON.stringify(f)); }catch(e){ toast("Mémoire pleine : retirez une photo ou enregistrez la fiche."); } }
-function frcDrop(id){ try{ localStorage.removeItem("cx_frc_"+id); }catch(e){} }
+const FRC_MEM={}; let FRC_IDB=null, _frcT=null;
+(function(){ try{ const rq=indexedDB.open("cx_frc",1); rq.onupgradeneeded=()=>rq.result.createObjectStore("f");
+    rq.onsuccess=()=>{ FRC_IDB=rq.result; const tx=FRC_IDB.transaction("f","readwrite"), st=tx.objectStore("f"); const rk=st.getAllKeys(), rv=st.getAll();
+      rv.onsuccess=()=>{ (rk.result||[]).forEach((k,i)=>{ if(!FRC_MEM[k]) FRC_MEM[k]=rv.result[i]; });
+        try{ Object.keys(localStorage).filter(k=>k.indexOf("cx_frc_")===0).forEach(k=>{ const id=k.slice(7); try{ const v=JSON.parse(localStorage.getItem(k)); if(v&&!FRC_MEM[id]){ FRC_MEM[id]=v; st.put(v,id); } }catch(e){} localStorage.removeItem(k); }); }catch(e){}
+        try{ if(typeof tab!=="undefined"&&tab==="recep"&&!FRC.cur&&RCS.items) drawRecep(); if(typeof tab!=="undefined"&&tab==="home"&&typeof homeTodo==="function") homeTodo(); }catch(e){} }; }; }catch(e){} })();
+function frcGet(id){ if(FRC_MEM[id]) return FRC_MEM[id]; try{ return JSON.parse(localStorage.getItem("cx_frc_"+id)||"null"); }catch(e){ return null; } }
+function frcSave(){ const f=FRC.cur; if(!f) return; FRC_MEM[f.rc]=f;
+  if(FRC_IDB){ clearTimeout(_frcT); _frcT=setTimeout(()=>{ try{ const tx=FRC_IDB.transaction("f","readwrite"); tx.objectStore("f").put(JSON.parse(JSON.stringify(f)),f.rc); tx.onerror=()=>toast("Mémoire pleine : retirez des photos ou enregistrez le rapport."); }catch(e){} },350); return; }
+  try{ localStorage.setItem("cx_frc_"+f.rc,JSON.stringify(f)); }catch(e){ toast("Mémoire pleine : retirez une photo ou enregistrez le rapport."); } }
+function frcDrop(id){ delete FRC_MEM[id]; clearTimeout(_frcT); try{ if(FRC_IDB) FRC_IDB.transaction("f","readwrite").objectStore("f").delete(id); }catch(e){} try{ localStorage.removeItem("cx_frc_"+id); }catch(e){} }
 function frcFix(f){ f.cfg=f.cfg||{}; f.ans=f.ans||{}; f.com=f.com||{}; f.ph=f.ph||{}; f.rev=f.rev||[]; if(typeof f.note==="string"){ f.rem=f.rem||f.note; f.note={}; } f.note=f.note||{}; f.img=f.img||{}; Object.keys(f.img).forEach(k=>{ if(!Array.isArray(f.img[k])) f.img[k]=f.img[k]?[f.img[k]]:[]; }); f.rev.forEach(r=>{ if(!Array.isArray(r.imgs)) r.imgs=r.img?[r.img]:[]; delete r.img; }); f.rem=f.rem||""; return f; }
 function frcCount(f){ f=frcFix(f); let tot=0,done=0,nc=0; frcSecs(f).forEach(([sk,,,items])=>items.forEach(([k])=>{ tot++; const v=f.ans[sk+"_"+k]; if(v) done++; if(v==="NC") nc++; })); return {tot,done,nc}; }
 function frcOpen(pg){ const P=pg.properties||{}; const me=SESSION?(SESSION.nom||SESSION.login):"";
@@ -3207,6 +3256,17 @@ async function frcViewSaved(pg){ const pf=pfiles(((pg&&pg.properties)||{})["Rapp
   try{ const b=await notion("GET","blocks/"+id); const u=b&&b.pdf&&(b.pdf.file?b.pdf.file.url:b.pdf.external&&b.pdf.external.url); if(!u) throw 0;
     openUrl(u); }
   catch(e){ toast("PDF indisponible pour le moment."); } }
+function rcPlanModal(o){ const m=document.createElement("div"); m.className="modal"; const d=new Date(); d.setDate(d.getDate()+1);
+  m.innerHTML=`<div class="box wide bet-pick"><div class="bet-pick-h"><div><h3>Planifier la rectification ?</h3><p>${o.pts.length} point(s) à reprendre chez <b>${esc(o.name)}</b>. Une intervention « à confirmer » est ajoutée au planning ; le bureau choisit ensuite les techniciens.</p></div><button class="bet-x" id="rpX" aria-label="Fermer">${BI.no}</button></div>
+    <label class="f">Date prévue<input id="rpD" type="date" value="${ymd(d)}"></label>
+    <label class="f" style="margin-top:10px">Points à reprendre<textarea id="rpN" rows="5">${esc(o.pts.join("\n"))}</textarea></label>
+    <div class="rn-act"><button class="btn btn-ghost" id="rpX2">Plus tard</button><button class="btn btn-or" id="rpOk">${BI.cal}<span>Ajouter au planning</span></button></div></div>`;
+  document.body.appendChild(m); const close=()=>m.remove(); m.querySelector("#rpX").onclick=close; m.querySelector("#rpX2").onclick=close;
+  m.querySelector("#rpOk").onclick=async()=>{ const dt=m.querySelector("#rpD").value; if(!dt){ toast("Choisissez une date."); return; } const b=m.querySelector("#rpOk"); b.disabled=true;
+    const props={"Événement":{title:[{text:{content:("Rectification — "+o.name).slice(0,200)}}]},"Type":{select:{name:"3 - Intervention"}},"Date / Heure":{date:{start:dt}},"Validation":{status:{name:"A confirmer"}},
+      "Notes":{rich_text:[{type:"text",text:{content:("Suite à la réception de chantier.\n"+m.querySelector("#rpN").value).slice(0,1900)}}]}}; if(o.cen&&o.cen.length) props["🌞 Centrales Solaires"]={relation:o.cen.slice(0,1).map(id=>({id}))};
+    try{ await notion("POST","pages",{parent:{database_id:PLAN_DB},properties:props}); close(); if(typeof W!=="undefined"&&W.cache) W.cache={}; toast("Intervention ajoutée au planning (à confirmer)."); }
+    catch(e){ b.disabled=false; toast("Échec : "+((e&&e.message)||"erreur")); } }; }
 async function frcUploadImg(data,name){ const r=await nativeCall("notionUpload",String(data).split(",")[1],name,"image/jpeg"); let j=null; try{ j=JSON.parse(r.text); }catch(e){} return r.status===200&&j&&j.id?j.id:null; }
 async function frcSend(){ const f=frcFix(FRC.cur); const c=frcCount(f);
   if(FRC_CFG.some(([k])=>!f.cfg[k])){ toast("Choisissez d'abord le type d'installation (partie 1)."); scrollTo({top:0,behavior:"smooth"}); return; }
@@ -3238,7 +3298,8 @@ async function frcSend(){ const f=frcFix(FRC.cur); const c=frcCount(f);
     const data={v:1,savedAt:Date.now(),date:f.date,by:f.by,cfg:f.cfg,cpv:f.cpv||null,ans:f.ans,note:f.note,com:f.com,rem:f.rem,rev:rv.map(r=>({t:r.t||"",who:r.who||""})),ph,blocks:ids.length===blk.length?ids:[]};
     let js=JSON.stringify(data); const props={"État":{status:{name:et}}}; if(typeof pdfId2!=="undefined"&&pdfId2) props["Rapport de réception (PDF)"]={files:[{type:"file_upload",file_upload:{id:pdfId2},name:pdfName}]}; if(js.length<=48000) props[FRC_DATA]={rich_text:frcRt(js)};
     await notion("PATCH","pages/"+f.rc,{properties:props}); const wasEdit=!!f.editOf;
-    frcDrop(f.rc); FRC.cur=null; RCS.items=null; renderRecep(); scrollTo(0,0); toast(`Rapport ${wasEdit?"modifié":"enregistré"} dans Notion (PDF + ${up} photo(s)). ${et==="Terminé"?"Réception terminée.":"À rectifier."}`); }
+    const _pl=et!=="Terminé"?{name:rcClient(f.name)||f.name,pts:frcNc(f).map(x=>"- "+x.t+" ("+x.who+")"+(x.c?" : "+x.c:"")).concat(rv.filter(r=>r.t).map(r=>"- "+r.t+(r.who?" ("+r.who+")":""))),cen:prel((((RCS.items||[]).find(x=>x.id===f.rc)||{}).properties||{})["Centrales Solaires"])}:null;
+    frcDrop(f.rc); FRC.cur=null; RCS.items=null; renderRecep(); scrollTo(0,0); toast(`Rapport ${wasEdit?"modifié":"enregistré"} dans Notion (PDF + ${up} photo(s)). ${et==="Terminé"?"Réception terminée.":"À rectifier."}`); if(_pl&&_pl.pts.length) setTimeout(()=>rcPlanModal(_pl),900); }
   catch(e){ const b2=$("#frSend"); if(b2){ b2.disabled=false; b2.innerHTML=BI.ok+"<span>Enregistrer</span>"; } toast("Échec : "+((e&&e.message)||"erreur")+" — la fiche reste sur l'appareil."); } }
 async function frcPdf(f){ if(!window.jspdf) throw {message:"générateur PDF non chargé"}; await ensurePdfFonts(); f=frcFix(f);
   const {jsPDF}=window.jspdf; const d=new jsPDF({unit:"mm",format:"a4"});
@@ -3301,7 +3362,7 @@ async function frcPdf(f){ if(!window.jspdf) throw {message:"générateur PDF non
 const VAL={items:null};
 const pchkb=p=>!!(p&&p.type==="checkbox"&&p.checkbox);
 function renderValider(){
-  $("#app").innerHTML=`<div class="wrap">${headerHTML("Administrateur","Fiches autocontrôle terminées par les techniciens : à contrôler puis valider avec la signature du responsable technique.")}
+  $("#app").innerHTML=`<div class="wrap">${headerHTML("Fiches à valider","Fiches autocontrôle terminées par les techniciens : à contrôler puis valider avec la signature du responsable technique.")}
     <div class="toolbar"><select id="vaF" aria-label="Fiches affichées"><option value="todo">À valider / en correction</option><option value="ok">Validées</option></select><button class="btn btn-ghost btn-sm" id="vaRf">${ICO.refresh}<span>Actualiser</span></button></div>
     <div id="vaRes"><div class="card empty">Chargement…</div></div></div>`;
   $("#vaRf").onclick=loadValider; $("#vaF").onchange=loadValider; loadValider(); }
@@ -3459,7 +3520,7 @@ function renderList(){
     who.innerHTML=`<span>Connecté : <b>${esc(SESSION.nom||SESSION.login)}</b></span>`; w.insertBefore(who,w.firstChild); } }
   if(!locked&&grp[2].length>1){ const w=$("#app .wrap"); if(w){ const sn=document.createElement("nav"); sn.className="subnav"; sn.setAttribute("aria-label",grp[1]);
     sn.innerHTML=grp[2].map(([k,l])=>`<button data-sub="${k}" ${k===tab?'aria-current="page"':""}>${esc(l)}</button>`).join("");
-    w.insertBefore(sn,w.firstChild); sn.querySelectorAll("[data-sub]").forEach(b=>b.onclick=()=>switchTab(b.dataset.sub)); } }
+    w.insertBefore(sn,w.firstChild); sn.querySelectorAll("[data-sub]").forEach(b=>b.onclick=()=>switchTab(b.dataset.sub)); const ac=sn.querySelector('[aria-current="page"]'); if(ac&&sn.scrollWidth>sn.clientWidth){ sn.classList.add("more"); sn.scrollLeft=Math.max(0,ac.offsetLeft-sn.clientWidth/2+ac.offsetWidth/2); } } }
   if(tab!=="home"){ const w=$("#app .wrap"); if(w){ const bc=document.createElement("div"); bc.className="crumb";
     bc.innerHTML=`<button id="goHome" aria-label="Retour à l'accueil">${ICO.chev}<span>Accueil</span></button><span class="sec">${ICO[grp[0]]||""}${esc(grp[1])}</span>`;
     w.insertBefore(bc,w.firstChild); bc.querySelector("#goHome").onclick=()=>switchTab("home"); } }
@@ -3535,7 +3596,7 @@ function notReadyHTML(why){
 }
 function bindCommon(root){ (root||document).querySelectorAll("[data-set]").forEach(b=>b.onclick=openSettings); (root||document).querySelectorAll("[data-url]").forEach(b=>b.onclick=e=>{ e.preventDefault(); e.stopPropagation(); openUrl(b.dataset.url); }); }
 function openUrl(u){ if(!u) return; if(NATIVE&&NATIVE.openUrl) NATIVE.openUrl(u); else window.open(u,"_blank","noopener"); }
-function headerHTML(title,sub){ return `<h1>${esc(title)}</h1><p class="sub">${esc(sub)}</p>`; }
+function headerHTML(title,sub){ const g=typeof tab!=="undefined"?groupOf(tab):""; return `<section class="hero-s"><span class="hero-ic">${ICO[g]||ICO.bet||""}</span><div><h1>${esc(title)}</h1><p class="sub">${esc(sub)}</p></div></section>`; }
 function searchHTML(id,val,ph,extra){ return `<div class="toolbar"><input id="${id}" type="search" enterkeyhint="search" placeholder="${esc(ph)}" value="${esc(val)}" aria-label="${esc(ph)}">${extra||""}</div>`; }
 const pnum=p=>p&&p.type==="number"?p.number:null;
 const pdate=p=>p&&p.type==="date"&&p.date?String(p.date.start||"").slice(0,10):"";
@@ -3934,6 +3995,10 @@ function openCpv(x){
   const errs=[];
   Promise.all([
     Promise.all([queryAll(RAPPORT_DB,{property:"🌞 Centrale solaire",relation:{contains:x.id}}),queryAll(AUTO_DB,{property:"🌞 Centrale solaire",relation:{contains:x.id}}).catch(()=>[])]).then(([a,b])=>a.concat(b)).then(rows=>rows.map(rapportRow).forEach(r=>evs.push({date:r.date,k:r.type||"Rapport",t:r.title,x:[r.statut,r.tech,r.concl&&r.concl.length>140?r.concl.slice(0,140)+"…":r.concl].filter(Boolean).join(" · "),rap:r}))).catch(e=>errs.push(secErr(e,"Rapports d'intervention"))),
+    queryAll(PV_DB,{property:"🌞 Centrale solaire",relation:{contains:x.id}}).then(rows=>rows.forEach(pg=>{ const P=pg.properties||{};
+      evs.push({date:pdate(P["Fait le"]),k:"PV de réception",t:ptxt(P["PV"])||"PV de réception",x:[ptxt(P["Décision"]),ptxt(P["Réserves"])?"Réserves : "+ptxt(P["Réserves"]):""].filter(Boolean).join(" · "),rap:{id:pg.id,edited:pg.last_edited_time,title:ptxt(P["PV"])||"PV de réception",files:pfiles(P["PDF du PV"]),prop:"PDF du PV"}}); })).catch(()=>{}),
+    queryAll(RC_DB,{property:"Centrales Solaires",relation:{contains:x.id}}).then(rows=>rows.forEach(pg=>{ const P=pg.properties||{}; const sv=frcSaved(pg);
+      evs.push({date:(sv&&sv.date)||pdate(P["Date de fin"]),k:"Réception de chantier",t:ptxt(P["Nom du projet"])||"Réception",x:[ptxt(P["État"]),sv&&sv.by?"par "+sv.by:""].filter(Boolean).join(" · "),rap:{id:pg.id,edited:pg.last_edited_time,title:"Rapport de réception",files:pfiles(P["Rapport de réception (PDF)"]),prop:"Rapport de réception (PDF)"}}); })).catch(()=>{}),
     queryAll(PANNES_DB,{property:"Installation concernée",relation:{contains:x.id}}).then(rows=>rows.forEach(pg=>{ const P=pg.properties||{};
       evs.push({date:pdate(P["Date de détection"]),k:"Panne",t:ptxt(P["Titre de la panne"])||"Panne",x:[pmulti(P["Type de panne"]).join(", "),ptxt(P["Gravité"]),ptxt(P["Statut"]),ptxt(P["Solution appliquée"])?"Solution : "+ptxt(P["Solution appliquée"]):""].filter(Boolean).join(" · ")}); })).catch(e=>errs.push(secErr(e,"Pannes Installations")))
   ]).then(()=>{ if(!alive()) return;
@@ -3943,7 +4008,7 @@ function openCpv(x){
       ${e.rap&&e.rap.files.length?`<div class="acts">${e.rap.files.map((f,j)=>`<button class="btn btn-ghost btn-sm" data-hp="${i}:${j}">${e.rap.files.length>1?"PDF "+(j+1):"Voir le PDF"}</button>`).join("")}</div>`:""}</div></div>`).join("")}</div>`
       :`<span class="m" style="font-size:13px;color:var(--muted)">Aucun événement enregistré.</span>`)+errs.map(t=>`<p style="margin:6px 0 0;font-size:12.5px;color:var(--ko)">${esc(t)}</p>`).join("");
     el.querySelectorAll("[data-hp]").forEach(b=>b.onclick=()=>{ const [i,j]=b.dataset.hp.split(":").map(Number); const r=evs[i].rap; const f=r.files[j];
-      openDoc({title:r.title,name:f.name,saveName:f.name,key:docKey(r.id,r.edited,"PDF",j,f.name,f.url),pageId:r.id,prop:"PDF du rapport",i:j,url:f.url,external:f.external,loadedAt:Date.now()}); });
+      openDoc({title:r.title,name:f.name,saveName:f.name,key:docKey(r.id,r.edited,"PDF",j,f.name,f.url),pageId:r.id,prop:r.prop||"PDF du rapport",i:j,url:f.url,external:f.external,loadedAt:Date.now()}); });
   });
 }
 
@@ -4093,8 +4158,8 @@ function openCompte(c){
     const actif=self?true:q("#cAct").checked;
     if(!login||/\s/.test(login)){ err("Identifiant obligatoire, sans espace."); return; }
     if((C.items||[]).some(x=>x.id!==(c&&c.id)&&x.login.toLowerCase()===login.toLowerCase())){ err("Cet identifiant existe déjà."); return; }
-    if(isNew&&pw.length<4){ err("Mot de passe de 4 caractères minimum."); return; }
-    if(pw&&pw.length<4){ err("Mot de passe de 4 caractères minimum."); return; }
+    if(isNew&&pw.length<8){ err("Mot de passe de 8 caractères minimum."); return; }
+    if(pw&&pw.length<8){ err("Mot de passe de 8 caractères minimum."); return; }
     if(!groupes.length){ err("Cochez au moins un accès."); return; }
     const props={"Identifiant":{title:[{type:"text",text:{content:login}}]},"Nom":rt(nom),"Téléphone service":{phone_number:tel||null},"Groupes":{multi_select:groupes.map(g=>({name:g}))},"Actif":{checkbox:actif}};
     if(pw) props["Mot de passe"]=rt(pwHash(pw));
@@ -4120,7 +4185,11 @@ function renderReglages(){
       <div class="acts" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-or btn-sm" id="rSave">Enregistrer la clé</button><button class="btn btn-ghost btn-sm" id="rTest" ${has?"":"disabled"}>Tester la connexion</button></div>
       <p id="rMsg" style="font-size:13px;margin:0"></p>
     </div>
-    <div class="card" style="padding:16px;margin-top:10px;font-size:13px;color:var(--muted)">CONEXUN · version 1.9 · écran ${(otaInfo()||{}).web||CX_WEB}<br>Mises à jour automatiques à l'ouverture de l'appli.<br>Comptes : base Notion « 🔐 Accès appli CONEXUN » (onglet Comptes).${(otaInfo()||{}).web>(otaInfo()||{}).webBundled?`<br><button class="btn btn-ghost btn-sm" id="rOta" style="margin-top:8px">Revenir à la version installée</button>`:""}</div></div>`;
+    ${window.AndroidBridge?`<div class="card" style="padding:16px;margin-top:10px;display:flex;flex-direction:column;gap:10px"><b>Mode sécurisé</b>
+      <span style="font-size:13px;color:var(--muted)">L'appli passe par le serveur CONEXUN, comme le site : la clé Notion n'a plus besoin d'être dans le téléphone.</span>
+      <span style="font-size:13.5px">État : <b style="color:${AREL?"var(--ok)":"var(--muted)"}">${AREL?"activé sur ce téléphone":"non activé"}</b></span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${AREL?`${has0()?`<button class="btn btn-or btn-sm" data-rel="wipe">Effacer la clé Notion de ce téléphone</button>`:""}<button class="btn btn-ghost btn-sm" data-rel="off">Revenir à l'ancienne méthode</button>`:`<button class="btn btn-or btn-sm" data-rel="on">Activer le mode sécurisé</button>`}</div></div>`:""}
+    <div class="card" style="padding:16px;margin-top:10px;font-size:13px;color:var(--muted)">CONEXUN · écran ${(otaInfo()||{}).web||CX_WEB}<br>Mises à jour automatiques à l'ouverture de l'appli.<br>Comptes : base Notion « 🔐 Accès appli CONEXUN » (onglet Comptes).${(otaInfo()||{}).web>(otaInfo()||{}).webBundled?`<br><button class="btn btn-ghost btn-sm" id="rOta" style="margin-top:8px">Revenir à la version installée</button>`:""}</div></div>`;
   { const ro=$("#rOta"); if(ro) ro.onclick=async()=>{ if(await confirmBox("Revenir à la version de l'écran installée avec l'APK ? La prochaine mise à jour sera de nouveau téléchargée.","Revenir")) try{ AndroidBridge.otaReset(); }catch(e){} }; }
   const msg=$("#rMsg");
   $("#rSave").onclick=()=>{ const v=$("#rTok").value.trim(); if(!v){ msg.textContent="Collez la clé dans le champ."; return; } if(!NATIVE){ msg.textContent="Disponible uniquement dans l'appli Android."; return; } NATIVE.setToken(v); $("#rTok").value=""; $("#rTest").disabled=false; msg.textContent="Clé enregistrée. Testez la connexion."; };
@@ -4229,9 +4298,9 @@ async function renderMonCompte(){
       await notion("PATCH","pages/"+SESSION.id,{properties:{"Nom":rt(nom),"Téléphone service":{phone_number:tel||null}}}); SESSION=Object.assign({},SESSION,{nom:nom||SESSION.login}); lsSet("cx_session",SESSION); toast("Informations enregistrées."); }
     catch(e){ toast("Enregistrement impossible : "+((e&&e.message)||"erreur")); } b.disabled=false; };
   $("#mcPw").onclick=async()=>{ const er=t=>{ $("#mcErr").textContent=t; }; const o=$("#mcOld").value, n1=$("#mcNew").value, n2=$("#mcNew2").value;
-    if(n1.length<4) return er("Nouveau mot de passe : 4 caractères minimum."); if(n1!==n2) return er("Les deux nouveaux mots de passe ne sont pas identiques.");
+    if(n1.length<8) return er("Nouveau mot de passe : 8 caractères minimum."); if(n1!==n2) return er("Les deux nouveaux mots de passe ne sont pas identiques.");
     const b=$("#mcPw"); b.disabled=true; er("");
-    if(WEB){ const r=await webCall("/password",{old:o,new:n1}); let j=null; try{ j=JSON.parse(r.text); }catch(e){}
+    if(SRV){ const r=await webCall("/password",{old:o,new:n1}); let j=null; try{ j=JSON.parse(r.text); }catch(e){}
       if(r.status===200){ ["#mcOld","#mcNew","#mcNew2"].forEach(x=>$(x).value=""); toast("Mot de passe changé."); } else er((j&&j.message)||"Erreur"); b.disabled=false; return; }
     try{ const p2=await notion("GET","pages/"+SESSION.id); if(!pwCheck(ptxt((p2.properties||{})["Mot de passe"]),o)){ er("Mot de passe actuel incorrect."); b.disabled=false; return; }
       await notion("PATCH","pages/"+SESSION.id,{properties:{"Mot de passe":rt(pwHash(n1))}}); ["#mcOld","#mcNew","#mcNew2"].forEach(x=>$(x).value=""); toast("Mot de passe changé."); }
@@ -4243,7 +4312,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1922;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1923;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
