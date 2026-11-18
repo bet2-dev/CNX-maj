@@ -2763,6 +2763,12 @@ function drawPvList(){ const el=$("#pvRes0"), se=$("#pvStats"); if(!el||!PVS.ite
       <div class="bet-actions">${f&&f.url?`<button class="btn btn-ghost btn-sm" data-pvpdf="${i}">${BI.eye}<span>Voir le PDF</span></button>`:""}<button class="btn ${f&&f.url?"btn-ghost":"btn-or"} btn-sm" data-pved="${i}">${BI.pen}<span>${f&&f.url?"Modifier":"Refaire le PDF"}</span></button></div></article>`; }).join("");
   el.querySelectorAll("[data-pvpdf]").forEach(b=>b.onclick=()=>{ const f=pfiles((L[+b.dataset.pvpdf].properties||{})["PDF du PV"])[0]; if(f) openUrl(f.url); });
   el.querySelectorAll("[data-pved]").forEach(b=>b.onclick=()=>pvEditExisting(L[+b.dataset.pved])); }
+const PV_SIGP={E:"Signature entreprise (image)",C:"Signature client (image)"};
+async function pvSigRt(d){ if(!d||!/^data:image\//.test(d)) return []; let s2=d;
+  for(let q=0.6,w=420; s2.length>48000&&w>=160; q=Math.max(0.35,q-0.1),w-=60){
+    s2=await new Promise(res=>{ const im=new Image(); im.onload=()=>{ const c=document.createElement("canvas"); c.width=w; c.height=Math.round(w*im.height/im.width); const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height); x.drawImage(im,0,0,c.width,c.height); res(c.toDataURL("image/jpeg",q)); }; im.onerror=()=>res(""); im.src=d; });
+    if(!s2) return []; }
+  if(s2.length>48000) return []; const o=[]; for(let i=0;i<s2.length;i+=2000) o.push({type:"text",text:{content:s2.slice(i,i+2000)}}); return o; }
 async function pvEditExisting(pg){ const dr=pvDraftGet();
   if(dr&&!(dr.pageId&&dr.pageId===pg.id)&&!await confirmBox("Un brouillon de PV est en cours ("+(dr.client||dr.affaire||"sans client")+"). Le remplacer par la modification de ce PV ?","Remplacer")) return;
   if(dr&&dr.pageId===pg.id){ PVS.cur=dr; renderPvEdit(); scrollTo(0,0); return; }
@@ -2771,6 +2777,7 @@ async function pvEditExisting(pg){ const dr=pvDraftGet();
     faitLe:pdate(P["Fait le"])||"",finTx:pdate(P["Fin des travaux"])||"",effet:pdate(P["Date d'effet"])||pdate(P["Fait le"])||"",dec:d,trav:d==="refus"?PV_TRAVAUX.slice():ms(P["Travaux validés"]).filter(t=>PV_TRAVAUX.includes(t)),
     res:ptxt(P["Réserves"]),motif:ptxt(P["Motif refus / report"]),tvx:prel(P["🧰 Fiches travaux"]),cpv:prel(P["🌞 Centrale solaire"])[0]||null,auto:prel(P["📋 Fiche autocontrôle"])[0]||null,rc:prel(P["Réception de chantier"])[0]||null});
   const t=ptxt(P["PV"]); pv.affaire=""; pv.titre=t;
+  ["E","C"].forEach(k=>{ const d=ptxt(P[PV_SIGP[k]]); if(/^data:image\/[a-z]+;base64,[A-Za-z0-9+/=]+$/.test(d)) pv.sig[k]=d; }); pv.sigKept=!!(pv.sig.E&&pv.sig.C);
   PVS.cur=pv; pvDraftSet(pv); renderPvEdit(); scrollTo(0,0);
   const keep={cpv:pv.cpv,auto:pv.auto,rc:pv.rc,adresse:pv.adresse,lieu:pv.lieu}; await pvFindLinks(pv); Object.assign(pv,keep); [["cpv","Centrale reliée"],["auto","Fiche autocontrôle reliée"],["rc","Réception reliée"]].forEach(([k,l])=>{ if(pv[k]&&!pv.cands[k].some(x=>x.id===pv[k])) pv.cands[k].unshift({id:pv[k],t:l}); });
   if(PVS.cur===pv){ pvDraftSet(pv); const y=scrollY; renderPvEdit(); scrollTo(0,y); } }
@@ -2813,7 +2820,7 @@ function renderPvEdit(){ const pv=PVS.cur; const st=pvSteps(pv);
   const pad=(k,t,nm)=>`<div class="pvx-sig"><div class="pvx-sig-h"><div><b>${esc(t)}</b><span>${esc(nm||"—")}</span></div><button class="pvx-clr" data-pvclr="${k}">Effacer</button></div>
     <div class="pvx-pad"><canvas class="sig" data-pvsig="${k}"></canvas><div class="pvx-ph" data-pvph="${k}" ${(pv.sig||{})[k]?"hidden":""}>${BI.pen}<span>Signez ici</span></div><i class="pvx-line"></i></div></div>`;
   $("#app").innerHTML=`<div class="wrap pved pvx"><div class="crumb"><button id="pvBack">${ICO.chev}<span>PV de réception</span></button><span class="sec">${ICO.bet||""}${pv.pageId?"Modification":"BET"}</span></div>
-    <div class="pvx-head"><h1>${pv.pageId?"Modifier le PV de réception":"Procès-verbal de réception"}</h1>${pv.pageId?`<div class="pvx-edit">${BI.pen}<span>Vous modifiez un PV déjà enregistré. À l'enregistrement, le PV et son PDF seront remplacés dans Notion. <b>Les deux signatures sont à refaire.</b></span></div>`:""}${pv.affaire?`<p>${BI.sun}<b>${esc(pv.affaire)}</b>${pv.tvx.length?`<em>${pv.tvx.length} fiche${pv.tvx.length>1?"s":""} travaux</em>`:""}</p>`:pv.pageId?"":`<p>PV sans fiche travaux</p>`}</div>
+    <div class="pvx-head"><h1>${pv.pageId?"Modifier le PV de réception":"Procès-verbal de réception"}</h1>${pv.pageId?`<div class="pvx-edit">${BI.pen}<span>Vous modifiez un PV déjà enregistré. À l'enregistrement, le PV et son PDF seront remplacés dans Notion. ${pv.sigKept?"<b>Les signatures sont reprises</b> : effacez-les seulement si le client doit signer à nouveau.":"<b>Les deux signatures sont à refaire</b> (PV enregistré avant la sauvegarde des signatures)."}</span></div>`:""}${pv.affaire?`<p>${BI.sun}<b>${esc(pv.affaire)}</b>${pv.tvx.length?`<em>${pv.tvx.length} fiche${pv.tvx.length>1?"s":""} travaux</em>`:""}</p>`:pv.pageId?"":`<p>PV sans fiche travaux</p>`}</div>
     <nav class="pvx-steps" aria-label="Étapes">${st.map(([l,ok],i)=>`<a href="#pvs${i}" data-pvstep="${i}" class="${ok?"done":""}"><i>${i+1}</i>${BI.ok}<span>${esc(l)}</span></a>`).join("")}</nav>
     <div class="pvx-prog"><div class="pvx-bar"><i style="width:${st.filter(x=>x[1]).length*20}%"></i></div><span class="pvx-n">${st.filter(x=>x[1]).length}/5</span></div>
     ${sec(0,"Chantier et liaisons","Ce que le PV relie dans Notion.",`<div class="pvx-links">${link("cpv","Centrale (CPV)",BI.sun,pv.cands.cpv)}${link("auto","Fiche autocontrôle",BI.list,pv.cands.auto)}${link("rc","Réception de chantier",BI.file,pv.cands.rc)}</div>
@@ -2865,6 +2872,7 @@ async function pvSend(){ const pv=PVS.cur; const miss=[];
       "Travaux validés":{multi_select:pv.dec==="refus"?[]:pv.trav.map(n=>({name:n}))},"Signé par le client":{checkbox:true},"Rédigé par":rt(SESSION?(SESSION.nom||SESSION.login):""),
       "🧰 Fiches travaux":{relation:pv.tvx.map(id=>({id}))},"🌞 Centrale solaire":{relation:pv.cpv?[{id:pv.cpv}]:[]},"📋 Fiche autocontrôle":{relation:pv.auto?[{id:pv.auto}]:[]},"Réception de chantier":{relation:pv.rc?[{id:pv.rc}]:[]}};
     if(pv.faitLe) props["Fait le"]={date:{start:pv.faitLe}}; if(pv.finTx) props["Fin des travaux"]={date:{start:pv.finTx}}; if(pv.dec!=="refus"&&pv.effet) props["Date d'effet"]={date:{start:pv.effet}};
+    props[PV_SIGP.E]={rich_text:await pvSigRt(pv.sig.E)}; props[PV_SIGP.C]={rich_text:await pvSigRt(pv.sig.C)};
     let pdfOk=false, pdfErr=""; try{ const b64=await pvPdf(pv); const r=await nativeCall("notionUpload",b64,fname,"application/pdf"); let j=null; try{ j=JSON.parse(r.text); }catch(e){}
       if(r.status===200&&j&&j.id){ props["PDF du PV"]={files:[{type:"file_upload",file_upload:{id:j.id},name:fname}]}; pdfOk=true; }
       else pdfErr=(j&&j.message)||notionErr(r.status,j,r.text)||("erreur "+r.status); }catch(e){ pdfErr=(e&&e.message)||"création du PDF impossible"; }
@@ -3995,7 +4003,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1914;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1915;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
