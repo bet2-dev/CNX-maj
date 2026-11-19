@@ -344,7 +344,7 @@ h3.sub2{font-size:14px;color:var(--or-ink);margin:16px 0 4px}
 .frq-seg button{display:flex;align-items:center;justify-content:center;gap:5px;min-height:38px;border-radius:9px;border:1.5px solid var(--line);background:var(--bg);color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .frq-seg button svg{width:15px;height:15px}.frq-seg button:focus-visible{outline:3px solid var(--or);outline-offset:2px}
 .frq-seg button.ok.on{background:var(--ok);border-color:var(--ok);color:#fff}.frq-seg button.co.on{background:var(--or);border-color:var(--or);color:#fff}.frq-seg button.so.on{background:var(--so);border-color:var(--so);color:#fff}
-.frq-nc{display:flex;gap:8px;align-items:flex-start;margin-top:10px}.frq-ph{margin:8px 0 0!important}.frq-nc textarea{flex:1;min-height:60px;border-radius:10px;border:1.5px solid var(--or);background:var(--card);color:var(--fg);font:inherit;font-size:13.5px;padding:8px 10px}
+.frq-nc{display:flex;gap:8px;align-items:flex-start;margin-top:10px}.shbar{display:grid;gap:8px;margin:0 0 12px;padding:12px 14px;border-left:4px solid var(--or)}.sh-h{display:grid;gap:2px;font-size:14px}.sh-st{display:flex;gap:6px;flex-wrap:wrap}.sh-ko{margin:0;font-size:13.5px;color:var(--ko)}.sh-m{font-size:12.5px;color:var(--muted);margin:0}.sh-a{display:flex;justify-content:space-between;align-items:center;gap:8px}.sh-kol{color:var(--ko)!important;font-weight:600}.sec.ro .sec-b>*:not(.ronote){pointer-events:none;opacity:.55}.ronote{margin:10px 0 0;font-size:12.5px;font-weight:700;color:var(--muted)}.tvme{font-size:13px;font-weight:700;color:var(--muted);align-self:center}.card.tvko,.card.tvok{display:grid;gap:3px;margin:8px 0;padding:10px 12px;font-size:13.5px}.card.tvko{border-left:4px solid var(--ko)}.card.tvko b{color:var(--ko)}.card.tvok{border-left:4px solid var(--ok)}.card.tvok b{color:var(--ok)}.frq-ph{margin:8px 0 0!important}.frq-nc textarea{flex:1;min-height:60px;border-radius:10px;border:1.5px solid var(--or);background:var(--card);color:var(--fg);font:inherit;font-size:13.5px;padding:8px 10px}
 .frc .frim{position:relative;width:84px;height:64px;flex:none;border-radius:10px;overflow:hidden;border:1px solid var(--line)}.frc .frim.sm{width:72px;height:54px}.frc .frim img{width:100%;height:100%;object-fit:cover}
 .frc .frim button{position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:12px;cursor:pointer}
 .frc .frad{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:84px;height:64px;flex:none;border:1.5px dashed var(--line);border-radius:10px;background:var(--card);color:var(--muted);font:inherit;font-size:12px;font-weight:700;cursor:pointer}.frc .frad svg{width:16px;height:16px}.frc .frad.sm{width:72px;height:54px}
@@ -754,6 +754,18 @@ const LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA4QAAAEmCAIAAAC1Z8mg
 
 /* ---------- Contenu de la fiche (identique à la version PDF) ---------- */
 const SECTIONS = [
+ {id:"sp", t:"Pose de la structure et des modules (poseurs)", so:true, items:[
+  ["Structure et rails posés selon le plan de calepinage, entraxes respectés"],
+  ["Perçages et fixations neuves, rondelles EPDM en place : étanchéité de la toiture vérifiée","Crochets, traversées, tôles : aucune infiltration possible"],
+  ["Couple de serrage des fixations et des brides vérifié"],
+  ["Modules JA Solar sans casse, rayure ni salissure, fixés aussitôt posés"],
+  ["Modules alignés et plans, calepinage respecté, aucun débordement de toiture"],
+  ["Cheminement libre de 50 cm conservé autour du champ"],
+  ["Optimiseurs SUN2000-600W-P fixés sur les rails (si prévus)"],
+  ["Boîtiers de connexion des modules à l'abri du soleil direct"],
+  ["Numéros de série des modules relevés par chaîne"],
+  ["Toiture propre : chutes, vis et emballages retirés"]],
+  photos:[["pose_str","Structure et fixations",1],["pose_mod","Champ PV posé",1],["pose_etan","Étanchéité / traversées"]]},
  {id:"s1", t:"Sécurité et consignation (NF C 18-510)", items:[
   ["Habilitation électrique adaptée vérifiée (BR / B2V / BP selon intervention)","BP obligatoire pour travaux sur la partie courant continu PV"],
   ["EPI portés : gants isolants, écran facial, vêtements de travail adaptés, chaussures de sécurité"],
@@ -1045,7 +1057,7 @@ function tvxSnKind(it){ const d=String(it.des||""); if(/wall/i.test(d)) return n
 function tvxSnSlots(f){ if(!f||f.met==="pose") return []; const out=[]; tvxItems(f).forEach(it=>{ if(!SN_CATS.test(it.cat)) return; const kd=tvxSnKind(it); if(!kd) return;
     const q=f.q[it.k]; const n=Math.min(12,Math.round(tvxNum(q&&q.p)||tvxNum(q&&q.u))); for(let i=1;i<=n;i++) out.push({key:it.k+"#"+i,kd,des:it.des,ref:it.ref,i,n}); }); return out; }
 function tvxSnHTML(f,L){ const sl=tvxSnSlots(f); if(!sl.length) return ""; f.sn=f.sn||{}; f.snOk=f.snOk||{}; f.snFix=f.snFix||{};
-  const edL=L&&f.statut==="En préparation", edT=!L&&(f.statut==="Prête"||f.statut==="Finalisée"); const nOk=sl.filter(x=>f.snOk[x.key]).length;
+  const edL=L&&f.statut==="En préparation", edT=(!L&&(f.statut==="Prête"||f.statut==="À corriger"))||(L&&f.statut==="Finalisée"); const nOk=sl.filter(x=>f.snOk[x.key]).length;
   return `<div class="card tvsn" id="tvSn"><h3 class="sub2" style="margin-top:0">Numéros de série Huawei ${!edL?`<small class="muted" style="font-weight:600">· ${nOk}/${sl.length} vérifié(s)</small>`:""}</h3>
     <p class="hint" style="margin:0 0 8px">${edL?"Relevez le numéro de série de chaque appareil préparé (sur l'étiquette du carton ou de l'appareil).":edT?"Comparez chaque numéro avec l'appareil posé : « Conforme » s'il est bon, sinon corrigez-le directement.":"Numéros relevés par la logistique et contrôlés sur chantier."}</p>
     ${sl.map(x=>{ const v=f.sn[x.key]||"", ok=!!f.snOk[x.key], fx=f.snFix[x.key];
@@ -1083,6 +1095,7 @@ function snBoxHTML(){ const src=cur.snSrc||{}; const ks=EQUIP.map(e=>e[0]).filte
     <button class="btn btn-ghost btn-sm" id="snPull" type="button" style="margin-top:6px">Reprendre les n° de la fiche travaux</button></div>`; }
 
 function applyCfg(f){
+  if(f&&f.so&&!f.shared&&f.so.sp===undefined) f.so.sp=true;
   if(f&&f.ms&&f.ms.code){ f.equip=f.equip||{}; if(!f.equip.code) f.equip.code=f.ms.code; delete f.ms.code; }
   const c=f&&f.cfg; const key=c?JSON.stringify(c)+"|"+((f.dc||[]).length):"none"; if(key===cfgApplied) return; cfgApplied=key;
   const base=x=>{ const y=Object.assign({},x); if(x.items) y.items=x.items.filter(it=>!REMOVED_ITEMS.has(it.id)); if(x.photos) y.photos=x.photos.filter(p=>!REMOVED_PH.has(p[0])); return y; };
@@ -1557,20 +1570,21 @@ function renderFiches(){
   $("#app").innerHTML=`<div class="wrap">
     <h1>Fiches d'autocontrôle</h1>
     <p class="sub">Installations Huawei SUN2000 · LUNA2000 · SmartGuard · modules JA Solar · fiches enregistrées sur cet appareil</p>
-    <div class="toolbar"><button class="btn btn-or" id="newF">+ Nouvelle fiche</button><input id="q" type="text" placeholder="Rechercher client, technicien" value="${esc(filter)}" aria-label="Rechercher"></div>
+    <div class="toolbar">${shOn()&&isFieldTech()?"":`<button class="btn btn-or" id="newF">+ Nouvelle fiche</button>`}<input id="q" type="text" placeholder="Rechercher client, technicien" value="${esc(filter)}" aria-label="Rechercher"></div>
     ${MCP&&!hasToken()?`<div class="card empty" style="margin-bottom:10px"><b>Notion non configuré</b>Ouvrez « Réglages » et collez la clé d'intégration Notion de CONEXUN pour charger le planning et envoyer les rapports.</div>`:""}
-    <div class="sechead"><h2>Fiches</h2></div>
+    ${shOn()?`<div class="sechead"><h2>${isFieldTech()?"Mes chantiers":"Chantiers"}</h2><button class="btn btn-ghost btn-sm" id="shRf">Actualiser</button></div><p class="hint" style="margin:-4px 2px 8px">${isFieldTech()?`Une fiche par chantier, partagée avec l'équipe : vous remplissez la partie <b>${myPoste()==="pose"?"pose":"électrique"}</b>.`:"Fiches partagées des chantiers du planning (pose + électricité)."}</p><div id="shMine"></div>`:""}<div class="sechead"><h2>${shOn()?"Sur cet appareil":"Fiches"}</h2></div>
     <div class="list">${rows.length? rows.map(f=>{const st=stats(f);return `<button class="card fcard" data-open="${esc(f._id)}">
       <span class="c">${esc(f.client||"Client non renseigné")}${f.ref?` · ${esc(f.ref)}`:""}</span>
       <span class="chip ${f.status==="done"?"done":"draft"}">${f.status==="done"?"Terminée":"En cours "+st.pct+" %"}</span>
       <span class="m">${esc(frDate(f.date))}${f.tech?" · "+esc(f.tech):""}${f.adresse?" · "+esc(f.adresse):""}</span>
       ${f.notion&&f.notion.pageUrl&&!f.notion.pdfDone?`<span class="chip nc">PDF à joindre dans Notion</span>`:st.nc?`<span class="chip nc">${st.nc} NC</span>`:"<span></span>"}</button>`}).join("")
-      : `<div class="card empty"><b>Aucune fiche pour l'instant</b>Appuyez sur « Nouvelle fiche » au début de l'intervention. Elle s'enregistre au fur et à mesure.</div>`}</div></div>`;
-  $("#newF").onclick=()=>newFiche();
+      : `<div class="card empty"><b>Aucune fiche sur cet appareil</b>${shOn()&&isFieldTech()?"Touchez un chantier de la liste « Mes chantiers » pour ouvrir sa fiche.":"Appuyez sur « Nouvelle fiche » au début de l'intervention. Elle s'enregistre au fur et à mesure."}</div>`}</div></div>`;
+  const nf=$("#newF"); if(nf) nf.onclick=()=>newFiche();
   const lp=$("#loadPlan"); if(lp) lp.onclick=()=>loadPlanning(true);
   document.querySelectorAll("[data-plan]").forEach(b=>b.onclick=()=>ficheFromPlan(planning[+b.dataset.plan]));
   $("#q").oninput=e=>{filter=e.target.value; const pos=e.target.selectionStart; renderList(); const i=$("#q"); i.focus(); i.setSelectionRange(pos,pos);};
   document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openFiche(b.dataset.open));
+  if(shOn()){ const r=$("#shRf"); if(r) r.onclick=()=>shLoadMine(true); drawShMine(); shLoadMine(false); }
 }
 
 function planHTML(){
@@ -1690,6 +1704,7 @@ function render(){
   h+=`</div><div class="bottombar"><div class="in"><span class="st" id="saveSt">${esc(saveState||"")}</span><button class="btn btn-ghost" id="done">${cur.status==="done"?"Modifier":"Terminer"}</button>${MCP&&cur.status==="done"&&!(cur.notion&&cur.notion.pageUrl)?`<button class="btn btn-ghost" id="notionBtn">Notion</button>`:""}<button class="btn btn-or" id="pdf">PDF</button></div></div>`;
   $("#app").innerHTML=h;
   bindEditor();
+  try{ shDecorate(); }catch(e){}
 }
 function fldSelInline(){ const o=["","Conforme","Conforme avec réserves","Non conforme"]; return `<select data-f="concl" id="i_concl">${o.map(x=>`<option ${x===cur.concl?"selected":""}>${x}</option>`).join("")}</select>`; }
 function updateHead(){
@@ -1718,7 +1733,7 @@ function bindEditor(){
     const st=stats(cur); const miss=st.tot-st.done;
     if(miss>0 && !await confirmBox(`${miss} point(s) ne sont pas renseignés. Terminer quand même ?`,"Terminer")) return;
     cur.status="done"; markDirty(); render();
-    if(MCP){ toast("Fiche terminée. Envoi dans Notion…"); await sendNotion(true, notionPageId()?null:"new"); if(cur.notion&&cur.notion.pageId) await cpvSync(); }
+    if(MCP){ toast("Fiche terminée. Envoi dans Notion…"); await sendNotion(true, cur.shared&&cur.shared.pageId?"replace":notionPageId()?null:"new"); if(cur.notion&&cur.notion.pageId) await cpvSync(); }
     else toast("Fiche terminée. Notion n'est pas accessible ici : exportez le PDF."); };
   const del=$("#delF"); if(del) del.onclick=async()=>{ if(!await confirmBox("Supprimer définitivement cette fiche et ses photos ?","Supprimer")) return;
     const id=curId; const pids=Object.values(cur.photoIdx).flat().map(x=>x.id); dirty=false; clearTimeout(saveTimer);
@@ -1916,13 +1931,13 @@ const ICO={
   commun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>'};
 const GROUPS=[
   ["accueil","Accueil",[["home","Accueil"]]],
-  ["construction","Construction",[["plan_c","Planning"],["fiches","Fiches"],["travaux","Travaux"],["rapports","Rapports"]]],
+  ["construction","Construction",[["plan_c","Planning"],["fiches","Fiches"],["travaux","Travaux"],["valider","À valider"],["rapports","Rapports"]]],
   ["maintenance","Maintenance",[["plan_m","Planning"],["supervision","Supervision"]]],
   ["logistique","Logistique",[["plan_l","Planning"],["tvx_l","Fiches travaux"],["stock","Stock"],["mouvements","Mouvements"],["arrivages","Arrivages"]]],
   ["commun","Base de données",[["cpv","CPV"],["materiel","Docs techniques"]]],
   ["bet","BET",[["recep","Réception de chantier"],["pvrec","PV de réception"]]],
   ["compta","Gestion comptabilité",[["compta","Rentabilité chantiers"]]],
-  ["admin","Administrateur",[["activite","Activité"],["valider","À valider"],["comptes","Comptes"],["reglages","Réglages"]]],
+  ["admin","Administrateur",[["activite","Activité"],["comptes","Comptes"],["reglages","Réglages"]]],
   ["compte","Mon compte",[["moncompte","Mon compte"]]]];
 const groupOf=t=>(GROUPS.find(g=>g[2].some(x=>x[0]===t))||GROUPS[0])[0];
 let tab="home"; if(tab==="gps"||tab==="clients") tab="cpv"; if(tab==="maintenance") tab="plan_m"; if(!GROUPS.some(g=>g[2].some(x=>x[0]===tab))) tab="home";
@@ -1951,7 +1966,18 @@ if(SESSION){ if(!SESSION.at){ SESSION.at=Date.now(); lsSet("cx_session",SESSION)
 if(SRV&&SESSION&&!wls.get("cx_wtok")){ SESSION=null; lsSet("cx_session",null); }
 let loginFails=0, loginWait=0;
 const isAdmin=()=>!!(SESSION&&(SESSION.groupes||[]).includes("Admin"));
-function canEnter(g){ const need=GROUP_LOCK[g]; return !need || isAdmin() || !!(SESSION && (SESSION.groupes||[]).includes(need)); }
+const myGroups=()=>SESSION?(SESSION.groupes||[]):[];
+const POSTES=["Poseur","Électricien","Resp. technique"];
+const isRT=()=>isAdmin()||myGroups().includes("Resp. technique");
+function myPoste(){ const g=myGroups(); if(isAdmin()||g.includes("Resp. technique")) return "rt"; if(g.includes("Électricien")) return "elec"; if(g.includes("Poseur")) return "pose"; return ""; }
+const isFieldTech=()=>{ const p=myPoste(); return p==="elec"||p==="pose"; };
+const POSTE_TXT={rt:"Responsable technique",elec:"Électricien",pose:"Poseur"};
+function canEnter(g){ const need=GROUP_LOCK[g]; if(!need||isAdmin()) return true; if(!SESSION) return false; const gs=SESSION.groupes||[];
+  if(gs.includes(need)) return true;
+  if(g==="construction") return gs.some(x=>POSTES.includes(x));
+  if(g==="bet") return gs.includes("Resp. technique");
+  return false; }
+const tabOk=k=>k!=="valider"||isRT();
 let _lastAct=Date.now(); ["pointerdown","keydown","touchstart"].forEach(ev=>addEventListener(ev,()=>{ _lastAct=Date.now(); },{passive:true,capture:true}));
 setInterval(()=>{ if(WEB&&typeof SESSION!=="undefined"&&SESSION&&Date.now()-_lastAct>30*60e3){ logout(); toast("Déconnecté après 30 minutes sans activité. Vos brouillons sont gardés."); } },30000);
 function netBar(){ let el=document.getElementById("netbar"); const off=navigator.onLine===false;
@@ -2026,10 +2052,10 @@ let _todoVal=null;
 function homeTodo(){ const el=document.getElementById("homeTodo"); if(!el||!SESSION) return; const it=[];
   if(canEnter("bet")){ Object.values(FRC_MEM).forEach(f=>{ if(!f||!f.rc) return; const c=frcCount(f); it.push(["recep",BI.list,(f.editOf?"Modification en cours : ":"Rapport de réception en cours : ")+(rcClient(f.name)||f.name),`${c.done}/${c.tot} points${c.nc?" · "+c.nc+" à reprendre":""}`,f.rc]); });
     const pd=pvDraftGet(); if(pd) it.push(["pvrec",BI.file,"PV de réception en cours : "+(pd.client||pd.affaire||"sans client"),"Brouillon à terminer et faire signer",""]); }
-  if(isAdmin()&&_todoVal) it.push(["valider",BI.ok,_todoVal+" fiche(s) autocontrôle à valider","À contrôler et signer",""]);
+  if(isRT()&&_todoVal) it.push(["valider",BI.ok,_todoVal+" fiche(s) autocontrôle à valider","À contrôler et signer",""]);
   el.innerHTML=it.length?`<h2 class="todo-h">À faire</h2><div class="todo-l">${it.map((x,i)=>`<button class="todo-i" data-todo="${i}"><span class="ti">${x[1]}</span><span><b>${esc(x[2])}</b><small>${esc(x[3])}</small></span>${ICO.chev}</button>`).join("")}</div>`:"";
   el.querySelectorAll("[data-todo]").forEach(b=>b.onclick=()=>{ const x=it[+b.dataset.todo]; if(x[0]==="recep"&&x[4]&&FRC_MEM[x[4]]){ FRC.cur=frcFix(FRC_MEM[x[4]]); } switchTab(x[0]); });
-  if(isAdmin()&&_todoVal===null&&MCP&&hasToken()){ _todoVal=0; notion("POST","databases/"+AUTO_DB+"/query",{page_size:50,filter:{property:"Statut",select:{equals:"À valider"}}}).then(j=>{ _todoVal=(j.results||[]).length; if(_todoVal&&tab==="home") homeTodo(); }).catch(()=>{}); } }
+  if(isRT()&&_todoVal===null&&MCP&&hasToken()){ _todoVal=0; notion("POST","databases/"+AUTO_DB+"/query",{page_size:50,filter:{property:"Statut",select:{equals:"À valider"}}}).then(j=>{ _todoVal=(j.results||[]).length; if(_todoVal&&tab==="home") homeTodo(); }).catch(()=>{}); } }
 function renderHome(){
   const h=new Date().getHours(); const hello=h<12?"Bonjour":h<18?"Bon après-midi":"Bonsoir";
   const who=SESSION?(SESSION.nom||SESSION.login):"";
@@ -2311,11 +2337,11 @@ function cpFind(pr,ref,des){ if(!pr) return null; const r=cpNk(ref);
   if(r.length>=6) for(const [k,v] of pr.bySku){ if(k.length>=6&&(r.startsWith(k)||k.startsWith(r))) return v; }
   const n=cpNk(des); return n&&pr.byName.has(n)?pr.byName.get(n):null; }
 const cpTechList=t=>String(t||"").split(/\s*(?:,|;|\/|&|\+|\bet\b)\s*/i).map(x=>x.trim()).filter(x=>x.length>1);
-async function cpFiches(ids){ const out=[]; for(const id of ids){ const loc=(TV.items||[]).find(x=>x.id===id&&x.statut==="Finalisée");
+async function cpFiches(ids){ const out=[]; for(const id of ids){ const loc=(TV.items||[]).find(x=>x.id===id&&(x.statut==="Finalisée"||x.statut==="Validée"));
     if(loc){ out.push(loc); continue; } try{ out.push(tvxRow(await notion("GET","pages/"+id))); }catch(e){} } return out; }
 // calcule tout à partir des fiches + réglages de la ligne (d.over = prix forcés, d.jo / d.te = jours / techniciens forcés)
 async function cpCompute(row,fiches,pr){
-  const agg=new Map(); fiches.filter(f=>f.statut==="Finalisée").forEach(f=>tvxLines(f).forEach(l=>{ const u=tvxNum(l.u), p=tvxNum(l.p), r=tvxNum(l.r);
+  const agg=new Map(); fiches.filter(f=>f.statut==="Finalisée"||f.statut==="Validée").forEach(f=>tvxLines(f).forEach(l=>{ const u=tvxNum(l.u), p=tvxNum(l.p), r=tvxNum(l.r);
     const q=l.u!==""&&l.u!=null&&String(l.u).trim()!==""?u:Math.max(0,p-r); if(!q) return; const k=(String(l.ref||"").trim()||"")+"|"+String(l.des||"").trim();
     const o=agg.get(k)||{k,ref:l.ref||"",des:l.des||"",q:0,met:f.met||"elec"}; o.q+=q; agg.set(k,o); }));
   const over=(row.d&&row.d.over)||{}; let mat=0,nop=0; const lines=[...agg.values()].map(o=>{ const f=cpFind(pr,o.ref,o.des); const pu=over[o.k]!=null?over[o.k]:(f?f.pu:null);
@@ -2449,7 +2475,7 @@ function tvxLines(f){ const out=[]; tvxItems(f).forEach(it=>{ const q=f.q[it.k];
 function tvxRow(pg){ const P=pg.properties||{}; let data={}; try{ data=JSON.parse(ptxt(P["Données"])||"{}"); }catch(e){}
   const dc=(P["Date chantier"]||{}).date||{};
   return {id:pg.id,affaire:ptxt(P["Affaire"]),chantier:prel(P["Chantier"])[0]||"",date:pdate(P["Date chantier"]),dateEnd:dc.end?String(dc.end).slice(0,10):"",statut:ptxt(P["Statut"])||"En préparation",prepBy:ptxt(P["Préparée par"]),
-    techs:ptxt(P["Techniciens"]),finBy:ptxt(P["Finalisée par"]),finAt:pdate(P["Finalisée le"]),pdf:pfiles(P["PDF"]).length>0,met:data.met||({"Électricité":"elec","Pose":"pose","Poseur":"pose"})[ptxt(P["Métier"])]||"",q:data.q||{},extra:data.extra||[],sig:data.sig||{},sn:data.sn||{},snOk:data.snOk||{},snFix:data.snFix||{},edited:pg.last_edited_time||""}; }
+    techs:ptxt(P["Techniciens"]),finBy:ptxt(P["Finalisée par"]),finAt:pdate(P["Finalisée le"]),com:ptxt(P["Commentaire logistique"]),valBy:ptxt(P["Validée par"]),valAt:pdate(P["Validée le"]),pdf:pfiles(P["PDF"]).length>0,met:data.met||({"Électricité":"elec","Pose":"pose","Poseur":"pose"})[ptxt(P["Métier"])]||"",q:data.q||{},extra:data.extra||[],sig:data.sig||{},sn:data.sn||{},snOk:data.snOk||{},snFix:data.snFix||{},edited:pg.last_edited_time||""}; }
 const rtChunks=t=>{ const out=[]; const s2=String(t||""); for(let i=0;i<s2.length;i+=1900) out.push({text:{content:s2.slice(i,i+1900)}}); return out.slice(0,90); };
 function tvxProps(f){ return {"Affaire":{title:[{text:{content:(f.affaire||"Affaire sans nom").slice(0,200)}}]},"Date chantier":{date:f.date?(f.dateEnd&&f.dateEnd!==f.date?{start:f.date,end:f.dateEnd}:{start:f.date}):null},"Jours d'intervention":{number:tvxDays(f.date,f.dateEnd)||null},
   "Statut":{select:{name:f.statut}},"Préparée par":{rich_text:rtChunks(f.prepBy)},"Techniciens":{rich_text:rtChunks(f.techs)},
@@ -2467,7 +2493,7 @@ function renderTravaux(role){ TV.role=role; if(TV.cur){ renderTvxEdit(); return;
   const L=role==="L";
   $("#app").innerHTML=`<div class="wrap">${headerHTML("Fiches travaux",L?"Préparez le matériel de chaque chantier et affiliez la fiche au chantier du planning. Une fois « prête », les techniciens la retrouvent dans Construction.":"Fiches préparées par la logistique pour vos chantiers. Saisissez le matériel utilisé et retourné, puis finalisez en fin de chantier.")}
     ${L?`<button class="btn btn-or" id="tvNew" style="width:100%;margin:6px 0 12px">+ Préparer une fiche travaux</button>`:""}
-    <div class="toolbar"><div class="fchips" style="margin:0;flex:1">${!L&&SESSION?`<button id="tvMine" aria-pressed="${TV.mine}">Mes chantiers</button>`:""}${[["","Tout"],["elec","⚡ Élec"],["pose","🔩 Poseur"]].map(([k,l])=>`<button data-tvm="${k}" aria-pressed="${(TV.met||"")===k}">${l}</button>`).join("")}</div><button class="btn btn-ghost btn-sm" id="tvRf">Actualiser</button></div>
+    <div class="toolbar"><div class="fchips" style="margin:0;flex:1">${!L&&isFieldTech()?`<span class="tvme">Vos chantiers · ${myPoste()==="pose"?"🔩 Poseur":"⚡ Électricité"}</span>`:`${!L&&SESSION?`<button id="tvMine" aria-pressed="${TV.mine}">Mes chantiers</button>`:""}${[["","Tout"],["elec","⚡ Élec"],["pose","🔩 Poseur"]].map(([k,l])=>`<button data-tvm="${k}" aria-pressed="${(TV.met||"")===k}">${l}</button>`).join("")}`}</div><button class="btn btn-ghost btn-sm" id="tvRf">Actualiser</button></div>
     <div id="tvRes"></div></div>`;
   const nb=$("#tvNew"); if(nb) nb.onclick=tvxNewModal;
   const mb=$("#tvMine"); if(mb) mb.onclick=()=>{ TV.mine=!TV.mine; mb.setAttribute("aria-pressed",TV.mine); drawTvxList(); };
@@ -2478,12 +2504,12 @@ function renderTravaux(role){ TV.role=role; if(TV.cur){ renderTvxEdit(); return;
 function drawTvxList(){ const el=$("#tvRes"); if(!el) return; const L=TV.role==="L";
   const nr=notionReady(); if(nr){ el.innerHTML=notReadyHTML(nr); bindCommon(el); return; }
   if(!TV.items){ el.innerHTML=TV.err?`<div class="card empty">${esc(TV.err)}</div>`:`<div class="card empty">Chargement…</div>`; return; }
-  let items=TV.items.slice(); if(!L) items=items.filter(f=>f.statut!=="En préparation"&&(!TV.mine||!SESSION||tvxMine(f))); if(TV.met) items=items.filter(f=>(f.met||"elec")===TV.met);
-  const groups=L?[["En préparation","À préparer"],["Prête","Prêtes - chez les techniciens"],["Finalisée","Finalisées"]]:[["Prête","À finaliser"],["Finalisée","Finalisées"]];
+  let items=TV.items.slice(); const FT=isFieldTech(); if(!L) items=items.filter(f=>f.statut!=="En préparation"&&((!TV.mine&&!FT)||!SESSION||tvxMine(f))&&(!FT||(f.met||"elec")===myPoste())); if(TV.met&&!(FT&&!L)) items=items.filter(f=>(f.met||"elec")===TV.met);
+  const groups=L?[["Finalisée","À contrôler"],["En préparation","À préparer"],["Prête","Prêtes - chez les techniciens"],["À corriger","Renvoyées aux techniciens"],["Validée","Validées"]]:[["À corriger","À corriger"],["Prête","À finaliser"],["Finalisée","En contrôle logistique"],["Validée","Validées"]];
   let h=TV.err?`<div class="card empty" style="margin-bottom:10px">${esc(TV.err)} - dernières données affichées.</div>`:"";
   if(!items.length) h+=`<div class="card empty"><b>Aucune fiche travaux</b>${L?"Préparez la première fiche pour un chantier du planning.":TV.mine?"Aucune fiche prête pour vos chantiers. Désactivez « Mes chantiers » pour tout voir.":"La logistique n'a pas encore préparé de fiche."}</div>`;
-  groups.forEach(([st,lbl])=>{ const g=items.filter(f=>f.statut===st).sort((a,b)=>st==="Finalisée"?String(b.finAt||b.date).localeCompare(String(a.finAt||a.date)):String(a.date||"9").localeCompare(String(b.date||"9"))); if(!g.length) return;
-    h+=`<div class="cat-h">${esc(lbl)} · ${g.length}</div><div class="list">${(st==="Finalisée"?g.slice(0,20):g).map(f=>{ const n=tvxLines(f).length; const cls=st==="Finalisée"?"done":st==="Prête"?"g-m":"draft";
+  groups.forEach(([st,lbl])=>{ const g=items.filter(f=>f.statut===st).sort((a,b)=>(st==="Finalisée"||st==="Validée")?String(b.finAt||b.date).localeCompare(String(a.finAt||a.date)):String(a.date||"9").localeCompare(String(b.date||"9"))); if(!g.length) return;
+    h+=`<div class="cat-h">${esc(lbl)} · ${g.length}</div><div class="list">${(st==="Validée"?g.slice(0,20):g).map(f=>{ const n=tvxLines(f).length; const cls=st==="Validée"?"done":st==="Finalisée"?"g-m":st==="À corriger"?"nc":st==="Prête"?"g-m":"draft";
       return `<div class="card icard tap" data-tv="${esc(f.id)}" role="button" tabindex="0"><div class="top"><span class="c">${esc(f.affaire||"Affaire sans nom")}</span><span class="chip ${cls}">${esc(st)}</span></div>
         <span class="m">${[tvxMetTag(f),tvxDaysTxt(f),f.techs].filter(Boolean).map(esc).join(" · ")||"&nbsp;"}</span>
         <span class="m">${n} article${n>1?"s":""}${f.prepBy?" · préparée par "+esc(f.prepBy):""}${f.finBy?" · finalisée par "+esc(f.finBy):""}${f.chantier?" · 📅 affiliée au planning":""}</span></div>`; }).join("")}</div>`; });
@@ -2515,7 +2541,20 @@ async function tvxNewModal2(met){
     el.querySelectorAll("[data-ev]").forEach(b=>b.onclick=()=>create(evs[+b.dataset.ev]));
   }catch(e){ const el=m.querySelector("#tvEv"); if(el) el.innerHTML=`<div class="card empty">${esc((e&&e.message)||"Planning indisponible")}</div>`; }
 }
-function tvxCanEdit(col){ const f=TV.cur; if(!f) return false; const L=TV.role==="L", fin=f.statut==="Finalisée"; if(col==="p") return L&&(f.statut==="En préparation"||fin||isAdmin()); return !L&&(f.statut==="Prête"||fin); }
+function tvxStore(f){ const ix=(TV.items||[]).findIndex(x=>x.id===f.id); if(ix>=0) TV.items[ix]=JSON.parse(JSON.stringify(f)); lsSet("cx_tvx2",TV.items); }
+function askText(title,label,okLbl,req){ return new Promise(res=>{ const m=document.createElement("div"); m.className="modal"; m.innerHTML=`<div class="box"><p style="margin:0 0 8px"><b>${esc(title)}</b></p><label class="f">${esc(label)}<textarea id="taC" rows="3"></textarea></label><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn btn-ghost btn-sm" id="taX">Annuler</button><button class="btn btn-or btn-sm" id="taOk">${esc(okLbl)}</button></div></div>`; document.body.appendChild(m);
+  m.querySelector("#taX").onclick=()=>{ m.remove(); res(null); }; m.querySelector("#taOk").onclick=()=>{ const v=m.querySelector("#taC").value.trim(); if(req&&!v){ toast("Indiquez ce qu'il faut corriger."); return; } m.remove(); res(v); }; setTimeout(()=>{ const t=m.querySelector("#taC"); if(t) t.focus(); },50); }); }
+async function tvxValidate(f){ const c=await askText("Valider la fiche travaux","Commentaire (facultatif)","Valider",false); if(c===null) return;
+  clearTimeout(TV.timer); if(TV.dirty) await tvxFlush(); const by=SESSION?(SESSION.nom||SESSION.login):""; const at=ymd(new Date());
+  try{ await notion("PATCH","pages/"+f.id,{properties:{"Statut":{select:{name:"Validée"}},"Validée par":{rich_text:rtChunks(by)},"Validée le":{date:{start:at}},"Commentaire logistique":{rich_text:rtChunks(c)}}});
+    Object.assign(f,{statut:"Validée",valBy:by,valAt:at,com:c}); tvxStore(f); cpFromFiche(f).catch(()=>{}); toast("Fiche travaux validée."); TV.cur=null; renderList(); window.scrollTo(0,0); }
+  catch(e){ toast("Validation impossible : "+((e&&e.message)||"erreur")); } }
+async function tvxReturn(f){ const c=await askText("Renvoyer au technicien","Ce qu'il faut corriger (obligatoire)","Renvoyer",true); if(c===null) return;
+  clearTimeout(TV.timer); if(TV.dirty) await tvxFlush();
+  try{ await notion("PATCH","pages/"+f.id,{properties:{"Statut":{select:{name:"À corriger"}},"Commentaire logistique":{rich_text:rtChunks(c)}}});
+    Object.assign(f,{statut:"À corriger",com:c}); tvxStore(f); toast("Fiche renvoyée au technicien."); TV.cur=null; renderList(); window.scrollTo(0,0); }
+  catch(e){ toast("Renvoi impossible : "+((e&&e.message)||"erreur")); } }
+function tvxCanEdit(col){ const f=TV.cur; if(!f) return false; const L=TV.role==="L", st=f.statut, fin=st==="Finalisée"; if(st==="Validée") return false; if(col==="p") return L&&(st==="En préparation"||fin||isAdmin()); return (!L&&(st==="Prête"||st==="À corriger"))||(L&&fin); }
 function tvxQueueSave(){ TV.dirty=true; tvxSaveState(); clearTimeout(TV.timer); TV.timer=setTimeout(tvxFlush,1200); }
 function tvxSaveState(){ const e=$("#tvSv"); if(e) e.textContent=TV.saving?"Enregistrement…":TV.dirty?"Modifications en cours…":"Enregistré dans Notion"; }
 async function tvxFlush(){ const f=TV.cur; if(!f||!TV.dirty) return; if(TV.saving){ clearTimeout(TV.timer); TV.timer=setTimeout(tvxFlush,800); return; }
@@ -2525,12 +2564,12 @@ async function tvxFlush(){ const f=TV.cur; if(!f||!TV.dirty) return; if(TV.savin
   TV.saving=false; tvxSaveState(); }
 function tvxDaysHTML(f){ const n=tvxDays(f.date,f.dateEnd);
   return `<b>${n||"-"}</b><span>jour${n>1?"s":""} d'intervention</span><small>${f.date?(f.dateEnd&&f.dateEnd!==f.date?`du ${esc(frDate(f.date))} au ${esc(frDate(f.dateEnd))}`:`le ${esc(frDate(f.date))}`):"date non renseignée"}${f.chantier?" · d'après le planning":""}</small>`; }
-async function tvxSyncPlanning(f){ if(!f.chantier||f.statut==="Finalisée"||notionReady()) return;
+async function tvxSyncPlanning(f){ if(!f.chantier||f.statut==="Finalisée"||f.statut==="Validée"||notionReady()) return;
   try{ const pg=await notion("GET","pages/"+f.chantier); const dt=((pg.properties||{})["Date / Heure"]||{}).date||{}; const a=String(dt.start||"").slice(0,10), b=dt.end?String(dt.end).slice(0,10):"";
     if(a&&(a!==f.date||b!==(f.dateEnd||""))&&TV.cur===f){ f.date=a; f.dateEnd=b; const el=$("#tvDays"); if(el) el.innerHTML=tvxDaysHTML(f); const di=$("#tvD"); if(di) di.value=a; tvxQueueSave(); toast("Dates mises à jour d'après le planning."); } }catch(e){} }
 function tvxSigHTML(f,L){ f.sig=f.sig||{}; const me=SESSION?(SESSION.nom||SESSION.login):"";
   const boxes=[["L","Logistique (préparation)",f.sig.L?f.sig.L.by:(f.prepBy||""),L&&f.statut==="En préparation"],
-               ["T","Technicien (fin de chantier)",f.sig.T?f.sig.T.by:(f.statut==="Finalisée"?(f.finBy||""):me),!L&&f.statut==="Prête"]];
+               ["T","Technicien (fin de chantier)",f.sig.T?f.sig.T.by:(f.statut==="Finalisée"||f.statut==="Validée"?(f.finBy||""):me),!L&&(f.statut==="Prête"||f.statut==="À corriger")]];
   return `<div class="card tvsig"><h3 class="sub2" style="margin-top:0">Signatures</h3><div class="tvsg">${boxes.map(([k,t,by,ed])=>{ const sg=f.sig[k];
     return `<div class="tvsb"><div class="tvst">${t}</div><div class="tvsn">Nom : <b>${esc(by||"—")}</b>${sg&&sg.at?` · ${esc(frDate(sg.at))}`:""}</div>
     ${ed?`<canvas class="sig" data-tsig="${k}" style="height:130px"></canvas><div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><span class="hint" style="margin:0">Signer avec le doigt.</span><button class="btn btn-ghost btn-sm" data-tsclr="${k}">Effacer</button></div>`
@@ -2555,11 +2594,12 @@ function renderTvxEdit(){ const f=TV.cur; const L=TV.role==="L"; const fin=f.sta
   $("#app").innerHTML=`<div class="wrap tvx">
     <div class="crumb"><button id="tvBack">${ICO.chev}<span>Fiches travaux</span></button><span class="sec">${esc(f.statut)}</span></div>
     <h1>Travaux exécutés - ${tvxMetTxt(f)}</h1>
-    <div class="tvstep"><span class="${f.statut==="En préparation"?"on":"ok"}">1. Préparation logistique</span><span class="${f.statut==="Prête"?"on":fin?"ok":""}">2. Chantier</span><span class="${fin?"ok":""}">3. Finalisée</span></div>
+    <div class="tvstep"><span class="${f.statut==="En préparation"?"on":"ok"}">1. Préparation logistique</span><span class="${f.statut==="Prête"?"on":fin?"ok":""}">2. Chantier</span><span class="${fin||f.statut==="Validée"?"ok":""}">3. Finalisée</span><span class="${f.statut==="Validée"?"ok":fin?"on":""}">4. Contrôle logistique</span></div>
+    ${f.statut==="À corriger"?`<div class="card tvko"><b>À corriger : fiche renvoyée par la logistique</b><span>${esc(f.com||"Voir avec la logistique.")}</span></div>`:""}${f.statut==="Validée"?`<div class="card tvok"><b>Validée par ${esc(f.valBy||"la logistique")}${f.valAt?" le "+esc(frDate(f.valAt)):""}</b>${f.com?`<span>${esc(f.com)}</span>`:""}</div>`:""}
     <div class="card tvh"><label>Affaire<input id="tvA" value="${esc(f.affaire)}" ${headEdit?"":"readonly"}></label>
       <div class="g3"><label>Début du chantier<input id="tvD" type="date" value="${esc(f.date||"")}" ${headEdit?"":"readonly"}></label><label>Techniciens<input id="tvT" value="${esc(f.techs||"")}" ${headEdit?"":"readonly"}></label><label>Préparée par<input value="${esc(f.prepBy||"")}" readonly></label></div>
       <div class="tvdays" id="tvDays">${tvxDaysHTML(f)}</div>${fin?`<span class="m" style="font-size:12.5px;color:var(--ok);font-weight:700">Finalisée par ${esc(f.finBy||"?")} le ${esc(frDate(f.finAt||""))}</span>`:""}</div>
-    ${fin?`<p class="hint" style="margin:8px 2px">Fiche finalisée : vous pouvez encore corriger ${L?"le <b>préparé</b>":"l'<b>utilisé</b>"} (le retour se calcule tout seul). Touchez « Mettre à jour » pour régénérer le PDF dans Notion et la rentabilité du chantier.</p>`:""}${!fin?`<p class="hint" style="margin:8px 2px">${L?(f.statut==="En préparation"?"Saisissez les quantités à <b>préparer</b>, puis « Fiche prête ».":"Fiche prête : les techniciens saisissent l'utilisé et le retour. Vous pouvez la repasser en préparation."):"Saisissez le matériel <b>utilisé</b> : le <b>retour</b> (préparé − utilisé) se calcule tout seul. En fin de chantier, touchez « Finaliser »."}</p>`:""}
+    ${fin?`<p class="hint" style="margin:8px 2px">${L?"Fiche finalisée par le technicien : <b>contrôlez-la</b>. Vous pouvez corriger le préparé et l'utilisé, puis « Valider la fiche », ou la « Renvoyer au technicien » avec le motif.":"Fiche finalisée : en attente du contrôle de la logistique."}</p>`:""}${!fin?`<p class="hint" style="margin:8px 2px">${L?(f.statut==="En préparation"?"Saisissez les quantités à <b>préparer</b>, puis « Fiche prête ».":"Fiche prête : les techniciens saisissent l'utilisé et le retour. Vous pouvez la repasser en préparation."):"Saisissez le matériel <b>utilisé</b> : le <b>retour</b> (préparé − utilisé) se calcule tout seul. En fin de chantier, touchez « Finaliser »."}</p>`:""}
     <div class="toolbar"><input id="tvQ" type="search" placeholder="Rechercher une référence, un article…" value="${esc(TV.q)}" aria-label="Rechercher un article"></div>
     <div class="fchips"><button id="tvAll" aria-pressed="${!TV.only}">Tout le matériel</button><button id="tvOnly" aria-pressed="${TV.only}">${L?"Saisis":"Préparé / saisi"} · <span id="tvCnt">${tvxLines(f).length}</span></button></div>
     <div class="tvhd"><span>Article</span><span class="${canP?"ed":""}">Préparer</span><span class="${canU?"ed":""}">Utiliser</span><span class="${canU?"ed":""}">Retour</span></div>
@@ -2569,8 +2609,8 @@ function renderTvxEdit(){ const f=TV.cur; const L=TV.role==="L"; const fin=f.sta
     <div class="tvbar"><span id="tvSv" class="sv"></span><div class="btns">
       ${L&&f.statut==="En préparation"?`<button class="btn btn-ghost btn-sm" id="tvDel">Supprimer</button><button class="btn btn-or" id="tvReady">Fiche prête</button>`:""}
       ${L&&f.statut==="Prête"?`<button class="btn btn-ghost" id="tvBackPrep">Repasser en préparation</button>`:""}
-      ${!L&&f.statut==="Prête"?`<button class="btn btn-or" id="tvFin">Finaliser</button>`:""}
-      ${fin?`<button class="btn btn-or" id="tvUpd">Mettre à jour</button>`:""}<button class="btn btn-ghost" id="tvPdf">PDF</button></div></div></div>`;
+      ${!L&&(f.statut==="Prête"||f.statut==="À corriger")?`<button class="btn btn-or" id="tvFin">${f.statut==="À corriger"?"Finaliser à nouveau":"Finaliser"}</button>`:""}
+      ${fin&&L?`<button class="btn btn-ghost" id="tvUpd">Mettre à jour le PDF</button><button class="btn btn-ghost" id="tvKo">Renvoyer au technicien</button><button class="btn btn-or" id="tvOk">Valider la fiche</button>`:""}<button class="btn btn-ghost" id="tvPdf">PDF</button></div></div></div>`;
   tvxSaveState();
   if(headEdit){ $("#tvA").oninput=e=>{ f.affaire=e.target.value; tvxQueueSave(); }; $("#tvD").onchange=e=>{ f.date=e.target.value; if(f.dateEnd&&f.dateEnd<f.date) f.dateEnd=""; const el=$("#tvDays"); if(el) el.innerHTML=tvxDaysHTML(f); tvxQueueSave(); }; $("#tvT").oninput=e=>{ f.techs=e.target.value; tvxQueueSave(); }; }
   $("#tvBack").onclick=async()=>{ clearTimeout(TV.timer); if(TV.dirty) await tvxFlush(); TV.cur=null; renderList(); window.scrollTo(0,0); };
@@ -2585,6 +2625,7 @@ function renderTvxEdit(){ const f=TV.cur; const L=TV.role==="L"; const fin=f.sta
     if(!f.techs&&!await confirmBox("Aucun technicien indiqué : la fiche ne sera visible que via « Mes chantiers » désactivé. Continuer ?","Continuer")) return; setSt("Prête","Fiche prête : visible par les techniciens dans Construction › Travaux."); };
   const bp=$("#tvBackPrep"); if(bp) bp.onclick=async()=>{ if(await confirmBox("Repasser la fiche en préparation ? Les techniciens ne pourront plus la modifier en attendant.","Repasser")) setSt("En préparation","Fiche repassée en préparation."); };
   const fb=$("#tvFin"); if(fb) fb.onclick=()=>tvxFinalize(f);
+  const tok=$("#tvOk"); if(tok) tok.onclick=()=>tvxValidate(f); const tko=$("#tvKo"); if(tko) tko.onclick=()=>tvxReturn(f);
   $("#tvPdf").onclick=()=>tvxPdf(f);
   const up=$("#tvUpd"); if(up) up.onclick=async()=>{ up.disabled=true; up.textContent="Mise à jour…"; clearTimeout(TV.timer); TV.dirty=true; await tvxFlush();
     try{ await ensurePdfFonts(); const b64=ab2b64(tvxBuildPdf(f).output("arraybuffer")); let fileId="";
@@ -2869,7 +2910,7 @@ function pvPickChantier(){ const m=document.createElement("div"); m.className="m
     el.innerHTML=G.length?G.slice(0,40).map(g=>`<button class="bet-ch" data-pc="${groups.indexOf(g)}"><span class="bet-ch-ic">${BI.sun}</span><span class="bet-ch-tx"><b>${esc(g.affaire)}</b><small>${g.fin?`${BI.cal}fin ${esc(frDate(g.fin))}`:""}${g.mets.length?`<em>${esc(g.mets.join(" + "))}</em>`:""}${g.techs?`<em>${esc(g.techs)}</em>`:""}</small></span>${ICO.chev}</button>`).join(""):`<div class="bet-empty"><div class="bet-empty-ic">${BI.search}</div><b>Aucun chantier terminé trouvé</b></div>`;
     el.querySelectorAll("[data-pc]").forEach(b=>b.onclick=()=>{ m.remove(); pvFromGroup(groups[+b.dataset.pc]); }); };
   m.querySelector("#pcQ").oninput=draw;
-  (async()=>{ try{ let all=[],cursor=null; do{ const j=await notion("POST","databases/"+TVX_DB+"/query",Object.assign({page_size:100,filter:{property:"Statut",select:{equals:"Finalisée"}},sorts:[{property:"Date chantier",direction:"descending"}]},cursor?{start_cursor:cursor}:{})); all=all.concat(j.results||[]); cursor=j.has_more&&all.length<300?j.next_cursor:null; }while(cursor);
+  (async()=>{ try{ let all=[],cursor=null; do{ const j=await notion("POST","databases/"+TVX_DB+"/query",Object.assign({page_size:100,filter:{or:[{property:"Statut",select:{equals:"Finalisée"}},{property:"Statut",select:{equals:"Validée"}}]},sorts:[{property:"Date chantier",direction:"descending"}]},cursor?{start_cursor:cursor}:{})); all=all.concat(j.results||[]); cursor=j.has_more&&all.length<300?j.next_cursor:null; }while(cursor);
       const map=new Map(); all.map(tvxRow).forEach(r=>{ const k=pvNorm(r.affaire)||r.id; const g=map.get(k)||{affaire:r.affaire||"Affaire sans nom",ids:[],fin:"",mets:[],techs:"",chantier:r.chantier};
         g.ids.push(r.id); const fe=r.dateEnd||r.date; if(fe&&fe>g.fin) g.fin=fe; const mt=r.met==="pose"?"Poseur":"Électricité"; if(!g.mets.includes(mt)) g.mets.push(mt); if(r.techs&&!g.techs) g.techs=r.techs; map.set(k,g); });
       groups=[...map.values()]; draw(); }
@@ -3046,7 +3087,7 @@ async function pvFromRecep(pg){ const P=pg.properties||{}; const pv=pvNew(); con
   PVS.cur=pv; pvDraftSet(pv); switchTab("pvrec"); toast("Recherche de la centrale, des fiches travaux et de l'autocontrôle…");
   if(cid){ try{ const c=await notion("GET","pages/"+cid); const CP=c.properties||{}; const com=ptxt(CP["Commune"]); pv.cands.cpv=[{id:c.id,t:ptxt(CP["Nom de la Centrale"])||"Centrale",adr:[ptxt(CP["Adresse géographique"]),com].filter(Boolean).join(", "),com}]; pv.cpv=c.id; pv.adresse=pv.cands.cpv[0].adr; if(com) pv.lieu=com.charAt(0)+com.slice(1).toLowerCase(); }catch(e){} }
   await pvFindLinks(pv); if(!pv.cands.rc.some(x=>x.id===pg.id)) pv.cands.rc.unshift({id:pg.id,t:name||"Réception"}); pv.rc=pg.id;
-  const kw=cpvKw(pv.client); if(kw){ try{ const j=await notion("POST","databases/"+TVX_DB+"/query",{page_size:20,filter:{and:[{property:"Affaire",title:{contains:kw}},{property:"Statut",select:{equals:"Finalisée"}}]}}); pv.tvx=(j.results||[]).map(x=>x.id); }catch(e){} }
+  const kw=cpvKw(pv.client); if(kw){ try{ const j=await notion("POST","databases/"+TVX_DB+"/query",{page_size:20,filter:{and:[{property:"Affaire",title:{contains:kw}},{or:[{property:"Statut",select:{equals:"Finalisée"}},{property:"Statut",select:{equals:"Validée"}}]}]}}); pv.tvx=(j.results||[]).map(x=>x.id); }catch(e){} }
   if(PVS.cur===pv){ pvDraftSet(pv); if(tab==="pvrec") renderPvEdit(); } }
 function rcFromCpvName(n){ return String(n||"").replace(/^\s*CPV[\s_\-:]*/i,"").replace(/[\s_\-]+\d[\s\S]*$/,"").replace(/_+/g," ").replace(/\s+/g," ").trim(); }
 async function rcClientOfCpv(pg){ const P=pg.properties||{}; const cid=prel(P["Client"])[0];
@@ -3409,12 +3450,13 @@ function drawValider(){ const el=$("#vaRes"); if(!el) return; const L=VAL.items|
       ${pchkb(P["Curative à prévoir"])?`<div class="va-w">⚠ ${esc(ptxt(P["Nature à prévoir"])||"Points non conformes signalés")}</div>`:""}
       ${com?`<div class="va-m">Commentaire : ${esc(com)}</div>`:""}
       ${st==="Validé"?`<div class="va-m">Validée par <b>${esc(ptxt(P["Validé par"])||"—")}</b>${pdate(P["Validé le"])?" le "+esc(frDate(pdate(P["Validé le"]))):""}</div>`:""}
-      <div class="va-b">${pdf&&pdf.url?`<button class="btn btn-ghost btn-sm" data-vpdf="${i}">Voir la fiche (PDF)</button>`:""}${visa&&visa.url?`<button class="btn btn-ghost btn-sm" data-vvisa="${i}">Voir le visa</button>`:""}<button class="btn btn-ghost btn-sm" data-vpg="${i}">Ouvrir dans Notion</button>${st!=="Validé"?`<button class="btn btn-or btn-sm" data-vok="${i}">Valider et signer</button>`:""}</div></div>`; }).join("");
+      <div class="va-b">${pdf&&pdf.url?`<button class="btn btn-ghost btn-sm" data-vpdf="${i}">Voir la fiche (PDF)</button>`:""}${visa&&visa.url?`<button class="btn btn-ghost btn-sm" data-vvisa="${i}">Voir le visa</button>`:""}<button class="btn btn-ghost btn-sm" data-vpg="${i}">Ouvrir dans Notion</button>${st!=="Validé"?`<button class="btn btn-or btn-sm" data-vok="${i}">Valider et signer</button>`:""}${(P["Données fiche"]&&(P["Données fiche"].rich_text||[]).length)&&st!=="Validé"?`<button class="btn btn-ghost btn-sm" data-vedit="${i}">Ouvrir / corriger la fiche</button>`:""}</div></div>`; }).join("");
   const get=b=>L[+b.dataset.vpdf||+b.dataset.vvisa||+b.dataset.vpg||+b.dataset.vok||0];
   el.querySelectorAll("[data-vpdf]").forEach(b=>b.onclick=()=>{ const f=pfiles((L[+b.dataset.vpdf].properties||{})["PDF du rapport"])[0]; if(f) openUrl(f.url); });
   el.querySelectorAll("[data-vvisa]").forEach(b=>b.onclick=()=>{ const f=pfiles((L[+b.dataset.vvisa].properties||{})["Visa responsable technique"])[0]; if(f) openUrl(f.url); });
   el.querySelectorAll("[data-vpg]").forEach(b=>b.onclick=()=>{ const pg=L[+b.dataset.vpg]; openUrl(pg.url||nurl(pg.id)); });
-  el.querySelectorAll("[data-vok]").forEach(b=>b.onclick=()=>valModal(L[+b.dataset.vok])); }
+  el.querySelectorAll("[data-vok]").forEach(b=>b.onclick=()=>valModal(L[+b.dataset.vok]));
+  el.querySelectorAll("[data-vedit]").forEach(b=>b.onclick=()=>shOpenPage(L[+b.dataset.vedit])); }
 function valPad(cv){ const r=cv.getBoundingClientRect(); const dpr=window.devicePixelRatio||1; cv.width=r.width*dpr; cv.height=r.height*dpr;
   const x=cv.getContext("2d"); x.scale(dpr,dpr); x.lineWidth=2.2; x.lineCap="round"; x.lineJoin="round"; x.strokeStyle="#1d1d1f"; x.fillStyle="#fff"; x.fillRect(0,0,r.width,r.height);
   const st={drawn:false}; let dr=false,last=null; const pos=e=>{ const b=cv.getBoundingClientRect(); return [e.clientX-b.left,e.clientY-b.top]; };
@@ -3536,7 +3578,7 @@ function renderList(){
   else if(tab==="activite") renderActivite();
   else if(tab==="pvrec") renderPv();
   else if(tab==="recep") renderRecep();
-  else if(tab==="valider") renderValider();
+  else if(tab==="valider"){ if(isRT()) renderValider(); else { tab="fiches"; renderFiches(); } }
   else if(tab==="moncompte") renderMonCompte();
   else if(tab==="compta") renderCompta();
   else if(tab==="supervision") renderSupervision();
@@ -3548,7 +3590,7 @@ function renderList(){
   if(!locked&&GROUP_LOCK[grp[0]]&&SESSION){ const w=$("#app .wrap"); if(w){ const who=document.createElement("div"); who.className="whoami";
     who.innerHTML=`<span>Connecté : <b>${esc(SESSION.nom||SESSION.login)}</b></span>`; w.insertBefore(who,w.firstChild); } }
   if(!locked&&grp[2].length>1){ const w=$("#app .wrap"); if(w){ const sn=document.createElement("nav"); sn.className="subnav"; sn.setAttribute("aria-label",grp[1]);
-    sn.innerHTML=grp[2].map(([k,l])=>`<button data-sub="${k}" ${k===tab?'aria-current="page"':""}>${esc(l)}</button>`).join("");
+    sn.innerHTML=grp[2].filter(([k])=>tabOk(k)).map(([k,l])=>`<button data-sub="${k}" ${k===tab?'aria-current="page"':""}>${esc(l)}</button>`).join("");
     w.insertBefore(sn,w.firstChild); sn.querySelectorAll("[data-sub]").forEach(b=>b.onclick=()=>switchTab(b.dataset.sub)); const ac=sn.querySelector('[aria-current="page"]'); if(ac&&sn.scrollWidth>sn.clientWidth){ sn.classList.add("more"); sn.scrollLeft=Math.max(0,ac.offsetLeft-sn.clientWidth/2+ac.offsetWidth/2); } } }
   if(tab!=="home"){ const w=$("#app .wrap"); if(w){ const bc=document.createElement("div"); bc.className="crumb";
     bc.innerHTML=`<button id="goHome" aria-label="Retour à l'accueil">${ICO.chev}<span>Accueil</span></button><span class="sec">${ICO[grp[0]]||""}${esc(grp[1])}</span>`;
@@ -4086,7 +4128,7 @@ function renderWeek(kind){
   $("#app").innerHTML=`<div class="wrap">${headerHTML("Planning de la semaine",kind==="plan_c"?"Chantiers et tests de découplage prévus dans Notion.":kind==="plan_l"?"Livraisons, enlèvements et tâches logistiques prévus dans Notion.":"Maintenances et interventions prévues dans Notion.")}
     <div class="wknav"><button class="btn btn-ghost btn-sm" id="wPrev" aria-label="Semaine précédente">←</button><b>Semaine du ${esc(fmt(mon))} au ${esc(fmt(sun))}</b><button class="btn btn-ghost btn-sm" id="wNext" aria-label="Semaine suivante">→</button></div>
     <div class="wkopts">${W.off?`<button class="btn btn-ghost btn-sm" id="wNow">Cette semaine</button>`:""}<button class="btn btn-ghost btn-sm" id="wRef">Actualiser</button>
-      ${SESSION?`<div class="fchips" style="margin:0"><button id="wMine" aria-pressed="${W.mine}">Seulement moi</button></div>`:""}</div>
+      ${SESSION&&!isFieldTech()?`<div class="fchips" style="margin:0"><button id="wMine" aria-pressed="${W.mine}">Seulement moi</button></div>`:""}</div>
     <div id="wRes"></div></div>`;
   $("#wPrev").onclick=()=>{ W.off--; renderList(); };
   $("#wNext").onclick=()=>{ W.off++; renderList(); };
@@ -4105,7 +4147,7 @@ function drawWeek(kind){
   let h=W.err?`<div class="card empty" style="margin-bottom:10px"><b>Planning indisponible</b>${esc(W.err)}</div>`:"";
   if(!items){ el.innerHTML=h+(W.loading?`<div class="card empty">Lecture du planning dans Notion…</div>`:""); return; }
   const mon=weekStart(W.off), today=ymd(new Date());
-  const list=W.mine&&SESSION?items.filter(e=>e.tech.some(isMe)):items;
+  const list=(W.mine||isFieldTech())&&SESSION?items.filter(e=>e.tech.some(isMe)):items;
   for(let i=0;i<7;i++){ const d=addDays(mon,i), k=ymd(d);
     const evs=list.filter(e=>e.start.slice(0,10)<=k&&(e.end||e.start).slice(0,10)>=k).sort((a,b)=>a.start.localeCompare(b.start));
     if(i>=5&&!evs.length) continue;
@@ -4120,7 +4162,7 @@ function drawWeek(kind){
         <div class="acc-chips">${e.valid?`<span class="chip ${e.valid==="Validé"?"s-ok":"s-or"}">${esc(e.valid)}</span>`:""}${e.etat&&e.etat!=="Pas commencé"?`<span class="chip ${e.etat==="Terminé"?"s-so":"s-or"}">${esc(e.etat)}</span>`:""}</div>
         ${e.notes||e.autre?`<span class="m" style="font-size:13px">${esc([e.notes,e.autre].filter(Boolean).join(" · "))}</span>`:""}
         <div class="acts">${kind==="plan_c"?`<button class="btn ${fiche?"btn-ghost":"btn-or"} btn-sm" data-wf="${ix}">${fiche?"Ouvrir la fiche":"Démarrer la fiche"}</button>`:""}${g?`<button class="btn btn-ghost btn-sm" data-url="${esc(g)}">Itinéraire</button>`:""}</div></div>`; }).join("")}</div>`
-      :`<div class="none">Rien de prévu${W.mine?" pour vous":""}.</div>`;
+      :`<div class="none">Rien de prévu${W.mine||isFieldTech()?" pour vous":""}.</div>`;
     h+=`</div>`; }
   if(W.loading) h+=`<div class="vmsg">Mise à jour…</div>`;
   el.innerHTML=h; bindCommon(el);
@@ -4183,6 +4225,7 @@ function openCompte(c){
     <label class="f2" for="cTel">Téléphone de service<input id="cTel" type="tel" inputmode="tel" value="${esc(c?c.tel:"")}" placeholder="ex. 87 12 34 56"></label>
     <label class="f2" for="cPw">${isNew?"Mot de passe":"Nouveau mot de passe (laisser vide pour ne pas changer)"}<span class="pwrow"><input id="cPw" type="text" autocomplete="new-password" spellcheck="false"><button type="button" class="btn btn-ghost btn-sm" id="cGen">Générer</button></span></label>
     <div class="f2" style="font-size:13px;font-weight:600">Accès<div class="checks">${G3.map(g=>`<label><input type="checkbox" value="${g}" ${c&&c.groupes.includes(g)?"checked":""} ${self&&g==="Admin"?"disabled":""}>${g==="Admin"?"Admin (Paramètres)":g}</label>`).join("")}</div></div>
+    <div class="f2" style="font-size:13px;font-weight:600">Poste sur les chantiers<div class="checks">${POSTES.map(g=>`<label><input type="checkbox" value="${g}" ${c&&c.groupes.includes(g)?"checked":""}>${g==="Resp. technique"?"Responsable technique":g}</label>`).join("")}</div><span class="hint" style="margin:2px 0 0;font-weight:400">Le poste décide des fiches à remplir : partie pose pour le poseur, partie électrique pour l'électricien. Le responsable technique contrôle et valide les fiches autocontrôle. Cocher un poste donne l'accès à Construction.</span></div>
     <div class="checks"><label><input type="checkbox" id="cAct" ${!c||c.actif?"checked":""} ${self?"disabled":""}>Compte actif</label></div>
     <span class="err" id="cErr" role="alert"></span>
     <div id="cRecap"></div>
@@ -4354,7 +4397,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1926;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1927;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
@@ -4365,6 +4408,128 @@ function otaStart(){ try{ if(window.AndroidBridge&&AndroidBridge.otaOk) AndroidB
     otaBanner(`Nouvelle version de l'application à installer${o.v.apkName?" ("+esc(o.v.apkName)+")":""}.`,"Télécharger",()=>openUrl(o.v.apkUrl)); },4000); }
 
 /* ---------- démarrage ---------- */
+
+/* ================= Fiche autocontrôle partagée (pose + électricité) ================= */
+const SH={busy:false,t:0};
+const SH_LOCAL=["notion","status","setup","_cfgDraft","shared","snPulledAt","createdBy","updatedAt","createdAt"];
+const shOn=()=>!!(MCP&&hasToken()&&SESSION&&myPoste());
+const shPoste=()=>myPoste()||"elec";
+const shOwner=k=>(k==="sp"||/^sp_|^pose_/.test(String(k)))?"pose":"elec";
+function shLocked(){ const st=(cur&&cur.shared||{}).st; return shPoste()!=="rt"&&["À valider","Validé","Envoyé au client"].includes(st); }
+function shStrip(f){ const o=JSON.parse(JSON.stringify(f||{})); SH_LOCAL.forEach(k=>delete o[k]); return o; }
+function shJSON(f){ let o=shStrip(f), t=JSON.stringify(o); if(t.length>190000&&o.sig){ Object.values(o.sig).forEach(x=>{ if(x) x.img=""; }); t=JSON.stringify(o); } return t; }
+function shMerge(local,remote,po){ if(!remote||po==="rt") return shStrip(local);
+  const E=po==="pose"?remote:shStrip(local), Po=po==="pose"?shStrip(local):remote; const out=JSON.parse(JSON.stringify(E));
+  ["ans","photoIdx","nc","so"].forEach(k=>{ out[k]=out[k]||{}; Object.keys(out[k]).forEach(x=>{ if(shOwner(x)==="pose") delete out[k][x]; }); Object.entries(Po[k]||{}).forEach(([x,v])=>{ if(shOwner(x)==="pose") out[k][x]=v; }); });
+  out.poseDone=Po.poseDone||null; return out; }
+async function shReadData(pg){ const pr=((pg&&pg.properties)||{})["Données fiche"]; if(!pr) return null; let t=ptxt(pr);
+  if((pr.rich_text||[]).length>=25&&pr.id){ const pid=/%/.test(pr.id)?pr.id:encodeURIComponent(pr.id); let all=[],c=null;
+    do{ const j=await notion("GET","pages/"+pg.id+"/properties/"+pid+(c?"?start_cursor="+encodeURIComponent(c):"")); (j.results||[]).forEach(x=>{ if(x&&x.rich_text) all.push(x.rich_text.plain_text||""); }); c=j.has_more?j.next_cursor:null; }while(c);
+    if(all.length) t=all.join(""); }
+  try{ return t?JSON.parse(t):null; }catch(e){ return null; } }
+async function shBlocks(pid){ let all=[],c=null; do{ const j=await notion("GET","blocks/"+pid+"/children?page_size=100"+(c?"&start_cursor="+encodeURIComponent(c):"")); all=all.concat(j.results||[]); c=j.has_more?j.next_cursor:null; }while(c&&all.length<1000);
+  const map={}; all.forEach(b=>{ const cap=((b.image||{}).caption||[]).map(x=>x.plain_text||(x.text&&x.text.content)||"").join(""); const m=cap.match(/^cxph:([^|]+)/); if(m) map[m[1]]=b.id; }); return map; }
+async function shEnsure(){ const sh=cur.shared; if(sh.pageId) return sh.pageId; const ev=sh.evId||evIdOf(cur.notion); if(!ev) return "";
+  const j=await notion("POST","databases/"+AUTO_DB+"/query",{page_size:5,filter:{property:"Chantier planning",relation:{contains:ev}},sorts:[{timestamp:"created_time",direction:"ascending"}]});
+  let pg=(j.results||[])[0];
+  if(!pg){ const props={"Rapport":{title:[{type:"text",text:{content:`Autocontrôle — ${stripEmoji(cur.client)||"chantier"} (${frDate(cur.date)})`}}]},"Type":{select:{name:"Contrôle"}},"Statut":{select:{name:"En cours"}},"Chantier planning":{relation:[{id:ev}]},"Technicien":rt(cur.tech||"")};
+    if(cur.date) props["Date"]={date:{start:cur.date}};
+    pg=await notion("POST","pages",{parent:{database_id:AUTO_DB},icon:{type:"emoji",emoji:"📋"},properties:props}); }
+  sh.pageId=pg.id; sh.url=pg.url||nurl(pg.id); sh.evId=ev; return pg.id; }
+async function shSync(o){ o=o||{}; if(!cur||!cur.shared||!shOn()||SH.busy) return false; if(navigator.onLine===false){ if(!o.quiet) toast("Hors ligne : la fiche sera synchronisée au retour du réseau."); return false; }
+  SH.busy=true; const f0=cur, id0=curId; if(!o.quiet) setSave("Synchronisation avec l'équipe…");
+  try{ const pid=await shEnsure(); if(!pid) throw {message:"chantier du planning introuvable"};
+    const pg=await notion("GET","pages/"+pid); const Pp=pg.properties||{}; const remote=await shReadData(pg);
+    if(cur!==f0){ SH.busy=false; return false; }
+    const sh=cur.shared; Object.assign(sh,{st:ptxt(Pp["Statut"])||"En cours",com:ptxt(Pp["Commentaire validation"]),poseOk:pchkb(Pp["Pose terminée"]),elecOk:pchkb(Pp["Électricité terminée"]),url:pg.url||sh.url});
+    const po=shPoste(); const m=shMerge(cur,remote,po); const keep={}; SH_LOCAL.forEach(k=>{ if(cur[k]!==undefined) keep[k]=cur[k]; });
+    Object.keys(cur).forEach(k=>delete cur[k]); Object.assign(cur,blankFiche(),m,keep);
+    if(sh.st==="En correction"&&cur.status==="done"&&po!=="pose") cur.status="draft";
+    sh.poseOk=sh.poseOk||!!cur.poseDone;
+    cur.updatedAt=Date.now(); lsSet("cx_draft_"+id0,cur); dirty=true; flush();
+    const blocks=await shBlocks(pid); await loadAllPhotos();
+    for(const [slot,arr] of Object.entries(cur.photoIdx||{})) for(const x of (arr||[])){ if(photos[x.id]||!blocks[x.id]) continue;
+      const d=await frcFetchImg(blocks[x.id]).catch(()=>null); if(!d||cur!==f0) continue; photos[x.id]={slot,cap:x.cap,data:d,pending:false};
+      if(DB) try{ await DB.collection("fiches").doc(id0).collection("photos").doc(x.id).set({slot,cap:x.cap,data:d,at:Date.now()}); }catch(e){}
+      try{ refreshSlot(slot); }catch(e){} }
+    if(!o.pullOnly&&!shLocked()){
+      const add=[]; for(const [slot,arr] of Object.entries(cur.photoIdx||{})){ if(po!=="rt"&&shOwner(slot)!==po) continue;
+        for(const x of (arr||[])){ const p=photos[x.id]; if(!p||!p.data||blocks[x.id]) continue; const fid=await frcUploadImg(p.data,x.id+".jpg").catch(()=>null);
+          if(fid) add.push({type:"image",image:{type:"file_upload",file_upload:{id:fid},caption:[{type:"text",text:{content:"cxph:"+x.id+"|"+slot}}]}}); } }
+      for(let i=0;i<add.length;i+=50) await notion("PATCH","blocks/"+pid+"/children",{children:add.slice(i,i+50)});
+      const me=SESSION?(SESSION.nom||SESSION.login):""; const props={"Données fiche":{rich_text:frcRt(shJSON(cur))}};
+      const nk=po==="pose"?"Poseurs":"Électriciens"; const cur2=ptxt(Pp[nk]); if(me&&po!=="rt"&&!cur2.split(/,\s*/).includes(me)) props[nk]=rt(cur2?cur2+", "+me:me);
+      if(po==="pose"||po==="rt") props["Pose terminée"]={checkbox:!!cur.poseDone};
+      if(po!=="pose"){ props["Rapport"]={title:[{type:"text",text:{content:`Autocontrôle — ${stripEmoji(cur.client)||"chantier"} (${frDate(cur.date)})`}}]}; if(cur.date) props["Date"]={date:{start:cur.date}}; }
+      await notion("PATCH","pages/"+pid,{properties:props}); }
+    sh.at=Date.now(); lsSet("cx_draft_"+id0,cur); dirty=true; flush(); if(!o.quiet) setSave("Synchronisé avec l'équipe"); SH.busy=false; return true;
+  }catch(e){ SH.busy=false; if(!o.quiet) setSave("Synchro impossible : "+((e&&e.message)||"erreur")); return false; } }
+function shRerender(){ if(!cur) return; const y=scrollY; render(); scrollTo(0,y); }
+function shDecorate(){ if(!cur||!cur.shared) return; const po=shPoste(), sh=cur.shared, lockAll=shLocked();
+  const w=document.querySelector("#app .wrap"); if(w&&!w.querySelector(".shbar")){ const b=document.createElement("div"); b.className="card shbar";
+    const stc=sh.st==="Validé"?"done":sh.st==="En correction"?"nc":sh.st==="À valider"?"g-m":"draft";
+    b.innerHTML=`<div class="sh-h"><b>Fiche partagée du chantier</b><span>${po==="pose"?"Vous remplissez la <b>partie pose</b>.":po==="rt"?"Responsable technique : toute la fiche est modifiable.":"Vous remplissez la <b>partie électrique</b> et envoyez la fiche au responsable technique."}</span></div>
+      <div class="sh-st"><span class="chip ${sh.poseOk||cur.poseDone?"done":"draft"}">Pose ${sh.poseOk||cur.poseDone?"terminée":"en cours"}</span><span class="chip ${sh.elecOk?"done":"draft"}">Électricité ${sh.elecOk?"terminée":"en cours"}</span>${sh.st?`<span class="chip ${stc}">${esc(sh.st)}</span>`:""}</div>
+      ${sh.st==="En correction"&&sh.com?`<p class="sh-ko"><b>À corriger (responsable technique) :</b> ${esc(sh.com)}</p>`:""}
+      ${cur.poseDone?`<p class="sh-m">Partie pose terminée par ${esc(cur.poseDone.by||"?")} le ${esc(frDate(cur.poseDone.at||""))}</p>`:""}
+      <div class="sh-a"><span class="sh-m">${sh.at?"Synchronisée à "+new Date(sh.at).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}):"Pas encore synchronisée"}</span><button class="btn btn-ghost btn-sm" id="shSync" type="button">Synchroniser</button></div>`;
+    w.insertBefore(b,w.firstChild); b.querySelector("#shSync").onclick=async()=>{ const bt=b.querySelector("#shSync"); bt.disabled=true; bt.textContent="Synchro…"; const ok=await shSync({}); shRerender(); toast(ok?"Fiche à jour avec l'équipe.":"Synchronisation impossible pour le moment."); }; }
+  document.querySelectorAll("#app section.sec").forEach(sec=>{ const id=sec.id.replace(/^sec_/,""); const own=shOwner(id);
+    if(lockAll||(po!=="rt"&&po!==own)){ sec.classList.add("ro"); const bd=sec.querySelector(".sec-b"); if(bd&&!bd.querySelector(".ronote")) bd.insertAdjacentHTML("afterbegin",`<p class="ronote">${lockAll?"Fiche envoyée au responsable technique : lecture seule.":own==="pose"?"Partie du poseur : lecture seule.":"Partie de l'électricien : lecture seule."}</p>`); } });
+  if(po==="pose"||lockAll){ const ce=$("#cfgEdit"); if(ce) ce.remove(); }
+  const dn=$("#done");
+  if(dn){ if(lockAll) dn.remove();
+    else if(po==="pose"){ dn.textContent=cur.poseDone?"Rouvrir ma partie":"Ma partie est terminée"; dn.onclick=shPoseDone; }
+    else { const old=dn.onclick; dn.onclick=async()=>{ if(cur.status==="done") return old(); await shElecDone(old); }; dn.textContent=cur.status==="done"?"Modifier":"Envoyer au resp. technique"; } }
+  if(po==="pose"){ const nb=$("#notionBtn"); if(nb) nb.remove(); }
+  if(isFieldTech()){ const df=$("#delF"); if(df) df.remove(); } }
+async function shPoseDone(){
+  if(cur.poseDone){ if(!await confirmBox("Rouvrir la partie pose pour la modifier ?","Rouvrir")) return; cur.poseDone=null; markDirty(); await shSync({}); shRerender(); return; }
+  const sec=SECTIONS.find(x=>x.id==="sp"); let miss=0; if(sec&&!cur.so.sp) sec.items.forEach(it=>{ if(!(cur.ans[it.id]||{}).s) miss++; });
+  if(miss&&!await confirmBox(`${miss} point(s) de la partie pose ne sont pas renseignés. Envoyer quand même ?`,"Envoyer")) return;
+  cur.poseDone={by:SESSION?(SESSION.nom||SESSION.login):"",at:ymd(new Date())}; markDirty();
+  const ok=await shSync({}); shRerender(); toast(ok?"Partie pose envoyée : l'électricien la retrouve dans la fiche du chantier.":"Enregistré sur l'appareil. Touchez « Synchroniser » quand le réseau revient."); }
+async function shElecDone(old){ await shSync({}); const sh=cur.shared;
+  if(!(sh.poseOk||cur.poseDone)&&!cur.so.sp&&!await confirmBox("Le poseur n'a pas encore terminé sa partie. Envoyer la fiche au responsable technique quand même ?","Envoyer")) return;
+  if(sh.pageId) cur.notion=Object.assign({},cur.notion,{pageId:sh.pageId,pageUrl:sh.url||nurl(sh.pageId)});
+  await old(); if(cur&&cur.notion&&cur.notion.sentAt&&cur.status==="done"){ sh.st="À valider"; sh.elecOk=true; markDirty(); shRerender(); } }
+{ const _bp=buildProps; buildProps=function(fid){ const p=_bp(fid); if(cur&&cur.shared&&cur.shared.pageId){ p["Données fiche"]={rich_text:frcRt(shJSON(cur))}; p["Électricité terminée"]={checkbox:true}; p["Commentaire validation"]=rt(""); const ev=cur.shared.evId||evIdOf(cur.notion); if(ev) p["Chantier planning"]={relation:[{id:ev}]}; const me=SESSION?(SESSION.nom||SESSION.login):""; if(me&&shPoste()==="elec") p["Électriciens"]=rt(me); if(cur.poseDone) p["Pose terminée"]={checkbox:true}; } return p; }; }
+{ const _md=markDirty; markDirty=function(){ _md(); if(cur&&cur.shared&&shOn()&&!shLocked()){ clearTimeout(SH.t); SH.t=setTimeout(()=>shSync({quiet:true}),20000); } }; }
+{ const _of=openFiche; openFiche=function(id){ _of(id); if(cur&&cur.shared&&shOn()) shSync({}).then(ok=>{ if(ok) shRerender(); }); }; }
+{ const _ffp=ficheFromPlan; ficheFromPlan=function(p){ if(!shOn()) return _ffp(p); const ev=pageIdOf(p.url);
+    const ex=fiches.find(f=>f.notion&&nid(evIdOf(f.notion))===nid(ev)); if(ex){ openFiche(ex._id); if(cur&&!cur.shared){ cur.shared={evId:ev}; markDirty(); shSync({}).then(ok=>{ if(ok) shRerender(); }); } return; }
+    _ffp(p); if(!cur) return; cur.shared={evId:ev}; cur.so.sp=false; if(shPoste()==="pose") cur.setup=false; markDirty(); render();
+    toast("Recherche de la fiche partagée du chantier…"); shSync({}).then(ok=>{ if(ok) shRerender(); }); }; }
+async function shOpenPage(pg){ const ev=prel((pg.properties||{})["Chantier planning"])[0]||"";
+  const ex=fiches.find(f=>f.shared&&nid(f.shared.pageId)===nid(pg.id)); if(ex){ openFiche(ex._id); return; }
+  let d=null; try{ d=await shReadData(pg); }catch(e){} if(!d){ toast("Cette fiche n'a pas de contenu partagé."); return; }
+  curId="f_"+uid(); cur=Object.assign(blankFiche(),d,{setup:false,status:"draft",shared:{pageId:pg.id,url:pg.url||nurl(pg.id),evId:ev},notion:{eventId:ev,eventUrl:ev?nurl(ev):"",pageId:pg.id,pageUrl:pg.url||nurl(pg.id)},createdAt:Date.now(),updatedAt:Date.now()});
+  photos={}; openSecs=new Set(["ident"]); dirty=true; flush(); if(!DB) addLocal(); startPhotoSub(); render(); scrollTo(0,0);
+  const ok=await shSync({pullOnly:true}); if(ok) shRerender(); }
+const SHL={items:null,loading:false,err:"",at:0};
+async function shLoadMine(force){ if(SHL.loading||!shOn()) return; if(!force&&SHL.at&&Date.now()-SHL.at<60e3){ drawShMine(); return; } SHL.loading=true; SHL.err=""; drawShMine();
+  try{ const d0=ymd(addDays(new Date(),-45)), d1=ymd(addDays(new Date(),21));
+    const j=await notion("POST","databases/"+PLAN_DB+"/query",{page_size:100,filter:{and:[{property:"Type",select:{equals:"1 - Chantier"}},{property:"Date / Heure",date:{on_or_after:d0}},{property:"Date / Heure",date:{on_or_before:d1}}]},sorts:[{property:"Date / Heure",direction:"descending"}]});
+    let evs=(j.results||[]).map(pg=>{ const Q=pg.properties||{}; const d=(Q["Date / Heure"]||{}).date||{}; return {id:pg.id,url:pg.url||nurl(pg.id),title:ptxt(Q["Événement"])||"Chantier",start:String(d.start||"").slice(0,10),tech:pmulti(Q["Technicien"]),notes:ptxt(Q["Notes"]),chantier:""}; });
+    if(isFieldTech()) evs=evs.filter(e=>e.tech.some(isMe));
+    const k=await notion("POST","databases/"+AUTO_DB+"/query",{page_size:100,filter:{property:"Chantier planning",relation:{is_not_empty:true}},sorts:[{timestamp:"created_time",direction:"descending"}]});
+    const map=new Map(); (k.results||[]).forEach(pg=>{ const Q=pg.properties||{}; prel(Q["Chantier planning"]).forEach(id=>{ if(!map.has(nid(id))) map.set(nid(id),{st:ptxt(Q["Statut"]),com:ptxt(Q["Commentaire validation"]),pose:pchkb(Q["Pose terminée"]),elec:pchkb(Q["Électricité terminée"])}); }); });
+    SHL.items=evs.map(e=>Object.assign(e,{f:map.get(nid(e.id))||null})); SHL.at=Date.now(); }
+  catch(e){ SHL.err=(e&&e.message)||"Erreur Notion"; }
+  SHL.loading=false; drawShMine(); }
+function drawShMine(){ const el=$("#shMine"); if(!el) return;
+  if(!SHL.items){ el.innerHTML=`<div class="card empty">${SHL.err?esc(SHL.err):"Lecture de vos chantiers…"}</div>`; return; }
+  if(!SHL.items.length){ el.innerHTML=`<div class="card empty"><b>Aucun chantier</b>${isFieldTech()?"Aucun chantier ne vous est attribué dans le planning (45 derniers jours et 3 semaines à venir).":"Aucun chantier dans le planning sur la période."}</div>`; return; }
+  const ord=e=>!e.f?2:e.f.st==="En correction"?0:e.f.st==="En cours"?1:e.f.st==="À valider"?3:4;
+  const L=SHL.items.slice().sort((a,b)=>ord(a)-ord(b)||String(b.start).localeCompare(String(a.start)));
+  el.innerHTML=(SHL.err?`<div class="card empty" style="margin-bottom:8px">${esc(SHL.err)}</div>`:"")+`<div class="list">${L.map((e,i)=>{ const f=e.f; const st=f?f.st||"En cours":"À démarrer";
+    const cls=st==="Validé"?"done":st==="En correction"?"nc":st==="À valider"?"g-m":"draft"; const loc=fiches.find(x=>x.notion&&nid(evIdOf(x.notion))===nid(e.id));
+    return `<button class="card fcard" data-shev="${i}"><span class="c">${esc(e.title)}</span><span class="chip ${cls}">${esc(st)}</span>
+      <span class="m">${esc(frDate(e.start))}${e.tech.length?" · "+esc(e.tech.join(", ")):""}</span>
+      <span class="m">${f?`Pose ${f.pose?"✓":"…"} · Électricité ${f.elec?"✓":"…"}`:"Fiche pas encore commencée"}${loc?" · sur cet appareil":""}</span>
+      ${st==="En correction"&&f.com?`<span class="m sh-kol">À corriger : ${esc(f.com)}</span>`:""}</button>`; }).join("")}</div>`;
+  el.querySelectorAll("[data-shev]").forEach(b=>b.onclick=()=>ficheFromPlan(L[+b.dataset.shev])); }
+
 function loadLocal(){}
 renderList();
 (async()=>{
