@@ -344,7 +344,7 @@ h3.sub2{font-size:14px;color:var(--or-ink);margin:16px 0 4px}
 .frq-seg button{display:flex;align-items:center;justify-content:center;gap:5px;min-height:38px;border-radius:9px;border:1.5px solid var(--line);background:var(--bg);color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .frq-seg button svg{width:15px;height:15px}.frq-seg button:focus-visible{outline:3px solid var(--or);outline-offset:2px}
 .frq-seg button.ok.on{background:var(--ok);border-color:var(--ok);color:#fff}.frq-seg button.co.on{background:var(--or);border-color:var(--or);color:#fff}.frq-seg button.so.on{background:var(--so);border-color:var(--so);color:#fff}
-.frq-nc{display:flex;gap:8px;align-items:flex-start;margin-top:10px}.shbar{display:grid;gap:8px;margin:0 0 12px;padding:12px 14px;border-left:4px solid var(--or)}.sh-h{display:grid;gap:2px;font-size:14px}.sh-st{display:flex;gap:6px;flex-wrap:wrap}.sh-ko{margin:0;font-size:13.5px;color:var(--ko)}.sh-m{font-size:12.5px;color:var(--muted);margin:0}.sh-a{display:flex;justify-content:space-between;align-items:center;gap:8px}.sh-kol{color:var(--ko)!important;font-weight:600}.sec.ro .sec-b>*:not(.ronote){pointer-events:none;opacity:.55}.ronote{margin:10px 0 0;font-size:12.5px;font-weight:700;color:var(--muted)}.tvme{font-size:13px;font-weight:700;color:var(--muted);align-self:center}.card.tvko,.card.tvok{display:grid;gap:3px;margin:8px 0;padding:10px 12px;font-size:13.5px}.card.tvko{border-left:4px solid var(--ko)}.card.tvko b{color:var(--ko)}.card.tvok{border-left:4px solid var(--ok)}.card.tvok b{color:var(--ok)}.frq-ph{margin:8px 0 0!important}.frq-nc textarea{flex:1;min-height:60px;border-radius:10px;border:1.5px solid var(--or);background:var(--card);color:var(--fg);font:inherit;font-size:13.5px;padding:8px 10px}
+.frq-nc{display:flex;gap:8px;align-items:flex-start;margin-top:10px}.shbar{display:grid;gap:8px;margin:0 0 12px;padding:12px 14px;border-left:4px solid var(--or)}.shbar.shp{border-left-color:#2f6fd6}.shbar.she{border-left-color:#e3a500}.sh-h{display:grid;gap:2px;font-size:14px}.sh-st,.sh-two{display:flex;gap:6px;flex-wrap:wrap}.sh-ko{margin:0;font-size:13.5px;color:var(--ko)}.sh-m{font-size:12.5px;color:var(--muted);margin:0}.sh-a{display:flex;justify-content:space-between;align-items:center;gap:8px}.sh-kol{color:var(--ko)!important;font-weight:600}.sec.ro .sec-b>*{pointer-events:none;opacity:.55}.tvme{font-size:13px;font-weight:700;color:var(--muted);align-self:center}.card.tvko,.card.tvok{display:grid;gap:3px;margin:8px 0;padding:10px 12px;font-size:13.5px}.card.tvko{border-left:4px solid var(--ko)}.card.tvko b{color:var(--ko)}.card.tvok{border-left:4px solid var(--ok)}.card.tvok b{color:var(--ok)}.frq-ph{margin:8px 0 0!important}.frq-nc textarea{flex:1;min-height:60px;border-radius:10px;border:1.5px solid var(--or);background:var(--card);color:var(--fg);font:inherit;font-size:13.5px;padding:8px 10px}
 .frc .frim{position:relative;width:84px;height:64px;flex:none;border-radius:10px;overflow:hidden;border:1px solid var(--line)}.frc .frim.sm{width:72px;height:54px}.frc .frim img{width:100%;height:100%;object-fit:cover}
 .frc .frim button{position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:12px;cursor:pointer}
 .frc .frad{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:84px;height:64px;flex:none;border:1.5px dashed var(--line);border-radius:10px;background:var(--card);color:var(--muted);font:inherit;font-size:12px;font-weight:700;cursor:pointer}.frc .frad svg{width:16px;height:16px}.frc .frad.sm{width:72px;height:54px}
@@ -754,7 +754,7 @@ const LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA4QAAAEmCAIAAAC1Z8mg
 
 /* ---------- Contenu de la fiche (identique à la version PDF) ---------- */
 const SECTIONS = [
- {id:"sp", t:"Pose de la structure et des modules (poseurs)", so:true, items:[
+ {id:"sp", t:"Pose de la structure et des modules", items:[
   ["Structure et rails posés selon le plan de calepinage, entraxes respectés"],
   ["Perçages et fixations neuves, rondelles EPDM en place : étanchéité de la toiture vérifiée","Crochets, traversées, tôles : aucune infiltration possible"],
   ["Couple de serrage des fixations et des brides vérifié"],
@@ -1095,7 +1095,6 @@ function snBoxHTML(){ const src=cur.snSrc||{}; const ks=EQUIP.map(e=>e[0]).filte
     <button class="btn btn-ghost btn-sm" id="snPull" type="button" style="margin-top:6px">Reprendre les n° de la fiche travaux</button></div>`; }
 
 function applyCfg(f){
-  if(f&&f.so&&!f.shared&&f.so.sp===undefined) f.so.sp=true;
   if(f&&f.ms&&f.ms.code){ f.equip=f.equip||{}; if(!f.equip.code) f.equip.code=f.ms.code; delete f.ms.code; }
   const c=f&&f.cfg; const key=c?JSON.stringify(c)+"|"+((f.dc||[]).length):"none"; if(key===cfgApplied) return; cfgApplied=key;
   const base=x=>{ const y=Object.assign({},x); if(x.items) y.items=x.items.filter(it=>!REMOVED_ITEMS.has(it.id)); if(x.photos) y.photos=x.photos.filter(p=>!REMOVED_PH.has(p[0])); return y; };
@@ -1572,9 +1571,9 @@ function renderFiches(){
     <p class="sub">Installations Huawei SUN2000 · LUNA2000 · SmartGuard · modules JA Solar · fiches enregistrées sur cet appareil</p>
     <div class="toolbar">${shOn()&&isFieldTech()?"":`<button class="btn btn-or" id="newF">+ Nouvelle fiche</button>`}<input id="q" type="text" placeholder="Rechercher client, technicien" value="${esc(filter)}" aria-label="Rechercher"></div>
     ${MCP&&!hasToken()?`<div class="card empty" style="margin-bottom:10px"><b>Notion non configuré</b>Ouvrez « Réglages » et collez la clé d'intégration Notion de CONEXUN pour charger le planning et envoyer les rapports.</div>`:""}
-    ${shOn()?`<div class="sechead"><h2>${isFieldTech()?"Mes chantiers":"Chantiers"}</h2><button class="btn btn-ghost btn-sm" id="shRf">Actualiser</button></div><p class="hint" style="margin:-4px 2px 8px">${isFieldTech()?`Une fiche par chantier, partagée avec l'équipe : vous remplissez la partie <b>${myPoste()==="pose"?"pose":"électrique"}</b>.`:"Fiches partagées des chantiers du planning (pose + électricité)."}</p><div id="shMine"></div>`:""}<div class="sechead"><h2>${shOn()?"Sur cet appareil":"Fiches"}</h2></div>
+    ${shOn()?`<div class="sechead"><h2>${isFieldTech()?"Mes chantiers":"Chantiers"}</h2><button class="btn btn-ghost btn-sm" id="shRf">Actualiser</button></div><p class="hint" style="margin:-4px 2px 8px">${isFieldTech()?`Vous remplissez la fiche <b>${myPoste()==="pose"?"Pose":"Électricité"}</b> de chaque chantier. Les poseurs et les électriciens ont chacun leur propre fiche.`:"Deux fiches séparées par chantier : Pose (poseurs) et Électricité (électriciens)."}</p><div id="shMine"></div>`:""}<div class="sechead"><h2>${shOn()?"Sur cet appareil":"Fiches"}</h2></div>
     <div class="list">${rows.length? rows.map(f=>{const st=stats(f);return `<button class="card fcard" data-open="${esc(f._id)}">
-      <span class="c">${esc(f.client||"Client non renseigné")}${f.ref?` · ${esc(f.ref)}`:""}</span>
+      <span class="c">${f.met?(f.met==="pose"?"🔩 ":"⚡ "):""}${esc(f.client||"Client non renseigné")}${f.ref?` · ${esc(f.ref)}`:""}</span>
       <span class="chip ${f.status==="done"?"done":"draft"}">${f.status==="done"?"Terminée":"En cours "+st.pct+" %"}</span>
       <span class="m">${esc(frDate(f.date))}${f.tech?" · "+esc(f.tech):""}${f.adresse?" · "+esc(f.adresse):""}</span>
       ${f.notion&&f.notion.pageUrl&&!f.notion.pdfDone?`<span class="chip nc">PDF à joindre dans Notion</span>`:st.nc?`<span class="chip nc">${st.nc} NC</span>`:"<span></span>"}</button>`}).join("")
@@ -1636,7 +1635,7 @@ function render(){
   h+=cur.cfg?`<div class="cfgbar"><span>${esc(cfgLabel(cur.cfg))}</span><button id="cfgEdit">Modifier</button></div>`:`<div class="cfgbar"><span>Fiche complète (tous les points)</span><button id="cfgEdit">Adapter la fiche</button></div>`;
   // identification
   h+=secWrap("ident","i","Identification du chantier",`<div class="grid" style="margin-top:10px">${IDENT.map(([k,l,t,o])=>fld(k,l,cur[k],t,o)).join("")}</div>
-     <h3 class="sub2">Équipements du chantier</h3>${cur.cfg?`<div class="eqsum">${EQUIP.filter(([k])=>!/sn\d*$|^batpm\d*$|^grid$|^code$/.test(k)).map(([k,l])=>`<div><span>${esc(l)}</span><b>${esc(cur.equip[k]||"—")}</b></div>`).join("")}</div>
+     ${cur.met==="pose"?"":`<h3 class="sub2">Équipements du chantier</h3>`}${cur.met==="pose"?"":cur.cfg?`<div class="eqsum">${EQUIP.filter(([k])=>!/sn\d*$|^batpm\d*$|^grid$|^code$/.test(k)).map(([k,l])=>`<div><span>${esc(l)}</span><b>${esc(cur.equip[k]||"—")}</b></div>`).join("")}</div>
      <button class="btn btn-ghost btn-sm" id="eqEdit" type="button">Modifier les équipements</button><div class="grid" style="margin-top:10px">${EQUIP.filter(([k])=>/sn\d*$|^batpm\d*$|^grid$|^code$/.test(k)).map(([k,l])=>k==="grid"?fld("equip.grid",l,cur.equip.grid||"","sel",["","UTE C 15-712-1 (C)","IEC61727-60Hz"]):fld("equip."+k,l,cur.equip[k]||"")).join("")}</div>${snBoxHTML()}`
      :`<div class="grid">${EQUIP.map(([k,l])=>k==="grid"?fld("equip.grid",l,cur.equip.grid||"","sel",["","UTE C 15-712-1 (C)","IEC61727-60Hz"]):fld("equip."+k,l,cur.equip[k]||"")).join("")}</div>`}
      <div class="photos"><h4>${CAM} Photos</h4><div class="pslots">${IDENT_PHOTOS.map(([k,l,r])=>slotHTML(k,l,r)).join("")}</div></div>${notionBoxHTML()}`,
@@ -1786,7 +1785,7 @@ function initSigs(){
 }
 
 /* ---------- export PDF ---------- */
-function pdfName(){ const n=(stripEmoji(cur.client)||"client").replace(/[\\/:*?"<>|]+/g," ").replace(/\s+/g," ").trim(); return `Fiche autocontrôle - ${n}.pdf`; }
+function pdfName(){ const n=(stripEmoji(cur.client)||"client").replace(/[\\/:*?"<>|]+/g," ").replace(/\s+/g," ").trim(); return `Fiche autocontrôle${cur.met==="pose"?" pose":cur.met==="elec"?" électricité":""} - ${n}.pdf`; }
 async function loadAllPhotos(){ if(DB){ try{ const snap=await DB.collection("fiches").doc(curId).collection("photos").get(); snap.docs.forEach(d=>{const v=d.data(); if(v&&!photos[d.id]) photos[d.id]={slot:v.slot,cap:v.cap,data:v.data,pending:false};}); }catch(e){} } }
 function ab2b64(buf){ const u=new Uint8Array(buf); let s=""; for(let i=0;i<u.length;i+=0x8000) s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000)); return btoa(s); }
 async function exportPDF(silent){
@@ -1835,8 +1834,8 @@ function buildPDF(){
   const W=210,M=12,CW=W-2*M; let y=0, page=1;
   const OR=[239,123,26], GR=[70,71,72], ORL=[253,235,220], LG=[220,220,220];
   const clean=s=>String(s??"").replace(/[≥]/g,">=").replace(/[≤]/g,"<=").replace(/[Ωω]/g,"Ohm").replace(/[^\x00-\xFF€œŒ’‘“”…–—·]/g,"");
-  const head=()=>{ d.addImage(LOGO,"PNG",M,5.5,48,48*294/900); d.setTextColor(...GR); d.setFont(TF,"bold"); d.setFontSize(14); d.text("FICHE D'AUTOCONTRÔLE",W-M,12,{align:"right"});
-    d.setTextColor(...OR); d.setFont(PF,"normal"); d.setFontSize(9); d.text("Électricien photovoltaïque",W-M,17,{align:"right"});
+  const head=()=>{ d.addImage(LOGO,"PNG",M,5.5,48,48*294/900); d.setTextColor(...GR); d.setFont(TF,"bold"); d.setFontSize(14); d.text(cur&&cur.met==="pose"?"FICHE D'AUTOCONTRÔLE - POSE":cur&&cur.met==="elec"?"FICHE D'AUTOCONTRÔLE - ÉLECTRICITÉ":"FICHE D'AUTOCONTRÔLE",W-M,12,{align:"right"});
+    d.setTextColor(...OR); d.setFont(PF,"normal"); d.setFontSize(9); d.text(cur&&cur.met==="pose"?"Poseur photovoltaïque":"Électricien photovoltaïque",W-M,17,{align:"right"});
     d.setTextColor(...GR); d.setFontSize(7.5); d.text(clean(`${cur.client||""}   ·   ${frDate(cur.date)}`),W-M,22,{align:"right"});
     d.setFillColor(...OR); d.rect(0,25,W,1.2,"F"); y=31; };
   const foot=()=>{ d.setDrawColor(...OR); d.setLineWidth(0.3); d.line(M,287,W-M,287); d.setFontSize(6.5); d.setTextColor(...GR); d.setFont(PF,"normal");
@@ -1864,8 +1863,8 @@ function buildPDF(){
   head();
   sub("IDENTIFICATION DU CHANTIER");
   kvGrid([...(cur.cfg?[["Type de fiche",cfgLabel(cur.cfg)]]:[]),...IDENT.map(([k,l])=>[l, k==="date"?frDate(cur[k]):cur[k]])]);
-  sub("ÉQUIPEMENTS INSTALLÉS");
-  kvGrid(EQUIP.map(([k,l])=>[l,(cur.equip[k]||"")+(cur.equip[k]&&cur.snChk&&cur.snChk[k]?" (vérifié)":"")]));
+  if(EQUIP.length) sub("ÉQUIPEMENTS INSTALLÉS");
+  if(EQUIP.length) kvGrid(EQUIP.map(([k,l])=>[l,(cur.equip[k]||"")+(cur.equip[k]&&cur.snChk&&cur.snChk[k]?" (vérifié)":"")]));
   photoBlock(IDENT_PHOTOS);
   d.setFontSize(7); d.setFont(PF,"italic"); d.setTextColor(...GR); need(6); d.text("Légende : OUI = conforme · NON = non conforme · S.O. = sans objet.",M,y+3); y+=6;
   SECTIONS.forEach((s,i)=>{
@@ -4397,7 +4396,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1927;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1928;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
@@ -4409,19 +4408,29 @@ function otaStart(){ try{ if(window.AndroidBridge&&AndroidBridge.otaOk) AndroidB
 
 /* ---------- démarrage ---------- */
 
-/* ================= Fiche autocontrôle partagée (pose + électricité) ================= */
+/* ================= Fiches autocontrôle séparées : Pose / Électricité ================= */
 const SH={busy:false,t:0};
 const SH_LOCAL=["notion","status","setup","_cfgDraft","shared","snPulledAt","createdBy","updatedAt","createdAt"];
+const MET_TXT={pose:"Pose",elec:"Électricité"};
 const shOn=()=>!!(MCP&&hasToken()&&SESSION&&myPoste());
 const shPoste=()=>myPoste()||"elec";
-const shOwner=k=>(k==="sp"||/^sp_|^pose_/.test(String(k)))?"pose":"elec";
 function shLocked(){ const st=(cur&&cur.shared||{}).st; return shPoste()!=="rt"&&["À valider","Validé","Envoyé au client"].includes(st); }
+// fiche Pose : seulement la section pose (+ non-conformités) ; fiche Électricité : jamais la section pose
+let _shMetApplied=null;
+{ const _ac=applyCfg; applyCfg=function(f){ const met=(f&&f.met)||""; if(met!==_shMetApplied){ cfgApplied=null; _shMetApplied=met; }
+    const before=cfgApplied; _ac(f); if(cfgApplied===before&&before!==null) return;
+    if(met==="pose"){ const sp=MASTER.SECTIONS.find(x=>x.id==="sp"), nc=MASTER.SECTIONS.find(x=>x.id==="s11");
+      setArr(SECTIONS,[sp,nc].filter(Boolean).map(x=>Object.assign({},x,{so:false})));
+      setArr(IDENT,MASTER.IDENT.filter(([k])=>["client","adresse","date","tech"].includes(k))); setArr(EQUIP,[]); setArr(IDENT_PHOTOS,[]); }
+    else { const i=SECTIONS.findIndex(x=>x.id==="sp"); if(i>=0) SECTIONS.splice(i,1); } }; }
+applyCfg(null); { const i=SECTIONS.findIndex(x=>x.id==="sp"); if(i>=0) SECTIONS.splice(i,1); }
 function shStrip(f){ const o=JSON.parse(JSON.stringify(f||{})); SH_LOCAL.forEach(k=>delete o[k]); return o; }
 function shJSON(f){ let o=shStrip(f), t=JSON.stringify(o); if(t.length>190000&&o.sig){ Object.values(o.sig).forEach(x=>{ if(x) x.img=""; }); t=JSON.stringify(o); } return t; }
-function shMerge(local,remote,po){ if(!remote||po==="rt") return shStrip(local);
-  const E=po==="pose"?remote:shStrip(local), Po=po==="pose"?shStrip(local):remote; const out=JSON.parse(JSON.stringify(E));
-  ["ans","photoIdx","nc","so"].forEach(k=>{ out[k]=out[k]||{}; Object.keys(out[k]).forEach(x=>{ if(shOwner(x)==="pose") delete out[k][x]; }); Object.entries(Po[k]||{}).forEach(([x,v])=>{ if(shOwner(x)==="pose") out[k][x]=v; }); });
-  out.poseDone=Po.poseDone||null; return out; }
+// même métier : on garde ce qui est sur Notion et on y superpose ce qui est saisi sur ce téléphone
+function shMerge(local,remote){ const L=shStrip(local); if(!remote) return L; const out=JSON.parse(JSON.stringify(remote));
+  Object.keys(L).forEach(k=>{ const v=L[k]; if(v&&typeof v==="object"&&!Array.isArray(v)&&["ans","photoIdx","nc","so","cpl","ac","ms","equip","carnet","snChk"].includes(k)) out[k]=Object.assign({},out[k]||{},v); else if(v!==""&&v!==undefined&&v!==null) out[k]=v; });
+  Object.keys(out.photoIdx||{}).forEach(k=>{ const a=(remote.photoIdx||{})[k]||[], b=(L.photoIdx||{})[k]; if(b){ const ids=new Set(b.map(x=>x.id)); out.photoIdx[k]=b.concat(a.filter(x=>!ids.has(x.id)&&!(L._delPh||[]).includes(x.id))); } });
+  return out; }
 async function shReadData(pg){ const pr=((pg&&pg.properties)||{})["Données fiche"]; if(!pr) return null; let t=ptxt(pr);
   if((pr.rich_text||[]).length>=25&&pr.id){ const pid=/%/.test(pr.id)?pr.id:encodeURIComponent(pr.id); let all=[],c=null;
     do{ const j=await notion("GET","pages/"+pg.id+"/properties/"+pid+(c?"?start_cursor="+encodeURIComponent(c):"")); (j.results||[]).forEach(x=>{ if(x&&x.rich_text) all.push(x.rich_text.plain_text||""); }); c=j.has_more?j.next_cursor:null; }while(c);
@@ -4429,23 +4438,23 @@ async function shReadData(pg){ const pr=((pg&&pg.properties)||{})["Données fich
   try{ return t?JSON.parse(t):null; }catch(e){ return null; } }
 async function shBlocks(pid){ let all=[],c=null; do{ const j=await notion("GET","blocks/"+pid+"/children?page_size=100"+(c?"&start_cursor="+encodeURIComponent(c):"")); all=all.concat(j.results||[]); c=j.has_more?j.next_cursor:null; }while(c&&all.length<1000);
   const map={}; all.forEach(b=>{ const cap=((b.image||{}).caption||[]).map(x=>x.plain_text||(x.text&&x.text.content)||"").join(""); const m=cap.match(/^cxph:([^|]+)/); if(m) map[m[1]]=b.id; }); return map; }
-async function shEnsure(){ const sh=cur.shared; if(sh.pageId) return sh.pageId; const ev=sh.evId||evIdOf(cur.notion); if(!ev) return "";
-  const j=await notion("POST","databases/"+AUTO_DB+"/query",{page_size:5,filter:{property:"Chantier planning",relation:{contains:ev}},sorts:[{timestamp:"created_time",direction:"ascending"}]});
+const shTitle=f=>`Autocontrôle ${f.met==="pose"?"Pose":"Électricité"} — ${stripEmoji(f.client)||"chantier"} (${frDate(f.date)})`;
+async function shEnsure(){ const sh=cur.shared; if(sh.pageId) return sh.pageId; const ev=sh.evId||evIdOf(cur.notion); if(!ev) return ""; const met=cur.met||"elec";
+  const j=await notion("POST","databases/"+AUTO_DB+"/query",{page_size:5,filter:{and:[{property:"Chantier planning",relation:{contains:ev}},{property:"Métier",select:{equals:MET_TXT[met]}}]},sorts:[{timestamp:"created_time",direction:"ascending"}]});
   let pg=(j.results||[])[0];
-  if(!pg){ const props={"Rapport":{title:[{type:"text",text:{content:`Autocontrôle — ${stripEmoji(cur.client)||"chantier"} (${frDate(cur.date)})`}}]},"Type":{select:{name:"Contrôle"}},"Statut":{select:{name:"En cours"}},"Chantier planning":{relation:[{id:ev}]},"Technicien":rt(cur.tech||"")};
+  if(!pg){ const props={"Rapport":{title:[{type:"text",text:{content:shTitle(cur)}}]},"Type":{select:{name:"Contrôle"}},"Métier":{select:{name:MET_TXT[met]}},"Statut":{select:{name:"En cours"}},"Chantier planning":{relation:[{id:ev}]},"Technicien":rt(cur.tech||"")};
     if(cur.date) props["Date"]={date:{start:cur.date}};
-    pg=await notion("POST","pages",{parent:{database_id:AUTO_DB},icon:{type:"emoji",emoji:"📋"},properties:props}); }
+    pg=await notion("POST","pages",{parent:{database_id:AUTO_DB},icon:{type:"emoji",emoji:met==="pose"?"🔩":"⚡"},properties:props}); }
   sh.pageId=pg.id; sh.url=pg.url||nurl(pg.id); sh.evId=ev; return pg.id; }
 async function shSync(o){ o=o||{}; if(!cur||!cur.shared||!shOn()||SH.busy) return false; if(navigator.onLine===false){ if(!o.quiet) toast("Hors ligne : la fiche sera synchronisée au retour du réseau."); return false; }
-  SH.busy=true; const f0=cur, id0=curId; if(!o.quiet) setSave("Synchronisation avec l'équipe…");
+  SH.busy=true; const f0=cur, id0=curId; if(!o.quiet) setSave("Synchronisation…");
   try{ const pid=await shEnsure(); if(!pid) throw {message:"chantier du planning introuvable"};
     const pg=await notion("GET","pages/"+pid); const Pp=pg.properties||{}; const remote=await shReadData(pg);
     if(cur!==f0){ SH.busy=false; return false; }
-    const sh=cur.shared; Object.assign(sh,{st:ptxt(Pp["Statut"])||"En cours",com:ptxt(Pp["Commentaire validation"]),poseOk:pchkb(Pp["Pose terminée"]),elecOk:pchkb(Pp["Électricité terminée"]),url:pg.url||sh.url});
-    const po=shPoste(); const m=shMerge(cur,remote,po); const keep={}; SH_LOCAL.forEach(k=>{ if(cur[k]!==undefined) keep[k]=cur[k]; });
-    Object.keys(cur).forEach(k=>delete cur[k]); Object.assign(cur,blankFiche(),m,keep);
-    if(sh.st==="En correction"&&cur.status==="done"&&po!=="pose") cur.status="draft";
-    sh.poseOk=sh.poseOk||!!cur.poseDone;
+    const sh=cur.shared; Object.assign(sh,{st:ptxt(Pp["Statut"])||"En cours",com:ptxt(Pp["Commentaire validation"]),url:pg.url||sh.url});
+    const m=shMerge(cur,remote); const keep={}; SH_LOCAL.forEach(k=>{ if(cur[k]!==undefined) keep[k]=cur[k]; });
+    Object.keys(cur).forEach(k=>delete cur[k]); Object.assign(cur,blankFiche(),m,keep); delete cur._delPh;
+    if(sh.st==="En correction"&&cur.status==="done") cur.status="draft";
     cur.updatedAt=Date.now(); lsSet("cx_draft_"+id0,cur); dirty=true; flush();
     const blocks=await shBlocks(pid); await loadAllPhotos();
     for(const [slot,arr] of Object.entries(cur.photoIdx||{})) for(const x of (arr||[])){ if(photos[x.id]||!blocks[x.id]) continue;
@@ -4453,57 +4462,47 @@ async function shSync(o){ o=o||{}; if(!cur||!cur.shared||!shOn()||SH.busy) retur
       if(DB) try{ await DB.collection("fiches").doc(id0).collection("photos").doc(x.id).set({slot,cap:x.cap,data:d,at:Date.now()}); }catch(e){}
       try{ refreshSlot(slot); }catch(e){} }
     if(!o.pullOnly&&!shLocked()){
-      const add=[]; for(const [slot,arr] of Object.entries(cur.photoIdx||{})){ if(po!=="rt"&&shOwner(slot)!==po) continue;
-        for(const x of (arr||[])){ const p=photos[x.id]; if(!p||!p.data||blocks[x.id]) continue; const fid=await frcUploadImg(p.data,x.id+".jpg").catch(()=>null);
-          if(fid) add.push({type:"image",image:{type:"file_upload",file_upload:{id:fid},caption:[{type:"text",text:{content:"cxph:"+x.id+"|"+slot}}]}}); } }
+      const add=[]; for(const [slot,arr] of Object.entries(cur.photoIdx||{})) for(const x of (arr||[])){ const p=photos[x.id]; if(!p||!p.data||blocks[x.id]) continue; const fid=await frcUploadImg(p.data,x.id+".jpg").catch(()=>null);
+          if(fid) add.push({type:"image",image:{type:"file_upload",file_upload:{id:fid},caption:[{type:"text",text:{content:"cxph:"+x.id+"|"+slot}}]}}); }
       for(let i=0;i<add.length;i+=50) await notion("PATCH","blocks/"+pid+"/children",{children:add.slice(i,i+50)});
-      const me=SESSION?(SESSION.nom||SESSION.login):""; const props={"Données fiche":{rich_text:frcRt(shJSON(cur))}};
-      const nk=po==="pose"?"Poseurs":"Électriciens"; const cur2=ptxt(Pp[nk]); if(me&&po!=="rt"&&!cur2.split(/,\s*/).includes(me)) props[nk]=rt(cur2?cur2+", "+me:me);
-      if(po==="pose"||po==="rt") props["Pose terminée"]={checkbox:!!cur.poseDone};
-      if(po!=="pose"){ props["Rapport"]={title:[{type:"text",text:{content:`Autocontrôle — ${stripEmoji(cur.client)||"chantier"} (${frDate(cur.date)})`}}]}; if(cur.date) props["Date"]={date:{start:cur.date}}; }
+      const me=SESSION?(SESSION.nom||SESSION.login):""; const props={"Données fiche":{rich_text:frcRt(shJSON(cur))},"Rapport":{title:[{type:"text",text:{content:shTitle(cur)}}]},"Métier":{select:{name:MET_TXT[cur.met||"elec"]}}};
+      if(cur.date) props["Date"]={date:{start:cur.date}};
+      const nk=cur.met==="pose"?"Poseurs":"Électriciens"; const c2=ptxt(Pp[nk]); if(me&&shPoste()!=="rt"&&!c2.split(/,\s*/).includes(me)) props[nk]=rt(c2?c2+", "+me:me);
       await notion("PATCH","pages/"+pid,{properties:props}); }
-    sh.at=Date.now(); lsSet("cx_draft_"+id0,cur); dirty=true; flush(); if(!o.quiet) setSave("Synchronisé avec l'équipe"); SH.busy=false; return true;
+    sh.at=Date.now(); lsSet("cx_draft_"+id0,cur); dirty=true; flush(); if(!o.quiet) setSave("Synchronisée"); SH.busy=false; return true;
   }catch(e){ SH.busy=false; if(!o.quiet) setSave("Synchro impossible : "+((e&&e.message)||"erreur")); return false; } }
 function shRerender(){ if(!cur) return; const y=scrollY; render(); scrollTo(0,y); }
-function shDecorate(){ if(!cur||!cur.shared) return; const po=shPoste(), sh=cur.shared, lockAll=shLocked();
-  const w=document.querySelector("#app .wrap"); if(w&&!w.querySelector(".shbar")){ const b=document.createElement("div"); b.className="card shbar";
+function shDecorate(){ if(!cur||!cur.shared) return; const po=shPoste(), sh=cur.shared, lockAll=shLocked(), met=cur.met||"elec";
+  if(met==="pose"){ const cb=document.querySelector("#app .cfgbar"); if(cb) cb.remove(); }
+  const w=document.querySelector("#app .wrap"); if(w&&!w.querySelector(".shbar")){ const b=document.createElement("div"); b.className="card shbar "+(met==="pose"?"shp":"she");
     const stc=sh.st==="Validé"?"done":sh.st==="En correction"?"nc":sh.st==="À valider"?"g-m":"draft";
-    b.innerHTML=`<div class="sh-h"><b>Fiche partagée du chantier</b><span>${po==="pose"?"Vous remplissez la <b>partie pose</b>.":po==="rt"?"Responsable technique : toute la fiche est modifiable.":"Vous remplissez la <b>partie électrique</b> et envoyez la fiche au responsable technique."}</span></div>
-      <div class="sh-st"><span class="chip ${sh.poseOk||cur.poseDone?"done":"draft"}">Pose ${sh.poseOk||cur.poseDone?"terminée":"en cours"}</span><span class="chip ${sh.elecOk?"done":"draft"}">Électricité ${sh.elecOk?"terminée":"en cours"}</span>${sh.st?`<span class="chip ${stc}">${esc(sh.st)}</span>`:""}</div>
+    b.innerHTML=`<div class="sh-h"><b>${met==="pose"?"🔩 Fiche autocontrôle POSE":"⚡ Fiche autocontrôle ÉLECTRICITÉ"}</b><span>${met==="pose"?"Fiche des poseurs, séparée de celle des électriciens.":"Fiche des électriciens, séparée de celle des poseurs."}${po==="rt"?" Vous pouvez tout modifier (responsable technique).":""}</span></div>
+      ${sh.st?`<div class="sh-st"><span class="chip ${stc}">${esc(sh.st)}</span></div>`:""}
       ${sh.st==="En correction"&&sh.com?`<p class="sh-ko"><b>À corriger (responsable technique) :</b> ${esc(sh.com)}</p>`:""}
-      ${cur.poseDone?`<p class="sh-m">Partie pose terminée par ${esc(cur.poseDone.by||"?")} le ${esc(frDate(cur.poseDone.at||""))}</p>`:""}
+      ${lockAll?`<p class="sh-m">Fiche envoyée au responsable technique : lecture seule.</p>`:""}
       <div class="sh-a"><span class="sh-m">${sh.at?"Synchronisée à "+new Date(sh.at).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}):"Pas encore synchronisée"}</span><button class="btn btn-ghost btn-sm" id="shSync" type="button">Synchroniser</button></div>`;
-    w.insertBefore(b,w.firstChild); b.querySelector("#shSync").onclick=async()=>{ const bt=b.querySelector("#shSync"); bt.disabled=true; bt.textContent="Synchro…"; const ok=await shSync({}); shRerender(); toast(ok?"Fiche à jour avec l'équipe.":"Synchronisation impossible pour le moment."); }; }
-  document.querySelectorAll("#app section.sec").forEach(sec=>{ const id=sec.id.replace(/^sec_/,""); const own=shOwner(id);
-    if(lockAll||(po!=="rt"&&po!==own)){ sec.classList.add("ro"); const bd=sec.querySelector(".sec-b"); if(bd&&!bd.querySelector(".ronote")) bd.insertAdjacentHTML("afterbegin",`<p class="ronote">${lockAll?"Fiche envoyée au responsable technique : lecture seule.":own==="pose"?"Partie du poseur : lecture seule.":"Partie de l'électricien : lecture seule."}</p>`); } });
-  if(po==="pose"||lockAll){ const ce=$("#cfgEdit"); if(ce) ce.remove(); }
+    w.insertBefore(b,w.firstChild); b.querySelector("#shSync").onclick=async()=>{ const bt=b.querySelector("#shSync"); bt.disabled=true; bt.textContent="Synchro…"; const ok=await shSync({}); shRerender(); toast(ok?"Fiche à jour.":"Synchronisation impossible pour le moment."); }; }
+  if(lockAll){ document.querySelectorAll("#app section.sec").forEach(sec=>sec.classList.add("ro")); const ce=$("#cfgEdit"); if(ce) ce.remove(); }
   const dn=$("#done");
-  if(dn){ if(lockAll) dn.remove();
-    else if(po==="pose"){ dn.textContent=cur.poseDone?"Rouvrir ma partie":"Ma partie est terminée"; dn.onclick=shPoseDone; }
-    else { const old=dn.onclick; dn.onclick=async()=>{ if(cur.status==="done") return old(); await shElecDone(old); }; dn.textContent=cur.status==="done"?"Modifier":"Envoyer au resp. technique"; } }
-  if(po==="pose"){ const nb=$("#notionBtn"); if(nb) nb.remove(); }
+  if(dn){ if(lockAll) dn.remove(); else { const old=dn.onclick; dn.onclick=async()=>{ if(cur.status==="done") return old(); await shSync({}); if(sh.pageId) cur.notion=Object.assign({},cur.notion,{pageId:sh.pageId,pageUrl:sh.url||nurl(sh.pageId)}); await old(); if(cur&&cur.notion&&cur.notion.sentAt&&cur.status==="done"){ sh.st="À valider"; markDirty(); shRerender(); } }; dn.textContent=cur.status==="done"?"Modifier":"Envoyer au resp. technique"; } }
   if(isFieldTech()){ const df=$("#delF"); if(df) df.remove(); } }
-async function shPoseDone(){
-  if(cur.poseDone){ if(!await confirmBox("Rouvrir la partie pose pour la modifier ?","Rouvrir")) return; cur.poseDone=null; markDirty(); await shSync({}); shRerender(); return; }
-  const sec=SECTIONS.find(x=>x.id==="sp"); let miss=0; if(sec&&!cur.so.sp) sec.items.forEach(it=>{ if(!(cur.ans[it.id]||{}).s) miss++; });
-  if(miss&&!await confirmBox(`${miss} point(s) de la partie pose ne sont pas renseignés. Envoyer quand même ?`,"Envoyer")) return;
-  cur.poseDone={by:SESSION?(SESSION.nom||SESSION.login):"",at:ymd(new Date())}; markDirty();
-  const ok=await shSync({}); shRerender(); toast(ok?"Partie pose envoyée : l'électricien la retrouve dans la fiche du chantier.":"Enregistré sur l'appareil. Touchez « Synchroniser » quand le réseau revient."); }
-async function shElecDone(old){ await shSync({}); const sh=cur.shared;
-  if(!(sh.poseOk||cur.poseDone)&&!cur.so.sp&&!await confirmBox("Le poseur n'a pas encore terminé sa partie. Envoyer la fiche au responsable technique quand même ?","Envoyer")) return;
-  if(sh.pageId) cur.notion=Object.assign({},cur.notion,{pageId:sh.pageId,pageUrl:sh.url||nurl(sh.pageId)});
-  await old(); if(cur&&cur.notion&&cur.notion.sentAt&&cur.status==="done"){ sh.st="À valider"; sh.elecOk=true; markDirty(); shRerender(); } }
-{ const _bp=buildProps; buildProps=function(fid){ const p=_bp(fid); if(cur&&cur.shared&&cur.shared.pageId){ p["Données fiche"]={rich_text:frcRt(shJSON(cur))}; p["Électricité terminée"]={checkbox:true}; p["Commentaire validation"]=rt(""); const ev=cur.shared.evId||evIdOf(cur.notion); if(ev) p["Chantier planning"]={relation:[{id:ev}]}; const me=SESSION?(SESSION.nom||SESSION.login):""; if(me&&shPoste()==="elec") p["Électriciens"]=rt(me); if(cur.poseDone) p["Pose terminée"]={checkbox:true}; } return p; }; }
+{ const _bp=buildProps; buildProps=function(fid){ const p=_bp(fid); if(cur&&cur.shared&&cur.shared.pageId){ const met=cur.met||"elec"; p["Rapport"]={title:[{type:"text",text:{content:shTitle(cur)}}]}; p["Métier"]={select:{name:MET_TXT[met]}}; p["Données fiche"]={rich_text:frcRt(shJSON(cur))}; p[met==="pose"?"Pose terminée":"Électricité terminée"]={checkbox:true}; p["Commentaire validation"]=rt(""); const ev=cur.shared.evId||evIdOf(cur.notion); if(ev) p["Chantier planning"]={relation:[{id:ev}]}; } return p; }; }
 { const _md=markDirty; markDirty=function(){ _md(); if(cur&&cur.shared&&shOn()&&!shLocked()){ clearTimeout(SH.t); SH.t=setTimeout(()=>shSync({quiet:true}),20000); } }; }
+{ const _rp=removePhoto; removePhoto=async function(slot,pid){ const n=(cur.photoIdx[slot]||[]).length; await _rp(slot,pid); if(cur&&cur.shared&&(cur.photoIdx[slot]||[]).length<n){ (cur._delPh=cur._delPh||[]).push(pid); } }; }
 { const _of=openFiche; openFiche=function(id){ _of(id); if(cur&&cur.shared&&shOn()) shSync({}).then(ok=>{ if(ok) shRerender(); }); }; }
-{ const _ffp=ficheFromPlan; ficheFromPlan=function(p){ if(!shOn()) return _ffp(p); const ev=pageIdOf(p.url);
-    const ex=fiches.find(f=>f.notion&&nid(evIdOf(f.notion))===nid(ev)); if(ex){ openFiche(ex._id); if(cur&&!cur.shared){ cur.shared={evId:ev}; markDirty(); shSync({}).then(ok=>{ if(ok) shRerender(); }); } return; }
-    _ffp(p); if(!cur) return; cur.shared={evId:ev}; cur.so.sp=false; if(shPoste()==="pose") cur.setup=false; markDirty(); render();
-    toast("Recherche de la fiche partagée du chantier…"); shSync({}).then(ok=>{ if(ok) shRerender(); }); }; }
-async function shOpenPage(pg){ const ev=prel((pg.properties||{})["Chantier planning"])[0]||"";
+function shStart(p,met){ const ev=pageIdOf(p.url);
+  const ex=fiches.find(f=>f.met===met&&f.notion&&nid(evIdOf(f.notion))===nid(ev)); if(ex){ openFiche(ex._id); return; }
+  newFiche(true); cur.client=p.title; cur.date=p.start||today(); cur.tech=(p.tech||[]).join(", ");
+  cur.notion={eventId:p.id,eventUrl:p.url,eventTitle:p.title,chantierUrl:p.chantier||"",chantierName:""}; if(p.notes) cur.obs="Planning : "+p.notes;
+  cur.met=met; cur.shared={evId:ev}; if(met==="pose"){ cur.setup=false; if(SESSION&&SESSION.nom) cur.tech=SESSION.nom; } markDirty(); render();
+  toast(`Fiche ${MET_TXT[met]} du chantier…`); shSync({}).then(ok=>{ if(ok) shRerender(); }); }
+{ const _ffp=ficheFromPlan; ficheFromPlan=async function(p){ if(!shOn()) return _ffp(p); let met=myPoste();
+    if(met==="rt"){ met=await choiceBox("Quelle fiche autocontrôle ouvrir ?",[["elec","⚡ Fiche Électricité"],["pose","🔩 Fiche Pose"]]); if(!met) return; }
+    shStart(p,met); }; }
+async function shOpenPage(pg){ const Q=pg.properties||{}; const ev=prel(Q["Chantier planning"])[0]||""; const met=ptxt(Q["Métier"])==="Pose"?"pose":"elec";
   const ex=fiches.find(f=>f.shared&&nid(f.shared.pageId)===nid(pg.id)); if(ex){ openFiche(ex._id); return; }
   let d=null; try{ d=await shReadData(pg); }catch(e){} if(!d){ toast("Cette fiche n'a pas de contenu partagé."); return; }
-  curId="f_"+uid(); cur=Object.assign(blankFiche(),d,{setup:false,status:"draft",shared:{pageId:pg.id,url:pg.url||nurl(pg.id),evId:ev},notion:{eventId:ev,eventUrl:ev?nurl(ev):"",pageId:pg.id,pageUrl:pg.url||nurl(pg.id)},createdAt:Date.now(),updatedAt:Date.now()});
+  curId="f_"+uid(); cur=Object.assign(blankFiche(),d,{met,setup:false,status:"draft",shared:{pageId:pg.id,url:pg.url||nurl(pg.id),evId:ev},notion:{eventId:ev,eventUrl:ev?nurl(ev):"",pageId:pg.id,pageUrl:pg.url||nurl(pg.id)},createdAt:Date.now(),updatedAt:Date.now()});
   photos={}; openSecs=new Set(["ident"]); dirty=true; flush(); if(!DB) addLocal(); startPhotoSub(); render(); scrollTo(0,0);
   const ok=await shSync({pullOnly:true}); if(ok) shRerender(); }
 const SHL={items:null,loading:false,err:"",at:0};
@@ -4513,21 +4512,22 @@ async function shLoadMine(force){ if(SHL.loading||!shOn()) return; if(!force&&SH
     let evs=(j.results||[]).map(pg=>{ const Q=pg.properties||{}; const d=(Q["Date / Heure"]||{}).date||{}; return {id:pg.id,url:pg.url||nurl(pg.id),title:ptxt(Q["Événement"])||"Chantier",start:String(d.start||"").slice(0,10),tech:pmulti(Q["Technicien"]),notes:ptxt(Q["Notes"]),chantier:""}; });
     if(isFieldTech()) evs=evs.filter(e=>e.tech.some(isMe));
     const k=await notion("POST","databases/"+AUTO_DB+"/query",{page_size:100,filter:{property:"Chantier planning",relation:{is_not_empty:true}},sorts:[{timestamp:"created_time",direction:"descending"}]});
-    const map=new Map(); (k.results||[]).forEach(pg=>{ const Q=pg.properties||{}; prel(Q["Chantier planning"]).forEach(id=>{ if(!map.has(nid(id))) map.set(nid(id),{st:ptxt(Q["Statut"]),com:ptxt(Q["Commentaire validation"]),pose:pchkb(Q["Pose terminée"]),elec:pchkb(Q["Électricité terminée"])}); }); });
-    SHL.items=evs.map(e=>Object.assign(e,{f:map.get(nid(e.id))||null})); SHL.at=Date.now(); }
+    const map=new Map(); (k.results||[]).forEach(pg=>{ const Q=pg.properties||{}; const met=ptxt(Q["Métier"])==="Pose"?"pose":"elec"; prel(Q["Chantier planning"]).forEach(id=>{ const key=nid(id)+"|"+met; if(!map.has(key)) map.set(key,{st:ptxt(Q["Statut"])||"En cours",com:ptxt(Q["Commentaire validation"])}); }); });
+    SHL.items=evs.map(e=>Object.assign(e,{pose:map.get(nid(e.id)+"|pose")||null,elec:map.get(nid(e.id)+"|elec")||null})); SHL.at=Date.now(); }
   catch(e){ SHL.err=(e&&e.message)||"Erreur Notion"; }
   SHL.loading=false; drawShMine(); }
 function drawShMine(){ const el=$("#shMine"); if(!el) return;
   if(!SHL.items){ el.innerHTML=`<div class="card empty">${SHL.err?esc(SHL.err):"Lecture de vos chantiers…"}</div>`; return; }
   if(!SHL.items.length){ el.innerHTML=`<div class="card empty"><b>Aucun chantier</b>${isFieldTech()?"Aucun chantier ne vous est attribué dans le planning (45 derniers jours et 3 semaines à venir).":"Aucun chantier dans le planning sur la période."}</div>`; return; }
-  const ord=e=>!e.f?2:e.f.st==="En correction"?0:e.f.st==="En cours"?1:e.f.st==="À valider"?3:4;
+  const po=myPoste(); const mine=e=>po==="pose"?e.pose:po==="elec"?e.elec:null;
+  const ord=e=>{ const f=po==="rt"?(e.elec&&e.elec.st==="À valider"||e.pose&&e.pose.st==="À valider"?{st:"À valider"}:e.elec||e.pose):mine(e); return !f?2:f.st==="En correction"?0:f.st==="En cours"?1:f.st==="À valider"?3:4; };
+  const chip=(f,lbl)=>{ const st=f?f.st:"À démarrer"; const cls=st==="Validé"?"done":st==="En correction"?"nc":st==="À valider"?"g-m":"draft"; return `<span class="chip ${cls}">${lbl?lbl+" : ":""}${esc(st)}</span>`; };
   const L=SHL.items.slice().sort((a,b)=>ord(a)-ord(b)||String(b.start).localeCompare(String(a.start)));
-  el.innerHTML=(SHL.err?`<div class="card empty" style="margin-bottom:8px">${esc(SHL.err)}</div>`:"")+`<div class="list">${L.map((e,i)=>{ const f=e.f; const st=f?f.st||"En cours":"À démarrer";
-    const cls=st==="Validé"?"done":st==="En correction"?"nc":st==="À valider"?"g-m":"draft"; const loc=fiches.find(x=>x.notion&&nid(evIdOf(x.notion))===nid(e.id));
-    return `<button class="card fcard" data-shev="${i}"><span class="c">${esc(e.title)}</span><span class="chip ${cls}">${esc(st)}</span>
+  el.innerHTML=(SHL.err?`<div class="card empty" style="margin-bottom:8px">${esc(SHL.err)}</div>`:"")+`<div class="list">${L.map((e,i)=>{ const f=mine(e);
+    return `<button class="card fcard" data-shev="${i}"><span class="c">${esc(e.title)}</span>${po==="rt"?"<span></span>":chip(f)}
       <span class="m">${esc(frDate(e.start))}${e.tech.length?" · "+esc(e.tech.join(", ")):""}</span>
-      <span class="m">${f?`Pose ${f.pose?"✓":"…"} · Électricité ${f.elec?"✓":"…"}`:"Fiche pas encore commencée"}${loc?" · sur cet appareil":""}</span>
-      ${st==="En correction"&&f.com?`<span class="m sh-kol">À corriger : ${esc(f.com)}</span>`:""}</button>`; }).join("")}</div>`;
+      ${po==="rt"?`<span class="sh-two">${chip(e.pose,"🔩 Pose")}${chip(e.elec,"⚡ Élec")}</span>`:`<span class="m">${po==="pose"?"🔩 Fiche Pose":"⚡ Fiche Électricité"}${f?"":" · pas encore commencée"}</span>`}
+      ${f&&f.st==="En correction"&&f.com?`<span class="m sh-kol">À corriger : ${esc(f.com)}</span>`:""}</button>`; }).join("")}</div>`;
   el.querySelectorAll("[data-shev]").forEach(b=>b.onclick=()=>ficheFromPlan(L[+b.dataset.shev])); }
 
 function loadLocal(){}
