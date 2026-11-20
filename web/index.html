@@ -1206,7 +1206,14 @@ function secCount(f,s){
   let d=0,n=0; s.items.forEach(it=>{const a=f.ans[it.id]; if(a&&a.s){d++; if(a.s==="NC") n++;}});
   return {txt:`${d}/${s.items.length}`+(n?` · ${n} NC`:""), cls: n?"hasnc":(d===s.items.length?"full":"")};
 }
-function ncList(f){
+function ncList(f){ const out=ncListBase(f); const has=id=>out.some(x=>x.it.id===id); const off=s=>!s||(s.so&&f.so&&f.so[s.id]);
+  const mes=SECTIONS.find(x=>x.kind==="mes"), cpl=SECTIONS.find(x=>x.kind==="cpl"), rp=SECTIONS.find(x=>x.kind==="rep")||mes;
+  if(!off(mes)){ AC.forEach(([k,l])=>{ const v=(f.ac||{})[k]; if(v&&v.ok==="NOK") out.push({s:mes,it:{id:"ac_"+k,q:`${l} : non conforme${v.v?" (mesuré : "+v.v+")":""}`,h:""}}); });
+    (f.dc||[]).forEach((r,i)=>{ if(r&&r.pol==="NOK") out.push({s:mes,it:{id:"pol_"+i,q:`Chaîne ${i+1} : polarité non conforme`,h:""}}); }); }
+  if(!off(cpl)) CPL.forEach(([k,l])=>{ const v=(f.cpl||{})[k]; if(v&&v.ok==="NOK") out.push({s:cpl,it:{id:"cpl_"+k,q:`Couple de serrage non conforme : ${l}${v.a?" (appliqué : "+v.a+" N·m)":""}`,h:""}}); });
+  if(rp) Object.entries(f.ans||{}).forEach(([id,a])=>{ if(!a||a.s!=="NC"||has(id)) return; const m=id.match(/^cab_(.+)_(ser|den|sec)$/); if(m) out.push({s:rp,it:{id,q:`Câble ${m[1]} : ${({ser:"serrage",den:"dénudage",sec:"section adaptée"})[m[2]]} non conforme`,h:""}}); });
+  return out; }
+function ncListBase(f){
   applyCfg(f);
   const out=[]; SECTIONS.forEach(s=>{ if(!s.items||(s.so&&f.so[s.id])) return; s.items.forEach(it=>{ if(f.ans[it.id]?.s==="NC") out.push({s,it}); }); });
   return out;
@@ -1695,7 +1702,7 @@ function render(){
     }
     if(s.kind==="nc"){
       const L=ncList(cur);
-      body+= L.length? `<p class="note">Liste remplie automatiquement à partir des points cochés « Non ».</p>`+L.map(({s:ss,it})=>{const v=cur.nc[it.id]||{};return `<div class="ncbox"><div class="t">${esc(it.q)}</div><span style="font-size:12px;color:var(--muted)">Section : ${esc(ss.t)}${cur.ans[it.id].o?" · "+esc(cur.ans[it.id].o):""}</span>
+      body+= L.length? `<p class="note">Liste remplie automatiquement à partir des points cochés « Non ».</p>`+L.map(({s:ss,it})=>{const v=cur.nc[it.id]||{};return `<div class="ncbox"><div class="t">${esc(it.q)}</div><span style="font-size:12px;color:var(--muted)">Section : ${esc(ss.t)}${(cur.ans[it.id]||{}).o?" · "+esc(cur.ans[it.id].o):""}</span>
         <label class="f">Action corrective<input data-f="nc.${it.id}.act" id="i_nc_${it.id}_a" value="${esc(v.act||"")}"></label>
         <div class="grid"><label class="f">Responsable<input data-f="nc.${it.id}.resp" id="i_nc_${it.id}_r" value="${esc(v.resp||"")}"></label><label class="f">Date de levée<input type="date" data-f="nc.${it.id}.date" id="i_nc_${it.id}_d" value="${esc(v.date||"")}"></label></div></div>`}).join("")
         : `<p class="note">Aucune non-conformité. Les points cochés « Non » apparaîtront ici avec leur action corrective.</p>`;
@@ -1769,7 +1776,7 @@ function bindEditor(){
         if(key.startsWith("cab_")){ const box=sb.closest(".cab"); if(box) setTimeout(()=>box.classList.toggle("isnc",[...box.querySelectorAll(".seg button.on")].some(b=>b.dataset.v==="NC")),0); }
         if(v==="NC"&&prev!=="NC") setTimeout(()=>toast(key.startsWith("cab_")?"Non-conformité : ajoutez une photo dans les photos de la section.":"Non-conformité : ajoutez une photo avec le bouton appareil."),50); }
       sb.parentElement.querySelectorAll("button").forEach(b=>{const on=b===sb&&b.classList.contains("on")===false; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on);});
-      markDirty(); const nc=$("#sec_s11"); if(nc&&!key.includes(":")){ const y=scrollY; renderNcOnly(); scrollTo(0,y); }
+      markDirty(); const nc=$("#sec_s11"); if(nc){ const y=scrollY; renderNcOnly(); scrollTo(0,y); }
       return; }
     const ph=e.target.closest("[data-ph]"); if(ph){ pickPhoto(ph.dataset.ph, ph.dataset.cap); return; }
     const dp=e.target.closest("[data-delph]"); if(dp){ const [s,p]=dp.dataset.delph.split("|"); removePhoto(s,p); return; }
@@ -1908,7 +1915,7 @@ function buildPDF(){
       photoBlock(s.photos); }
     if(s.kind==="nc"){ secBar(`${num}. ${s.t}`); const L=ncList(cur);
       if(!L.length){ need(6); d.setFontSize(8); d.setFont(PF,"normal"); d.setTextColor(...GR); d.text("Aucune non-conformité relevée.",M,y+3.5); y+=8; }
-      else table(["Non-conformité","Action corrective","Responsable","Date levée"],[.4,.32,.15,.13],L.map(({it})=>{const v=cur.nc[it.id]||{}; return [it.q+(cur.ans[it.id].o?" ("+cur.ans[it.id].o+")":""),v.act||"",v.resp||"",frDate(v.date)];})); }
+      else table(["Non-conformité","Action corrective","Responsable","Date levée"],[.4,.32,.15,.13],L.map(({it})=>{const v=cur.nc[it.id]||{}; return [it.q+((cur.ans[it.id]||{}).o?" ("+cur.ans[it.id].o+")":""),v.act||"",v.resp||"",frDate(v.date)];})); }
   });
   secBar("Conclusion");
   need(10); d.setFontSize(9); d.setFont(PF,"bold"); d.setTextColor(...GR); d.text("Installation : ",M,y+4); d.setTextColor(...(cur.concl==="Conforme"?[30,138,76]:cur.concl?[200,50,43]:[120,120,120])); d.text(clean(cur.concl||"Non renseignée"),M+24,y+4); y+=8;
@@ -4421,7 +4428,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1930;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1931;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
