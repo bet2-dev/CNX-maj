@@ -1255,11 +1255,25 @@ $("#fileIn").addEventListener("change", async e=>{
     uploadPhoto(pid); }
   if(bad) toast(bad+" photo(s) illisible(s), réessayez avec d'autres images."); else if(ok>1) toast(ok+" photos ajoutées.");
 });
+const isQuota=e=>!!e&&(e.name==="QuotaExceededError"||e.code===22||e.code==="quota_exceeded"||/quota|space|storage/i.test(String(e.message||"")));
+// libère les photos des fiches déjà envoyées (PDF dans Notion) : plus anciennes d'abord, jamais la fiche ouverte
+async function phFree(keepId){ if(!DB||!DB.keys) return 0; let n=0;
+  const cands=(fiches||[]).filter(f=>f._id!==keepId&&f.status==="done"&&f.notion&&(f.notion.pdfDone||f.notion.pageId)).sort((a,b)=>(a.updatedAt||0)-(b.updatedAt||0));
+  for(const f of cands){ const ks=await DB.keys("fiches/"+f._id+"/photos/").catch(()=>[]); for(const k of ks){ try{ await DB.del(k); n++; }catch(e){} } if(n>=40) break; }
+  // photos orphelines (fiche supprimée)
+  try{ const ids=new Set((fiches||[]).map(f=>f._id)); if(keepId) ids.add(keepId); const all=await DB.keys("fiches/"); for(const k of all){ const p=String(k).split("/"); if(p.length===4&&p[2]==="photos"&&!ids.has(p[1])){ await DB.del(k); n++; } } }catch(e){}
+  return n; }
+try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(()=>{}); }catch(e){}
 async function uploadPhoto(pid){
   const ph=photos[pid]; if(!ph) return;
   if(!DB){ ph.pending=false; return; }
-  try{ await DB.collection("fiches").doc(curId).collection("photos").doc(pid).set({slot:ph.slot,cap:ph.cap,data:ph.data,at:Date.now()}); ph.pending=false; refreshSlot(ph.slot); }
-  catch(e){ toast(e&&e.code==="quota_exceeded"?"Espace photos plein : exportez le PDF puis supprimez d'anciennes fiches.":"Photo gardée sur l'appareil, envoi au prochain enregistrement."); setTimeout(()=>uploadPhoto(pid),10000); }
+  const fid=curId, save=()=>DB.collection("fiches").doc(fid).collection("photos").doc(pid).set({slot:ph.slot,cap:ph.cap,data:ph.data,at:Date.now()});
+  try{ await save(); ph.pending=false; ph.err=0; refreshSlot(ph.slot); }
+  catch(e){ let err=e;
+    if(isQuota(e)){ const freed=await phFree(fid); if(freed){ try{ await save(); ph.pending=false; ph.err=0; refreshSlot(ph.slot); toast(`Espace libéré (${freed} anciennes photos déjà envoyées dans Notion). Photo enregistrée.`); return; }catch(e2){ err=e2; } } }
+    ph.err=(ph.err||0)+1;
+    if(ph.err===1||ph.err%6===0) toast(isQuota(err)?"Mémoire du téléphone pleine pour l'appli : la photo reste affichée mais n'est pas enregistrée. Libérez de l'espace sur le téléphone (Paramètres › Stockage) puis rouvrez la fiche.":`Photo non enregistrée sur le téléphone (${(err&&(err.name||err.message))||"erreur"}). Nouvel essai automatique…`);
+    if(ph.err<30) setTimeout(()=>{ if(photos[pid]) uploadPhoto(pid); },10000); }
 }
 async function removePhoto(slot,pid){
   if(!await confirmBox("Supprimer cette photo ?","Supprimer")) return;
@@ -4308,12 +4322,20 @@ function makeLocalDB(){
   L.ready=new Promise((res,rej)=>{ const rq=indexedDB.open("conexun_autocontrole",1);
     rq.onupgradeneeded=()=>rq.result.createObjectStore("kv");
     rq.onsuccess=()=>{ L.idb=rq.result; res(); }; rq.onerror=()=>rej(rq.error); });
-  const tx=(mode,fn)=>new Promise((res,rej)=>{ const t=L.idb.transaction("kv",mode); const st=t.objectStore("kv"); const out=fn(st); t.oncomplete=()=>res(out&&out.result!==undefined?out.result:out); t.onerror=()=>rej(t.error); });
+  const tx=(mode,fn)=>new Promise((res,rej)=>{ const t=L.idb.transaction("kv",mode); const st=t.objectStore("kv"); const out=fn(st); t.oncomplete=()=>res(out&&out.result!==undefined?out.result:out); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error||new DOMException("Transaction abandonnée","AbortError")); });
   const get=k=>tx("readonly",st=>st.get(k));
   const put=(k,v)=>tx("readwrite",st=>st.put(v,k));
   const del=k=>tx("readwrite",st=>st.delete(k));
   const list=prefix=>new Promise((res,rej)=>{ const out=[]; const t=L.idb.transaction("kv","readonly"); const rq=t.objectStore("kv").openCursor(IDBKeyRange.bound(prefix,prefix+"￿"));
     rq.onsuccess=()=>{ const c=rq.result; if(c){ out.push({k:c.key,v:c.value}); c.continue(); } else res(out); }; rq.onerror=()=>rej(rq.error); });
+  const listAt=(prefix,depth)=>new Promise((res,rej)=>{ const t=L.idb.transaction("kv","readonly"); const st=t.objectStore("kv"); const keys=[];
+    const kc=st.openKeyCursor?st.openKeyCursor(IDBKeyRange.bound(prefix,prefix+"\uffff")):null;
+    if(!kc){ list(prefix).then(r=>res(r.filter(x=>x.k.split("/").length===depth)),rej); return; }
+    kc.onsuccess=()=>{ const c=kc.result; if(c){ if(String(c.key).split("/").length===depth) keys.push(c.key); c.continue(); }
+      else { const out=[]; let n=keys.length; if(!n){ res(out); return; } keys.forEach((k,i)=>{ const g=st.get(k); g.onsuccess=()=>{ out[i]={k,v:g.result}; if(--n===0) res(out); }; g.onerror=()=>rej(g.error); }); } };
+    kc.onerror=()=>rej(kc.error); });
+  L.keys=prefix=>new Promise((res,rej)=>{ const t=L.idb.transaction("kv","readonly"); const st=t.objectStore("kv"); const out=[]; const kc=(st.openKeyCursor||st.openCursor).call(st,IDBKeyRange.bound(prefix,prefix+"\uffff")); kc.onsuccess=()=>{ const c=kc.result; if(c){ out.push(c.key); c.continue(); } else res(out); }; kc.onerror=()=>rej(kc.error); });
+  L.del=k=>del(k);
   const emit=path=>{ const parent=path.split("/").slice(0,-1).join("/"); L.ls.filter(l=>l.col===parent).forEach(l=>l.run()); };
   class Doc{ constructor(p){ this.path=p; this.id=p.split("/").pop(); }
     async set(d){ await L.ready; await put(this.path,JSON.parse(JSON.stringify(d))); emit(this.path); }
@@ -4323,7 +4345,7 @@ function makeLocalDB(){
   class Col{ constructor(p){ this.path=p; }
     doc(id){ return new Doc(this.path+"/"+(id||uid())); }
     orderBy(){ return this; } limit(){ return this; }
-    async get(){ await L.ready; const depth=this.path.split("/").length+1; const rows=(await list(this.path+"/")).filter(r=>r.k.split("/").length===depth);
+    async get(){ await L.ready; const depth=this.path.split("/").length+1; const rows=await listAt(this.path+"/",depth);
       const docs=rows.map(r=>({id:r.k.split("/").pop(),exists:true,data:()=>r.v})); return {docs,size:docs.length,empty:!docs.length,docChanges:()=>docs.map(d=>({type:"added",doc:d}))}; }
     onSnapshot(next,err){ const l={col:this.path,run:async()=>{ try{ next(await this.get()); }catch(e){ err&&err(e); } }}; L.ls.push(l); l.run(); return ()=>{ L.ls=L.ls.filter(x=>x!==l); }; } }
   L.collection=p=>new Col(p); L.doc=p=>new Doc(p);
@@ -4399,7 +4421,7 @@ async function renderMonCompte(){
 
 
 /* ---- mises à jour automatiques ---- */
-const CX_WEB=1929;   // version de l'écran (augmentée à chaque mise à jour publiée)
+const CX_WEB=1930;   // version de l'écran (augmentée à chaque mise à jour publiée)
 function otaInfo(){ try{ if(window.AndroidBridge&&AndroidBridge.otaInfo){ const o=JSON.parse(AndroidBridge.otaInfo()||"{}"); try{ o.v=o.info?JSON.parse(o.info):{}; }catch(e){ o.v={}; } return o; } }catch(e){} return null; }
 function otaBanner(html,btn,fn){ let b=document.getElementById("otaBar"); if(!b){ b=document.createElement("div"); b.id="otaBar"; b.className="otabar"; document.body.appendChild(b); }
   b.innerHTML=`<span>${html}</span><button class="btn btn-or btn-sm" id="otaGo">${btn}</button><button class="btn btn-ghost btn-sm" id="otaX" aria-label="Plus tard">Plus tard</button>`;
